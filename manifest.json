@@ -1,0 +1,14 @@
+{
+  "name": "Color Generator Pro",
+  "id": "color-generator-pro",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  },
+  "editorType": ["figma"],
+  "capabilities": [],
+  "permissions": []
+}
