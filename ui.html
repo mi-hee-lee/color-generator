@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Generator</title>
     <style>
-        /* Color Generator - Styles */
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -27,7 +25,6 @@
             max-width: 100%;
         }
 
-        /* 탭 네비게이션 */
         .tab-navigation {
             display: flex;
             background: #f8f9fa;
@@ -90,7 +87,6 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             cursor: pointer;
-            background: none;
         }
 
         .hex-input {
@@ -101,222 +97,6 @@
             font-family: 'Monaco', monospace;
             font-size: 10px;
             text-transform: uppercase;
-        }
-
-        .range-group {
-            margin-bottom: 8px;
-        }
-
-        .range-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            font-size: 11px;
-        }
-
-        .range-input {
-            width: 100%;
-            height: 8px;
-            border-radius: 2px;
-            background: #e5e5e7;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .range-input::-webkit-slider-track {
-            width: 100%;
-            height: 4px;
-            background: #e5e5e7;
-            border-radius: 2px;
-            border: none;
-        }
-
-        .range-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #000;
-            cursor: pointer;
-            border: none;
-            margin-top: -5px;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        .range-input::-moz-range-track {
-            width: 100%;
-            height: 4px;
-            background: #e5e5e7;
-            border-radius: 2px;
-            border: none;
-        }
-
-        .range-input::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #000;
-            cursor: pointer;
-            border: none;
-            -moz-appearance: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        .range-input:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .range-input:disabled::-webkit-slider-thumb {
-            cursor: not-allowed;
-            background: #999;
-        }
-
-        .range-input:disabled::-moz-range-thumb {
-            cursor: not-allowed;
-            background: #999;
-        }
-
-        .info-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #e8e8e8;
-            color: #666;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: help;
-            transition: all 0.2s ease;
-            position: relative;
-            z-index: 10000;
-        }
-
-        .info-icon:hover {
-            background: #000;
-            color: white;
-            transform: scale(1.1);
-            z-index: 10001;
-        }
-
-        .info-icon::after {
-            content: "Fine Tuning은 색상의 명도를 조정하여 더 나은 시각적 조화를 만듭니다. Auto 모드는 색상 특성에 따라 자동으로 최적화하고, Manual 모드에서는 -10부터 +10까지 직접 조정할 수 있습니다.";
-            position: absolute;
-            top: 30px;
-            left: -80px;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: normal;
-            line-height: 1.3;
-            white-space: normal;
-            width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 10002;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .info-icon::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: -5px;
-            border: 5px solid transparent;
-            border-bottom-color: rgba(0, 0, 0, 0.9);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 10002;
-        }
-
-        .info-icon:hover::after,
-        .info-icon:hover::before {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .toggle-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .switch {
-            position: relative;
-            width: 32px;
-            height: 18px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 18px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        .switch input:checked + .slider {
-            background-color: #000;
-        }
-
-        .switch input:checked + .slider:before {
-            transform: translateX(14px);
-        }
-
-        .toggle-label {
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .status-badge {
-            font-size: 9px;
-            padding: 2px 6px;
-            border-radius: 12px;
-            background: #e8f5e8;
-            color: #2d5a2d;
-            font-weight: 500;
-            margin-top: 4px;
-        }
-
-        .auto-status {
-            background: #f0f0f0;
-            color: #000;
         }
 
         .mode-buttons {
@@ -390,26 +170,10 @@
             padding: 1px 3px;
             border-radius: 2px;
             transition: all 0.2s;
-            position: relative;
         }
 
         .color-hex:hover {
             background: #f0f8ff;
-            transform: scale(1.05);
-        }
-
-        .color-hex:active {
-            background: #e0f0ff;
-            transform: scale(0.95);
-        }
-
-        @keyframes copyFlash {
-            0% { background: #4CAF50; color: white; }
-            100% { background: transparent; color: inherit; }
-        }
-
-        .color-hex.copied {
-            animation: copyFlash 0.5s ease;
         }
 
         .contrast-info {
@@ -429,12 +193,6 @@
         .badge-aaa { background: #28a745; color: white; }
         .badge-aa { background: #ffc107; color: black; }
         .badge-a { background: #fd7e14; color: white; }
-
-        .input-label {
-            color: #000000;
-            font-weight: bold;
-            font-size: 7px;
-        }
 
         .action-buttons {
             display: flex;
@@ -469,17 +227,9 @@
             border: 1px solid #e0e0e0;
         }
 
-        .btn-secondary:hover {
-            background: #e9ecef;
-        }
-
         .btn-success {
             background: #28a745;
             color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
         }
 
         .success-message {
@@ -497,7 +247,45 @@
             display: block;
         }
 
-        /* 톤 매칭 섹션 */
+        .token-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .token-item:last-child {
+            border-bottom: none;
+        }
+
+        .token-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-right: 8px;
+        }
+
+        .token-name {
+            flex: 1;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .token-value {
+            font-size: 9px;
+            color: #666;
+            font-family: monospace;
+        }
+
         .reference-display {
             display: flex;
             align-items: center;
@@ -531,14 +319,6 @@
             font-size: 9px;
             color: #155724;
             margin: 0;
-        }
-
-        .tone-input-area {
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 2px dashed #000;
-            margin-bottom: 8px;
         }
 
         .tone-suggestions {
@@ -591,226 +371,6 @@
             color: #666;
             line-height: 1.2;
         }
-
-        .info-box {
-            background: #e8f5e8;
-            border: 1px solid #d4edda;
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 8px;
-        }
-
-        .info-box h5 {
-            color: #28a745;
-            font-size: 10px;
-            margin-bottom: 4px;
-        }
-
-        .info-box p {
-            font-size: 9px;
-            color: #155724;
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        /* 모달 스타일 */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 8px;
-            width: 320px;
-            max-width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #666;
-            cursor: pointer;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-body {
-            padding: 16px;
-        }
-
-        .modal-section {
-            margin-bottom: 16px;
-        }
-
-        .modal-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 6px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .modal-input:focus {
-            outline: none;
-            border-color: #000;
-        }
-
-        .modal-help {
-            font-size: 10px;
-            color: #666;
-            margin-top: 4px;
-            margin-bottom: 0;
-        }
-
-        .variable-preview {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .preview-item {
-            background: #000;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-family: 'Monaco', monospace;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 8px;
-            padding: 16px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .modal-footer .action-btn {
-            flex: 1;
-            margin-top: 0;
-        }
-
-        /* Auto Apply 스타일 */
-        .layer-rules {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 8px;
-        }
-
-        .rule-item {
-            margin-bottom: 12px;
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-            border-left: 3px solid #000;
-        }
-
-        .rule-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .rule-item strong {
-            color: #333;
-            font-size: 11px;
-        }
-
-        .rule-item code {
-            background: #e9ecef;
-            padding: 1px 4px;
-            border-radius: 2px;
-            font-family: 'Monaco', monospace;
-            font-size: 9px;
-            color: #495057;
-        }
-
-        .rule-desc {
-            color: #666;
-            font-size: 9px;
-            font-style: italic;
-        }
-
-        .auto-apply-preview {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 8px;
-        }
-
-        .preview-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 6px 8px;
-            background: white;
-            border-radius: 4px;
-        }
-
-        .preview-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .preview-label {
-            font-size: 11px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .preview-color {
-            font-family: 'Monaco', monospace;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 3px;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            min-width: 70px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -823,11 +383,13 @@
             <button class="tab-btn" id="toneMatchingTab">
                 Tone Matching
             </button>
+            <button class="tab-btn" id="tokenThemeTab">
+                Token Theme
+            </button>
         </div>
 
-        <!-- Color Scale Generator 탭 -->
+        <!-- Scale Generator 탭 -->
         <div id="generatorContent" class="tab-content active">
-            <!-- 색상 입력 -->
             <div class="section">
                 <div class="section-title">Base Color Input</div>
                 <div class="color-input-group">
@@ -836,230 +398,118 @@
                 </div>
             </div>
 
-            <!-- Fine Tuning -->
             <div class="section">
-                <div class="toggle-group" style="margin-bottom: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <div class="section-title" style="margin-bottom: 0;">Fine Tuning</div>
-                            <div class="info-icon">ⓘ</div>
-                        </div>
-                        <div class="status-badge" id="statusBadge">Manual Mode</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <label class="toggle-label">Auto</label>
-                        <label class="switch">
-                            <input type="checkbox" id="autoTuning">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="range-group">
-                    <div class="range-label">
-                        <span>Fine Tuning</span>
-                        <span id="tuningValue">0</span>
-                    </div>
-                    <input type="range" id="tuningSlider" class="range-input" min="-10" max="10" value="0">
-                </div>
-            </div>
-
-            <!-- 모드 선택 -->
-            <div class="section">
-                <div class="section-title">배경 모드</div>
+                <div class="section-title">Background Mode</div>
                 <div class="mode-buttons">
-                    <button class="mode-btn active" id="lightBtn">
-                        ☀️ Light
-                    </button>
-                    <button class="mode-btn" id="darkBtn">
-                        🌙 Dark
-                    </button>
+                    <button class="mode-btn active" id="lightBtn">☀️ Light</button>
+                    <button class="mode-btn" id="darkBtn">🌙 Dark</button>
                 </div>
             </div>
 
-            <!-- 색상 결과 -->
             <div class="section">
-                <div class="section-title">생성된 색상 팔레트</div>
-                <div class="color-grid" id="colorResults">
-                    <!-- 색상들이 여기에 동적으로 추가됩니다 -->
-                </div>
+                <div class="section-title">Generated Color Palette</div>
+                <div class="color-grid" id="colorResults"></div>
             </div>
 
-            <!-- 액션 버튼 -->
             <div class="action-buttons">
-                <button class="action-btn btn-primary" onclick="app.showVariableModal()">
-                    🎨 Variable로 만들기
+                <button class="action-btn btn-primary" id="createVariables">
+                    🎨 Create Variables
                 </button>
-                <button class="action-btn btn-success" onclick="app.showAutoApplyModal()">
-                    🚀 Auto Apply to Layers
+                <button class="action-btn btn-success" id="createDualMode">
+                    🌓 Create Light + Dark Variables
                 </button>
             </div>
         </div>
 
         <!-- Tone Matching 탭 -->
         <div id="toneMatchingContent" class="tab-content">
-            <!-- 기준 색상 설정 -->
             <div class="section">
                 <div class="section-title">Step 1: Set Reference Color</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">기준이 될 색상을 선택하세요.:</p>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">Choose a reference color for tone matching:</p>
                 
                 <div class="color-input-group">
-                    <input type="color" id="referenceColorPicker" class="color-picker" value="#667eea">
-                    <input type="text" id="referenceColorHex" class="hex-input" value="#667EEA" placeholder="#000000">
+                    <input type="color" id="referenceColor" class="color-picker" value="#667eea">
+                    <input type="text" id="referenceHex" class="hex-input" value="#667EEA">
                 </div>
                 
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
                     <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">📌 Set Reference</button>
-                    <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1; min-width: 60px;">Clear</button>
+                    <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1;">Clear</button>
                 </div>
                 
-                <div id="referenceStatus" style="color: #666; font-size: 10px; margin-top: 4px;">현재 설정된 기준 컬러가 없습니다.</div>
                 <div id="referenceDisplay"></div>
             </div>
             
-            <!-- 새 색상 입력 -->
             <div class="section">
-                <div class="section-title">Step 2: 새로운 컬러 입력하기</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">원하는 색상을 입력하면 톤 매칭이 제공됩니다.:</p>
+                <div class="section-title">Step 2: Input New Color</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">Enter a color to match with reference tone:</p>
                 
-                <div class="tone-input-area">
-                    <div class="color-input-group">
-                        <input type="color" id="newColorPicker" class="color-picker" value="#ff0000">
-                        <input type="text" id="newColorHex" class="hex-input" value="#FF0000" placeholder="#000000">
-                    </div>
-                    <button id="getSuggestionsBtn" class="action-btn btn-success" style="margin-top: 8px;">✨ Get Suggestions</button>
-                    <p style="font-size: 8px; color: #666; margin-top: 4px;">This color will be adjusted to match your reference tone</p>
+                <div class="color-input-group">
+                    <input type="color" id="newColor" class="color-picker" value="#ff0000">
+                    <input type="text" id="newColorHex" class="hex-input" value="#FF0000">
                 </div>
+                
+                <button id="getSuggestionsBtn" class="action-btn btn-success" style="margin-top: 8px;">
+                    ✨ Get Tone Suggestions
+                </button>
                 
                 <div id="toneMatchingResults"></div>
             </div>
         </div>
 
+        <!-- Token Theme 탭 -->
+        <div id="tokenThemeContent" class="tab-content">
+            <div class="section">
+                <div class="section-title">🎨 Theme Background Color</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">
+                    Set a background color to generate a complete theme
+                </p>
+                <div class="color-input-group">
+                    <input type="color" id="themeBackground" class="color-picker" value="#FFFFFF">
+                    <input type="text" id="themeBgHex" class="hex-input" value="#FFFFFF">
+                </div>
+            </div>
+
+            <div class="section">
+                <button class="action-btn btn-primary" id="generateTheme">
+                    🎨 Generate Token Theme
+                </button>
+            </div>
+
+            <div class="section" id="tokenPreviewSection" style="display: none;">
+                <div class="section-title">Generated Token Colors</div>
+                <div class="token-list" id="tokenList"></div>
+                
+                <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; margin-top: 12px;">
+                    <h4 style="font-size: 11px; margin-bottom: 8px;">📝 How it Works:</h4>
+                    <ol style="font-size: 10px; color: #666; margin: 0; padding-left: 20px;">
+                        <li>Select layers that have semantic token variables applied<br>
+                            <span style="font-size: 9px; color: #888;">
+                                (e.g., semantic/background/neutral-default)
+                            </span>
+                        </li>
+                        <li>Generate a theme based on your background color</li>
+                        <li>Click "Apply to Selected Layers" to update colors</li>
+                    </ol>
+                    <p style="font-size: 9px; color: #888; margin-top: 8px; margin-bottom: 0;">
+                        💡 The plugin reads the variable names from your layers and applies matching colors
+                    </p>
+                </div>
+                
+                <div class="action-buttons" style="margin-top: 12px;">
+                    <button class="action-btn btn-success" id="applyTokenTheme">
+                        ✅ Apply to Selected Layers
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 성공 메시지 -->
-        <div class="success-message" id="successMessage">
-            작업이 완료되었습니다! 🎉
-        </div>
-
-        <!-- Variable 생성 모달 -->
-        <div class="modal-backdrop" id="variableModal" style="display: none;">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3>🎨 Variable 생성</h3>
-                    <button class="modal-close" onclick="app.hideVariableModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-section">
-                        <label class="modal-label">Variable 이름</label>
-                        <input type="text" id="variableName" class="modal-input" placeholder="예: primary, blue, brand" value="">
-                        <p class="modal-help">입력 예시: "primary" → primary-50, primary-100, primary-200...</p>
-                    </div>
-                    <div class="modal-section">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <input type="checkbox" id="basicScaleOnly" style="margin: 0;">
-                            <label for="basicScaleOnly" style="font-size: 11px; color: #333;">기본 스케일만 생성 (100, 200, 300, 400, 500, 600, 700, 800, 900)</label>
-                        </div>
-                        <p class="modal-help">체크 시 특수한 케이스(50, 75, 150, 950)를 제외하고 기본 9단계만 생성합니다.</p>
-                    </div>
-                    <div class="modal-section">
-                        <label class="modal-label">미리보기</label>
-                        <div id="variablePreview" class="variable-preview">
-                            <span class="preview-item">color-50</span>
-                            <span class="preview-item">color-100</span>
-                            <span class="preview-item">color-200</span>
-                            <span class="preview-item">...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="action-btn btn-secondary" onclick="app.hideVariableModal()">취소</button>
-                    <button class="action-btn btn-primary" onclick="app.createColorVariables()">현재 모드만</button>
-                    <button class="action-btn btn-success" onclick="app.createDualModeVariables()" style="font-size: 10px;">🌓 Light + Dark</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Auto Apply 모달 -->
-        <div class="modal-backdrop" id="autoApplyModal" style="display: none;">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3>🚀 Auto Apply to Layers</h3>
-                    <button class="modal-close" onclick="app.hideAutoApplyModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-section">
-                        <label class="modal-label">Background Color (Base)</label>
-                        <div class="color-input-group">
-                            <input type="color" id="autoApplyBaseColor" class="color-picker" value="#667eea">
-                            <input type="text" id="autoApplyBaseHex" class="hex-input" value="#667EEA" placeholder="#000000">
-                        </div>
-                        <p class="modal-help">이 색상을 기준으로 접근성을 준수하는 색상 조합을 생성합니다.</p>
-                    </div>
-                    
-                    <div class="modal-section">
-                        <label class="modal-label">Layer Mapping Rules</label>
-                        <div class="layer-rules">
-                            <div class="rule-item">
-                                <strong>Background Layers:</strong><br>
-                                <code>background, bg, base, surface</code><br>
-                                <span class="rule-desc">→ Base color (400-500 range)</span>
-                            </div>
-                            <div class="rule-item">
-                                <strong>Surface Layers:</strong><br>
-                                <code>surface, card, panel, container</code><br>
-                                <span class="rule-desc">→ Lighter variant (100-200 range)</span>
-                            </div>
-                            <div class="rule-item">
-                                <strong>Foreground Layers:</strong><br>
-                                <code>foreground, fg, text, content</code><br>
-                                <span class="rule-desc">→ High contrast (700-800 range)</span>
-                            </div>
-                            <div class="rule-item">
-                                <strong>Accent Layers:</strong><br>
-                                <code>accent, primary, button, cta</code><br>
-                                <span class="rule-desc">→ Accessible contrast (600 range)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-section">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <input type="checkbox" id="previewMode" style="margin: 0;" checked>
-                            <label for="previewMode" style="font-size: 11px; color: #333;">Preview mode (테스트 후 적용)</label>
-                        </div>
-                        <p class="modal-help">선택한 레이어들을 먼저 미리보기로 확인한 후 최종 적용할 수 있습니다.</p>
-                    </div>
-
-                    <div class="modal-section">
-                        <label class="modal-label">Color Preview</label>
-                        <div id="autoApplyPreview" class="auto-apply-preview">
-                            <div class="preview-row">
-                                <div class="preview-label">Background:</div>
-                                <div class="preview-color" id="previewBg">#667EEA</div>
-                            </div>
-                            <div class="preview-row">
-                                <div class="preview-label">Surface:</div>
-                                <div class="preview-color" id="previewSurface">#E1E6FF</div>
-                            </div>
-                            <div class="preview-row">
-                                <div class="preview-label">Foreground:</div>
-                                <div class="preview-color" id="previewFg">#1232C2</div>
-                            </div>
-                            <div class="preview-row">
-                                <div class="preview-label">Accent:</div>
-                                <div class="preview-color" id="previewAccent">#2D4FE7</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="action-btn btn-secondary" onclick="app.hideAutoApplyModal()">취소</button>
-                    <button class="action-btn btn-primary" onclick="app.applyColorsToLayers()">🎨 Apply to Layers</button>
-                </div>
-            </div>
-        </div>
+        <div class="success-message" id="successMessage"></div>
     </div>
 
     <script>
-        // 1. 색상 유틸리티 클래스
+        // ===== 유틸리티 함수들 =====
         class ColorUtils {
             static hexToRgb(hex) {
                 const r = parseInt(hex.slice(1, 3), 16);
@@ -1102,11 +552,6 @@
             }
 
             static hslToRgb(h, s, l) {
-                h = isNaN(h) ? 0 : h % 360;
-                if (h < 0) h += 360;
-                s = Math.max(0, Math.min(100, isNaN(s) ? 0 : s));
-                l = Math.max(0, Math.min(100, isNaN(l) ? 50 : l));
-                
                 h /= 360;
                 s /= 100;
                 l /= 100;
@@ -1117,22 +562,10 @@
                     return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
                 };
                 
-                const r = Math.round(f(0) * 255);
-                const g = Math.round(f(8) * 255);
-                const b = Math.round(f(4) * 255);
-                
-                return [
-                    Math.max(0, Math.min(255, r)),
-                    Math.max(0, Math.min(255, g)),
-                    Math.max(0, Math.min(255, b))
-                ];
+                return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
             }
 
             static getLuminance(r, g, b) {
-                r = Math.max(0, Math.min(255, Math.round(r)));
-                g = Math.max(0, Math.min(255, Math.round(g)));
-                b = Math.max(0, Math.min(255, Math.round(b)));
-                
                 const [rs, gs, bs] = [r, g, b].map(c => {
                     c = c / 255;
                     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
@@ -1141,841 +574,328 @@
             }
 
             static getContrast(rgb1, rgb2) {
-                const r1 = rgb1.r !== undefined ? rgb1.r : rgb1[0];
-                const g1 = rgb1.g !== undefined ? rgb1.g : rgb1[1];
-                const b1 = rgb1.b !== undefined ? rgb1.b : rgb1[2];
-                
-                const r2 = rgb2.r !== undefined ? rgb2.r : rgb2[0];
-                const g2 = rgb2.g !== undefined ? rgb2.g : rgb2[1];
-                const b2 = rgb2.b !== undefined ? rgb2.b : rgb2[2];
-                
-                if (isNaN(r1) || isNaN(g1) || isNaN(b1) || isNaN(r2) || isNaN(g2) || isNaN(b2)) {
-                    console.error('Invalid RGB values:', rgb1, rgb2);
-                    return 1;
-                }
-                
-                const l1 = this.getLuminance(r1, g1, b1);
-                const l2 = this.getLuminance(r2, g2, b2);
-                
-                if (isNaN(l1) || isNaN(l2)) {
-                    console.error('Invalid luminance values:', l1, l2);
-                    return 1;
-                }
-                
+                const l1 = this.getLuminance(rgb1.r, rgb1.g, rgb1.b);
+                const l2 = this.getLuminance(rgb2.r, rgb2.g, rgb2.b);
                 const lighter = Math.max(l1, l2);
                 const darker = Math.min(l1, l2);
-                const contrast = (lighter + 0.05) / (darker + 0.05);
-                
-                return isNaN(contrast) ? 1 : contrast;
-            }
-
-            static isValidHex(hex) {
-                return /^#[0-9A-F]{6}$/i.test(hex);
+                return (lighter + 0.05) / (darker + 0.05);
             }
         }
 
-        // 2. 색상 입력 관리 클래스
-        class ColorInputManager {
-            constructor(colorPickerId, hexInputId, onChangeCallback) {
-                this.colorPicker = document.getElementById(colorPickerId);
-                this.hexInput = document.getElementById(hexInputId);
-                this.onChange = onChangeCallback;
-                this.setupListeners();
-            }
-
-            setupListeners() {
-                this.colorPicker.addEventListener('input', () => this.updateFromPicker());
-                this.hexInput.addEventListener('blur', () => this.updateFromHex());
-                this.hexInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.updateFromHex();
-                });
-            }
-
-            updateFromPicker() {
-                const hex = this.colorPicker.value;
-                this.hexInput.value = hex.toUpperCase();
-                this.onChange(hex);
-            }
-
-            updateFromHex() {
-                let hex = this.hexInput.value.trim();
-                if (!hex.startsWith('#')) hex = '#' + hex;
-                
-                if (ColorUtils.isValidHex(hex)) {
-                    this.colorPicker.value = hex;
-                    this.hexInput.value = hex.toUpperCase();
-                    this.onChange(hex);
-                } else {
-                    this.hexInput.value = this.colorPicker.value.toUpperCase();
-                }
-            }
-
-            setValue(hex) {
-                if (ColorUtils.isValidHex(hex)) {
-                    this.colorPicker.value = hex;
-                    this.hexInput.value = hex.toUpperCase();
-                }
-            }
-
-            getValue() {
-                return this.colorPicker.value;
-            }
-        }
-
-        // 3. 색상 생성 엔진
+        // ===== Color Generator =====
         class ColorGenerator {
             constructor() {
-                this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-                this.lightModeGrayTones = [
-                    '#FFFFFF', '#F7F7F7', '#F0F0F0', '#E8E8E8', '#DDDDDD', 
-                    '#CCCCCC', '#B4B4B4', '#9E9E9E', '#8A8A8A', '#6A6A6A', 
-                    '#464646', '#1F1F1F', '#000000'
-                ];
-                this.darkModeGrayTones = [
-                    '#0C0C0C', '#141414', '#1C1C1C', '#242424', '#313131',
-                    '#414141', '#525252', '#626262', '#808080', '#ADADAD',
-                    '#E3E3E3', '#F4F4F4', '#FCFCFC'
-                ];
-                this.DARK_BG = { r: 12, g: 12, b: 12 };
-                this.LIGHT_BG = { r: 255, g: 255, b: 255 };
+                this.steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+                this.currentMode = 'light';
             }
 
-            generateColors(inputHex, mode, autoTuningValue = 0) {
-                const [inputH, inputS, inputL] = ColorUtils.hexToHsl(inputHex);
+            generateColors(inputHex, mode) {
+                const [h, s, l] = ColorUtils.hexToHsl(inputHex);
                 const colors = [];
-                const backgroundRgb = mode === 'dark' ? this.DARK_BG : this.LIGHT_BG;
-                
-                this.currentMode = mode;
                 
                 this.steps.forEach((step, index) => {
-                    let finalHex;
+                    let lightness;
                     
-                    if (inputS < 5) {
-                        const grayTones = mode === 'dark' ? this.darkModeGrayTones : this.lightModeGrayTones;
-                        finalHex = grayTones[index];
+                    if (mode === 'light') {
+                        lightness = 95 - (index * 8.5);
                     } else {
-                        finalHex = this.generateTonedColor(inputH, inputS, 0, autoTuningValue, index);
+                        lightness = 5 + (index * 8.5);
                     }
                     
-                    if (step === 950 && finalHex === '#000000' && mode === 'light') {
-                        const darkRgb = ColorUtils.hslToRgb(inputH, Math.max(inputS * 0.8, 20), 15);
-                        finalHex = ColorUtils.rgbToHex(darkRgb[0], darkRgb[1], darkRgb[2]);
-                    }
+                    const [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
+                    const hex = ColorUtils.rgbToHex(r, g, b);
                     
-                    if (step === 50 && finalHex === '#FFFFFF' && mode === 'dark') {
-                        const lightRgb = ColorUtils.hslToRgb(inputH, Math.max(inputS * 0.8, 20), 85);
-                        finalHex = ColorUtils.rgbToHex(lightRgb[0], lightRgb[1], lightRgb[2]);
-                    }
+                    const backgroundRgb = mode === 'light' 
+                        ? { r: 255, g: 255, b: 255 }
+                        : { r: 0, g: 0, b: 0 };
                     
-                    const finalRgb = ColorUtils.hexToRgb(finalHex);
-                    if (!finalRgb || isNaN(finalRgb.r) || isNaN(finalRgb.g) || isNaN(finalRgb.b)) {
-                        if (mode === 'dark') {
-                            if (step <= 300) finalHex = '#404040';
-                            else if (step <= 600) finalHex = '#808080';
-                            else finalHex = '#C0C0C0';
-                        } else {
-                            if (step <= 200) finalHex = '#F0F0F0';
-                            else if (step <= 500) finalHex = '#808080';
-                            else finalHex = '#404040';
-                        }
-                        finalRgb = ColorUtils.hexToRgb(finalHex);
-                    }
-                    
-                    const actualContrast = ColorUtils.getContrast(finalRgb, backgroundRgb);
-                    const finalLightness = ColorUtils.hexToHsl(finalHex)[2];
-                    const lightnessDiff = Math.abs(finalLightness - inputL);
+                    const contrast = ColorUtils.getContrast(
+                        ColorUtils.hexToRgb(hex),
+                        backgroundRgb
+                    );
                     
                     colors.push({
                         step,
-                        hex: finalHex,
-                        lightness: finalLightness,
-                        contrast: isNaN(actualContrast) || actualContrast === 0 ? 1 : actualContrast,
-                        lightnessDiff: lightnessDiff,
-                        isClosest: false
+                        hex,
+                        contrast,
+                        isClosest: step === 500
                     });
                 });
                 
-                const closestColor = colors.reduce((prev, current) => 
-                    prev.lightnessDiff < current.lightnessDiff ? prev : current
-                );
-                closestColor.isClosest = true;
-                
                 return colors;
             }
-
-            generateTonedColor(h, s, targetLightness, autoTuningValue, stepIndex) {
-                const step = this.steps[stepIndex];
-                
-                let adjustedLightness;
-                
-                if (this.currentMode === 'dark') {
-                    switch(step) {
-                        case 50:  adjustedLightness = 8; break;
-                        case 75:  adjustedLightness = 12; break;
-                        case 100: adjustedLightness = 18; break;
-                        case 150: adjustedLightness = 25; break;
-                        case 200: adjustedLightness = 32; break;
-                        case 300: adjustedLightness = 40; break;
-                        case 400: adjustedLightness = 50; break;
-                        case 500: adjustedLightness = 60; break;
-                        case 600: adjustedLightness = 68; break;
-                        case 700: adjustedLightness = 75; break;
-                        case 800: adjustedLightness = 82; break;
-                        case 900: adjustedLightness = 88; break;
-                        case 950: adjustedLightness = 95; break;
-                        default: adjustedLightness = 50; break;
-                    }
-                } else {
-                    switch(step) {
-                        case 50:  adjustedLightness = 95; break;
-                        case 75:  adjustedLightness = 90; break;
-                        case 100: adjustedLightness = 85; break;
-                        case 150: adjustedLightness = 78; break;
-                        case 200: adjustedLightness = 70; break;
-                        case 300: adjustedLightness = 60; break;
-                        case 400: adjustedLightness = 50; break;
-                        case 500: adjustedLightness = 40; break;
-                        case 600: adjustedLightness = 32; break;
-                        case 700: adjustedLightness = 25; break;
-                        case 800: adjustedLightness = 18; break;
-                        case 900: adjustedLightness = 12; break;
-                        case 950: adjustedLightness = 8; break;
-                        default: adjustedLightness = 50; break;
-                    }
-                }
-                
-                adjustedLightness += autoTuningValue;
-                
-                if (autoTuningValue !== 0) {
-                    adjustedLightness += this.getColorAdjustment(h);
-                }
-                
-                let adjustedSaturation = this.getSaturationForStep(s, stepIndex);
-                adjustedSaturation = this.applyColorSpecificSaturationBoost(h, adjustedSaturation, stepIndex);
-                
-                adjustedLightness = Math.max(5, Math.min(98, adjustedLightness));
-                adjustedSaturation = Math.max(0, Math.min(100, adjustedSaturation));
-                
-                const [r, g, b] = ColorUtils.hslToRgb(h, adjustedSaturation, adjustedLightness);
-                return ColorUtils.rgbToHex(r, g, b);
-            }
-
-            getColorAdjustment(hue) {
-                if (hue >= 45 && hue <= 75) return -6;
-                if (hue >= 15 && hue <= 45) return -4;
-                if (hue >= 345 || hue <= 15) return -2;
-                if (hue >= 270 && hue <= 300) return 3;
-                if (hue >= 210 && hue <= 270) return 4;
-                if (hue >= 180 && hue <= 210) return 2;
-                if (hue >= 150 && hue <= 180) return 2;
-                if (hue >= 75 && hue <= 90) return -2;
-                return 0;
-            }
-
-            getSaturationForStep(baseSaturation, stepIndex) {
-                const step = this.steps[stepIndex];
-                
-                switch(step) {
-                    case 50:   return Math.max(baseSaturation * 0.5, 12);
-                    case 75:   return Math.max(baseSaturation * 0.75, 25);
-                    case 100:  return Math.max(baseSaturation * 0.8, 22);
-                    case 150:  return Math.max(baseSaturation * 0.85, 25);
-                    case 200:  return Math.max(baseSaturation * 0.9, 28);
-                    case 300:  return Math.max(baseSaturation * 0.93, 30);
-                    case 400:  return Math.max(baseSaturation * 0.97, 32);
-                    case 500:  return baseSaturation;
-                    case 600:  return Math.min(baseSaturation * 1.05, 100);
-                    case 700:  return Math.min(baseSaturation * 1.1, 100);
-                    case 800:  return Math.min(baseSaturation * 1.15, 100);
-                    case 900:  return Math.min(baseSaturation * 1.2, 100);
-                    case 950:  return Math.min(baseSaturation * 1.25, 100);
-                    default:   return baseSaturation;
-                }
-            }
-
-            applyColorSpecificSaturationBoost(hue, currentSaturation, stepIndex) {
-                const step = this.steps[stepIndex];
-                
-                if (step > 300) return currentSaturation;
-                
-                let boostFactor = 1.0;
-                
-                if (hue >= 0 && hue <= 30) {
-                    boostFactor = 1.3;
-                } else if (hue >= 30 && hue <= 60) {
-                    boostFactor = 1.2;
-                } else if (hue >= 60 && hue <= 120) {
-                    boostFactor = 1.4;
-                } else if (hue >= 120 && hue <= 180) {
-                    boostFactor = 1.35;
-                } else if (hue >= 180 && hue <= 240) {
-                    boostFactor = 1.4;
-                } else if (hue >= 240 && hue <= 300) {
-                    boostFactor = 1.35;
-                } else if (hue >= 300 && hue <= 360) {
-                    boostFactor = 1.3;
-                }
-                
-                const stepBoost = step === 50 ? 1.2 : 
-                                 step === 75 ? 1.6 :
-                                 step === 100 ? 1.4 : 
-                                 step === 150 ? 1.3 : 
-                                 step === 200 ? 1.2 :
-                                 step === 300 ? 1.1 : 1.0;
-                
-                return Math.min(currentSaturation * boostFactor * stepBoost, 100);
-            }
-
-            calculateAutoTuning(hex) {
-                const [h, s, l] = ColorUtils.hexToHsl(hex);
-                let autoValue = this.getColorAdjustment(h);
-                
-                if (s > 80) autoValue -= 1;
-                else if (s < 40) autoValue += 1;
-                if (l > 70) autoValue -= 1;
-                else if (l < 40) autoValue += 1;
-                
-                return Math.max(-10, Math.min(10, autoValue));
-            }
         }
 
-        // 4. 메시지 핸들러
-        class MessageHandler {
+        // ===== Token Theme Manager =====
+        class TokenThemeManager {
             constructor() {
-                this.successElement = document.getElementById('successMessage');
+                this.tokenDefinitions = {
+                    'text-bold': { contrastMin: 7 },
+                    'text-default': { contrastMin: 4.5 },
+                    'text-subtle': { contrastMin: 3 },
+                    'text-disabled': { contrastMin: 2 },
+                    'icon-bold': { contrastMin: 7 },
+                    'icon-default': { contrastMin: 4.5 },
+                    'icon-subtle': { contrastMin: 3 },
+                    'surface-default': { contrastMin: 1 },
+                    'surface-subtle': { contrastMin: 1 },
+                    'border-bold': { contrastMin: 3 },
+                    'border-subtle': { contrastMin: 1.5 }
+                };
             }
 
-            showSuccess(message, duration = 3000) {
-                this.successElement.textContent = message;
-                this.successElement.className = 'success-message show';
-                setTimeout(() => {
-                    this.successElement.className = 'success-message';
-                }, duration);
-            }
-
-            sendToFigma(type, data) {
-                parent.postMessage({ 
-                    pluginMessage: { 
-                        type,
-                        ...data
+            generateTheme(backgroundHex) {
+                const bgRgb = ColorUtils.hexToRgb(backgroundHex);
+                const bgLuminance = ColorUtils.getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+                const isDark = bgLuminance < 0.5;
+                
+                const theme = {
+                    background: backgroundHex,
+                    tokens: {},
+                    mode: isDark ? 'dark' : 'light'
+                };
+                
+                // Generate tokens based on background
+                for (const [tokenName, config] of Object.entries(this.tokenDefinitions)) {
+                    if (tokenName.includes('text') || tokenName.includes('icon')) {
+                        // For text/icons, use contrasting colors
+                        theme.tokens[tokenName] = isDark ? '#FFFFFF' : '#000000';
+                        
+                        if (tokenName.includes('subtle')) {
+                            theme.tokens[tokenName] = isDark ? '#CCCCCC' : '#666666';
+                        } else if (tokenName.includes('disabled')) {
+                            theme.tokens[tokenName] = isDark ? '#808080' : '#999999';
+                        }
+                    } else if (tokenName.includes('surface')) {
+                        // For surfaces, use variations of background
+                        const [h, s, l] = ColorUtils.hexToHsl(backgroundHex);
+                        const adjustedL = tokenName.includes('subtle') 
+                            ? (isDark ? l + 5 : l - 5)
+                            : (isDark ? l + 10 : l - 10);
+                        const [r, g, b] = ColorUtils.hslToRgb(h, s, Math.max(0, Math.min(100, adjustedL)));
+                        theme.tokens[tokenName] = ColorUtils.rgbToHex(r, g, b);
+                    } else if (tokenName.includes('border')) {
+                        // For borders
+                        theme.tokens[tokenName] = tokenName.includes('bold')
+                            ? (isDark ? '#FFFFFF' : '#000000')
+                            : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)');
                     }
-                }, '*');
-            }
-
-            handlePluginMessage(message) {
-                switch (message.type) {
-                    case 'plugin-ready':
-                        console.log('플러그인 준비 완료:', message.message);
-                        break;
-                    default:
-                        console.log('알 수 없는 메시지:', message.type);
                 }
+                
+                return theme;
             }
         }
 
-        // 5. 메인 앱 클래스
+        // ===== Main App =====
         class ColorGeneratorApp {
             constructor() {
                 this.colorGenerator = new ColorGenerator();
-                this.messageHandler = new MessageHandler();
+                this.tokenThemeManager = new TokenThemeManager();
                 this.currentMode = 'light';
                 this.generatedColors = [];
+                this.currentTheme = null;
                 this.referenceColor = null;
                 
                 this.init();
             }
 
             init() {
-                this.setupColorInputs();
                 this.setupEventListeners();
                 this.updateDisplay();
-            }
-
-            setupColorInputs() {
-                this.baseColorInput = new ColorInputManager(
-                    'baseColor', 
-                    'hexInput', 
-                    () => this.updateDisplay()
-                );
-
-                this.referenceColorInput = new ColorInputManager(
-                    'referenceColorPicker',
-                    'referenceColorHex',
-                    () => {}
-                );
-
-                this.newColorInput = new ColorInputManager(
-                    'newColorPicker',
-                    'newColorHex',
-                    () => {}
-                );
-
-                this.autoApplyColorInput = new ColorInputManager(
-                    'autoApplyBaseColor',
-                    'autoApplyBaseHex',
-                    () => this.updateAutoApplyPreview()
-                );
+                
+                // Listen for messages from Figma
+                window.addEventListener('message', (event) => {
+                    const msg = event.data.pluginMessage;
+                    if (msg) {
+                        this.handlePluginMessage(msg);
+                    }
+                });
             }
 
             setupEventListeners() {
-                document.getElementById('autoTuning').addEventListener('change', (e) => {
-                    if (!e.target.checked) {
-                        document.getElementById('tuningSlider').value = 0;
-                        document.getElementById('tuningValue').textContent = '0';
-                    }
+                // Tab switching
+                document.getElementById('generatorTab').addEventListener('click', () => {
+                    this.switchTab('generator');
+                });
+                
+                document.getElementById('toneMatchingTab').addEventListener('click', () => {
+                    this.switchTab('tone-matching');
+                });
+                
+                document.getElementById('tokenThemeTab').addEventListener('click', () => {
+                    this.switchTab('token');
+                });
+                
+                // Color input
+                const baseColor = document.getElementById('baseColor');
+                const hexInput = document.getElementById('hexInput');
+                
+                baseColor.addEventListener('input', () => {
+                    hexInput.value = baseColor.value.toUpperCase();
                     this.updateDisplay();
                 });
-
-                const tuningSlider = document.getElementById('tuningSlider');
-                const handleSliderChange = () => {
-                    if (!document.getElementById('autoTuning').checked) {
-                        const value = parseInt(tuningSlider.value) || 0;
-                        document.getElementById('tuningValue').textContent = value;
+                
+                hexInput.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(hexInput.value)) {
+                        baseColor.value = hexInput.value;
                         this.updateDisplay();
                     }
-                };
+                });
                 
-                tuningSlider.addEventListener('input', handleSliderChange);
-                tuningSlider.addEventListener('change', handleSliderChange);
-
-                document.getElementById('lightBtn').addEventListener('click', () => this.setMode('light'));
-                document.getElementById('darkBtn').addEventListener('click', () => this.setMode('dark'));
-
-                document.getElementById('generatorTab').addEventListener('click', () => this.switchTab('generator'));
-                document.getElementById('toneMatchingTab').addEventListener('click', () => this.switchTab('tone-matching'));
-
-                document.getElementById('variableName').addEventListener('input', () => this.updateVariablePreview());
-                document.getElementById('basicScaleOnly').addEventListener('change', () => this.updateVariablePreview());
-
-                document.getElementById('setRefBtn').addEventListener('click', () => this.setReferenceColor());
-                document.getElementById('clearRefBtn').addEventListener('click', () => this.clearReference());
-                document.getElementById('getSuggestionsBtn').addEventListener('click', () => this.generateToneMatching());
-
-                document.getElementById('variableModal').addEventListener('click', (e) => {
-                    if (e.target.id === 'variableModal') {
-                        this.hideVariableModal();
+                // Mode buttons
+                document.getElementById('lightBtn').addEventListener('click', () => {
+                    this.setMode('light');
+                });
+                
+                document.getElementById('darkBtn').addEventListener('click', () => {
+                    this.setMode('dark');
+                });
+                
+                // Action buttons
+                document.getElementById('createVariables').addEventListener('click', () => {
+                    this.createVariables(false);
+                });
+                
+                document.getElementById('createDualMode').addEventListener('click', () => {
+                    this.createVariables(true);
+                });
+                
+                // Tone Matching
+                const referenceColor = document.getElementById('referenceColor');
+                const referenceHex = document.getElementById('referenceHex');
+                
+                referenceColor.addEventListener('input', () => {
+                    referenceHex.value = referenceColor.value.toUpperCase();
+                });
+                
+                referenceHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(referenceHex.value)) {
+                        referenceColor.value = referenceHex.value;
                     }
                 });
-
-                document.getElementById('autoApplyModal').addEventListener('click', (e) => {
-                    if (e.target.id === 'autoApplyModal') {
-                        this.hideAutoApplyModal();
+                
+                document.getElementById('setRefBtn').addEventListener('click', () => {
+                    this.setReferenceColor();
+                });
+                
+                document.getElementById('clearRefBtn').addEventListener('click', () => {
+                    this.clearReference();
+                });
+                
+                const newColor = document.getElementById('newColor');
+                const newColorHex = document.getElementById('newColorHex');
+                
+                newColor.addEventListener('input', () => {
+                    newColorHex.value = newColor.value.toUpperCase();
+                });
+                
+                newColorHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(newColorHex.value)) {
+                        newColor.value = newColorHex.value;
                     }
                 });
-
-                window.addEventListener('message', (event) => {
-                    const message = event.data.pluginMessage;
-                    if (message) this.messageHandler.handlePluginMessage(message);
+                
+                document.getElementById('getSuggestionsBtn').addEventListener('click', () => {
+                    this.generateToneMatching();
+                });
+                
+                // Token Theme
+                const themeBackground = document.getElementById('themeBackground');
+                const themeBgHex = document.getElementById('themeBgHex');
+                
+                themeBackground.addEventListener('input', () => {
+                    themeBgHex.value = themeBackground.value.toUpperCase();
+                });
+                
+                themeBgHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(themeBgHex.value)) {
+                        themeBackground.value = themeBgHex.value;
+                    }
+                });
+                
+                document.getElementById('generateTheme').addEventListener('click', () => {
+                    this.generateTokenTheme();
+                });
+                
+                document.getElementById('applyTokenTheme')?.addEventListener('click', () => {
+                    this.applyTokenTheme();
                 });
             }
 
-            updateDisplay() {
-                const inputHex = this.baseColorInput.getValue();
-                const isAutoMode = document.getElementById('autoTuning').checked;
+            switchTab(tab) {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
                 
-                let autoTuningValue = 0;
-                if (isAutoMode) {
-                    autoTuningValue = this.colorGenerator.calculateAutoTuning(inputHex);
-                    document.getElementById('tuningSlider').value = autoTuningValue;
-                    document.getElementById('tuningSlider').disabled = true;
+                if (tab === 'generator') {
+                    document.getElementById('generatorTab').classList.add('active');
+                    document.getElementById('generatorContent').classList.add('active');
+                } else if (tab === 'tone-matching') {
+                    document.getElementById('toneMatchingTab').classList.add('active');
+                    document.getElementById('toneMatchingContent').classList.add('active');
                 } else {
-                    autoTuningValue = parseInt(document.getElementById('tuningSlider').value) || 0;
-                    document.getElementById('tuningSlider').disabled = false;
+                    document.getElementById('tokenThemeTab').classList.add('active');
+                    document.getElementById('tokenThemeContent').classList.add('active');
                 }
-                
-                document.getElementById('tuningValue').textContent = autoTuningValue;
-                this.updateStatusBadge(isAutoMode, autoTuningValue);
-                
-                this.generatedColors = this.colorGenerator.generateColors(inputHex, this.currentMode, autoTuningValue);
-                this.displayColors();
-            }
-
-            updateStatusBadge(isAutoMode, value) {
-                const statusBadge = document.getElementById('statusBadge');
-                if (isAutoMode) {
-                    statusBadge.textContent = `Auto: ${value > 0 ? '+' : ''}${value}`;
-                    statusBadge.className = 'status-badge auto-status';
-                } else {
-                    statusBadge.textContent = 'Manual Mode';
-                    statusBadge.className = 'status-badge';
-                }
-            }
-
-            displayColors() {
-                const container = document.getElementById('colorResults');
-                container.innerHTML = '';
-                
-                this.generatedColors.forEach(color => {
-                    const row = this.createColorRow(color);
-                    container.appendChild(row);
-                });
-            }
-
-            createColorRow(color) {
-                let badge = '';
-                const contrast = isNaN(color.contrast) ? 1 : color.contrast;
-                
-                if (contrast >= 7) badge = '<span class="accessibility-badge badge-aaa">AAA</span>';
-                else if (contrast >= 4.5) badge = '<span class="accessibility-badge badge-aa">AA</span>';
-                else if (contrast >= 3) badge = '<span class="accessibility-badge badge-a">A</span>';
-                
-                const row = document.createElement('div');
-                row.className = color.isClosest ? 'color-row closest' : 'color-row';
-                
-                const rgb = ColorUtils.hexToRgb(color.hex);
-                const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
-                
-                const contrastText = isNaN(contrast) ? '1.00' : contrast.toFixed(2);
-                
-                row.innerHTML = `
-                    <div class="color-swatch" style="background: ${color.hex}; color: ${textColor}">
-                        ${color.step}${color.isClosest ? ' ★' : ''}
-                    </div>
-                    <div class="color-info">
-                        <span class="color-hex" onclick="app.copyColor('${color.hex}')" title="클릭하여 복사">
-                            ${color.hex.toUpperCase()}
-                        </span>
-                        <div class="contrast-info">
-                            <span>${contrastText}:1</span>
-                            ${badge}
-                            ${color.isClosest ? '<span class="input-label">INPUT</span>' : ''}
-                        </div>
-                    </div>
-                `;
-                
-                return row;
-            }
-
-            copyColor(hex) {
-                const clickedElement = event.target;
-                clickedElement.classList.add('copied');
-                setTimeout(() => clickedElement.classList.remove('copied'), 500);
-
-                try {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(hex).then(() => {
-                            this.messageHandler.showSuccess(`📋 ${hex} 복사됨!`);
-                        }).catch(() => this.fallbackCopyMethod(hex));
-                    } else {
-                        this.fallbackCopyMethod(hex);
-                    }
-                } catch (error) {
-                    this.fallbackCopyMethod(hex);
-                }
-            }
-
-            fallbackCopyMethod(hex) {
-                try {
-                    const tempInput = document.createElement('input');
-                    tempInput.value = hex;
-                    tempInput.style.cssText = 'position: absolute; left: -9999px; opacity: 0;';
-                    document.body.appendChild(tempInput);
-                    
-                    tempInput.select();
-                    tempInput.setSelectionRange(0, 99999);
-                    
-                    const success = document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                    
-                    if (success) {
-                        this.messageHandler.showSuccess(`📋 ${hex} 복사됨!`);
-                    } else {
-                        this.showHexModal(hex);
-                    }
-                } catch (error) {
-                    this.showHexModal(hex);
-                }
-            }
-
-            showHexModal(hex) {
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(0,0,0,0.5); display: flex;
-                    align-items: center; justify-content: center; z-index: 2000;
-                `;
-                
-                modal.innerHTML = `
-                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-                        <h3 style="margin-bottom: 10px;">색상 코드 복사</h3>
-                        <input type="text" value="${hex}" readonly 
-                               style="padding: 8px; font-family: monospace; font-size: 14px; 
-                                      border: 2px solid #000; border-radius: 4px; text-align: center;"
-                               onclick="this.select()" />
-                        <p style="font-size: 12px; color: #666; margin: 10px 0;">
-                            위 텍스트를 선택해서 Ctrl+C로 복사하세요
-                        </p>
-                        <button onclick="this.parentElement.parentElement.remove()" 
-                                style="padding: 6px 12px; background: #000; color: white; 
-                                       border: none; border-radius: 4px; cursor: pointer;">
-                            닫기
-                        </button>
-                    </div>
-                `;
-                
-                document.body.appendChild(modal);
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) modal.remove();
-                });
-                
-                setTimeout(() => {
-                    if (modal.parentElement) modal.remove();
-                }, 3000);
             }
 
             setMode(mode) {
                 this.currentMode = mode;
-                document.getElementById('darkBtn').className = mode === 'dark' ? 'mode-btn active' : 'mode-btn';
-                document.getElementById('lightBtn').className = mode === 'light' ? 'mode-btn active' : 'mode-btn';
+                document.getElementById('lightBtn').classList.toggle('active', mode === 'light');
+                document.getElementById('darkBtn').classList.toggle('active', mode === 'dark');
                 this.updateDisplay();
             }
 
-            switchTab(tabName) {
-                const tabs = document.querySelectorAll('.tab-btn');
-                const contents = document.querySelectorAll('.tab-content');
+            updateDisplay() {
+                const inputHex = document.getElementById('baseColor').value;
+                this.generatedColors = this.colorGenerator.generateColors(inputHex, this.currentMode);
                 
-                tabs.forEach(tab => tab.classList.remove('active'));
-                contents.forEach(content => content.classList.remove('active'));
+                const container = document.getElementById('colorResults');
+                container.innerHTML = '';
                 
-                if (tabName === 'generator') {
-                    document.getElementById('generatorTab').classList.add('active');
-                    document.getElementById('generatorContent').classList.add('active');
-                } else if (tabName === 'tone-matching') {
-                    document.getElementById('toneMatchingTab').classList.add('active');
-                    document.getElementById('toneMatchingContent').classList.add('active');
-                }
-            }
-
-            showVariableModal() {
-                if (!this.generatedColors.length) {
-                    this.messageHandler.showSuccess('먼저 색상을 생성해주세요!');
-                    return;
-                }
-                
-                document.getElementById('variableModal').style.display = 'flex';
-                document.getElementById('variableName').focus();
-                this.updateVariablePreview();
-            }
-
-            hideVariableModal() {
-                document.getElementById('variableModal').style.display = 'none';
-            }
-
-            updateVariablePreview() {
-                const name = document.getElementById('variableName').value || 'color';
-                const basicOnly = document.getElementById('basicScaleOnly').checked;
-                const preview = document.getElementById('variablePreview');
-                
-                const basicSteps = [100, 200, 300, 400, 500, 600, 700, 800, 900];
-                const fullSteps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-                const stepsToShow = basicOnly ? basicSteps : fullSteps;
-                
-                if (stepsToShow.length <= 7) {
-                    preview.innerHTML = stepsToShow.map(step => 
-                        `<span class="preview-item">${name}-${step}</span>`
-                    ).join('');
-                } else {
-                    const displaySteps = stepsToShow.slice(0, 6);
-                    preview.innerHTML = displaySteps.map(step => 
-                        `<span class="preview-item">${name}-${step}</span>`
-                    ).join('') + '<span class="preview-item">...</span>';
-                }
-            }
-
-            createColorVariables() {
-                if (!this.generatedColors.length) {
-                    this.messageHandler.showSuccess('먼저 색상을 생성해주세요!');
-                    return;
-                }
-                
-                const variableName = document.getElementById('variableName').value.trim();
-                if (!variableName) {
-                    this.messageHandler.showSuccess('Variable 이름을 입력해주세요!');
-                    return;
-                }
-                
-                const basicOnly = document.getElementById('basicScaleOnly').checked;
-                const colorsToCreate = basicOnly ? this.filterBasicScale(this.generatedColors) : this.generatedColors;
-                
-                this.messageHandler.sendToFigma('create-variables', {
-                    colors: colorsToCreate,
-                    variableName: variableName,
-                    mode: this.currentMode,
-                    baseColor: this.baseColorInput.getValue(),
-                    dualMode: false
-                });
-                
-                this.hideVariableModal();
-                this.messageHandler.showSuccess('Variable 생성 중...');
-            }
-
-            createDualModeVariables() {
-                if (!this.generatedColors.length) {
-                    this.messageHandler.showSuccess('먼저 색상을 생성해주세요!');
-                    return;
-                }
-                
-                const variableName = document.getElementById('variableName').value.trim();
-                if (!variableName) {
-                    this.messageHandler.showSuccess('Variable 이름을 입력해주세요!');
-                    return;
-                }
-                
-                const baseColor = this.baseColorInput.getValue();
-                const autoTuningValue = document.getElementById('autoTuning').checked ? 
-                    this.colorGenerator.calculateAutoTuning(baseColor) : parseInt(document.getElementById('tuningSlider').value);
-                
-                const lightColors = this.colorGenerator.generateColors(baseColor, 'light', autoTuningValue);
-                const darkColors = this.colorGenerator.generateColors(baseColor, 'dark', autoTuningValue);
-                
-                const basicOnly = document.getElementById('basicScaleOnly').checked;
-                const lightColorsToCreate = basicOnly ? this.filterBasicScale(lightColors) : lightColors;
-                const darkColorsToCreate = basicOnly ? this.filterBasicScale(darkColors) : darkColors;
-                
-                this.messageHandler.sendToFigma('create-variables', {
-                    lightColors: lightColorsToCreate,
-                    darkColors: darkColorsToCreate,
-                    variableName: variableName,
-                    baseColor: baseColor,
-                    dualMode: true
-                });
-                
-                this.hideVariableModal();
-                this.messageHandler.showSuccess('Light + Dark Variable 생성 중...');
-            }
-
-            filterBasicScale(colors) {
-                const basicSteps = [100, 200, 300, 400, 500, 600, 700, 800, 900];
-                return colors.filter(color => basicSteps.includes(color.step));
-            }
-
-            // Auto Apply 기능
-            showAutoApplyModal() {
-                if (!this.generatedColors.length) {
-                    this.messageHandler.showSuccess('먼저 색상을 생성해주세요!');
-                    return;
-                }
-                
-                const currentBaseColor = this.baseColorInput.getValue();
-                document.getElementById('autoApplyBaseColor').value = currentBaseColor;
-                document.getElementById('autoApplyBaseHex').value = currentBaseColor.toUpperCase();
-                
-                this.updateAutoApplyPreview();
-                
-                document.getElementById('autoApplyModal').style.display = 'flex';
-            }
-
-            hideAutoApplyModal() {
-                document.getElementById('autoApplyModal').style.display = 'none';
-            }
-
-            updateAutoApplyPreview() {
-                const baseColor = document.getElementById('autoApplyBaseColor').value;
-                
-                const autoTuningValue = document.getElementById('autoTuning').checked ? 
-                    this.colorGenerator.calculateAutoTuning(baseColor) : parseInt(document.getElementById('tuningSlider').value);
-                
-                const colors = this.colorGenerator.generateColors(baseColor, this.currentMode, autoTuningValue);
-                
-                const backgroundColorObj = colors.find(c => c.step === 400) || colors.find(c => c.step === 500) || colors[6];
-                const surfaceColorObj = colors.find(c => c.step === 100) || colors[2];
-                const foregroundColorObj = colors.find(c => c.step === 700) || colors.find(c => c.step === 800) || colors[9];
-                const accentColorObj = colors.find(c => c.step === 600) || colors[8];
-                
-                const previewBg = document.getElementById('previewBg');
-                const previewSurface = document.getElementById('previewSurface');
-                const previewFg = document.getElementById('previewFg');
-                const previewAccent = document.getElementById('previewAccent');
-                
-                previewBg.textContent = backgroundColorObj.hex.toUpperCase();
-                previewBg.style.backgroundColor = backgroundColorObj.hex;
-                
-                previewSurface.textContent = surfaceColorObj.hex.toUpperCase();
-                previewSurface.style.backgroundColor = surfaceColorObj.hex;
-                previewSurface.style.color = ColorUtils.getLuminance(...Object.values(ColorUtils.hexToRgb(surfaceColorObj.hex))) > 0.5 ? '#000' : '#fff';
-                
-                previewFg.textContent = foregroundColorObj.hex.toUpperCase();
-                previewFg.style.backgroundColor = foregroundColorObj.hex;
-                
-                previewAccent.textContent = accentColorObj.hex.toUpperCase();
-                previewAccent.style.backgroundColor = accentColorObj.hex;
-            }
-
-            applyColorsToLayers() {
-                const baseColor = document.getElementById('autoApplyBaseColor').value;
-                const previewMode = document.getElementById('previewMode').checked;
-                
-                const autoTuningValue = document.getElementById('autoTuning').checked ? 
-                    this.colorGenerator.calculateAutoTuning(baseColor) : parseInt(document.getElementById('tuningSlider').value);
-                
-                const colors = this.colorGenerator.generateColors(baseColor, this.currentMode, autoTuningValue);
-                
-                const layerMappings = {
-                    'background': colors.find(c => c.step === 400) || colors[6],
-                    'bg': colors.find(c => c.step === 400) || colors[6],
-                    'base': colors.find(c => c.step === 500) || colors[7],
-                    'surface': colors.find(c => c.step === 100) || colors[2],
-                    'card': colors.find(c => c.step === 100) || colors[2],
-                    'panel': colors.find(c => c.step === 150) || colors[3],
-                    'container': colors.find(c => c.step === 200) || colors[4],
-                    'foreground': colors.find(c => c.step === 700) || colors[9],
-                    'fg': colors.find(c => c.step === 700) || colors[9],
-                    'text': colors.find(c => c.step === 800) || colors[10],
-                    'content': colors.find(c => c.step === 800) || colors[10],
-                    'accent': colors.find(c => c.step === 600) || colors[8],
-                    'primary': colors.find(c => c.step === 600) || colors[8],
-                    'button': colors.find(c => c.step === 600) || colors[8],
-                    'cta': colors.find(c => c.step === 600) || colors[8]
-                };
-                
-                this.messageHandler.sendToFigma('apply-colors-to-layers', {
-                    layerMappings: layerMappings,
-                    previewMode: previewMode,
-                    baseColor: baseColor,
-                    mode: this.currentMode
-                });
-                
-                this.hideAutoApplyModal();
-                
-                const message = previewMode ? 
-                    '🔍 레이어 색상을 미리보기 모드로 적용했습니다!' : 
-                    '🎨 레이어 색상이 자동으로 적용되었습니다!';
+                this.generatedColors.forEach(color => {
+                    const row = document.createElement('div');
+                    row.className = color.isClosest ? 'color-row closest' : 'color-row';
                     
-                this.messageHandler.showSuccess(message);
+                    const rgb = ColorUtils.hexToRgb(color.hex);
+                    const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
+                    
+                    let badge = '';
+                    if (color.contrast >= 7) badge = '<span class="accessibility-badge badge-aaa">AAA</span>';
+                    else if (color.contrast >= 4.5) badge = '<span class="accessibility-badge badge-aa">AA</span>';
+                    else if (color.contrast >= 3) badge = '<span class="accessibility-badge badge-a">A</span>';
+                    
+                    row.innerHTML = `
+                        <div class="color-swatch" style="background: ${color.hex}; color: ${textColor}">
+                            ${color.step}
+                        </div>
+                        <div class="color-info">
+                            <span class="color-hex">${color.hex.toUpperCase()}</span>
+                            <div class="contrast-info">
+                                <span>${color.contrast.toFixed(2)}:1</span>
+                                ${badge}
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(row);
+                });
             }
 
             setReferenceColor() {
-                const currentHex = this.referenceColorInput.getValue();
+                const hex = document.getElementById('referenceColor').value;
                 this.referenceColor = {
-                    hex: currentHex.toUpperCase(),
-                    hsl: ColorUtils.hexToHsl(currentHex)
+                    hex: hex.toUpperCase(),
+                    hsl: ColorUtils.hexToHsl(hex)
                 };
-                this.updateReferenceDisplay();
-            }
-
-            clearReference() {
-                this.referenceColor = null;
-                this.updateReferenceDisplay();
-                this.clearToneMatchingResults();
-            }
-
-            updateReferenceDisplay() {
-                const statusElement = document.getElementById('referenceStatus');
-                const displayElement = document.getElementById('referenceDisplay');
                 
-                if (!this.referenceColor) {
-                    statusElement.textContent = 'No reference color set';
-                    statusElement.style.color = '#666';
-                    displayElement.innerHTML = '';
-                    return;
-                }
-                
-                statusElement.textContent = `✅ Reference Set: ${this.referenceColor.hex}`;
-                statusElement.style.color = '#28a745';
-                
+                const display = document.getElementById('referenceDisplay');
                 const [h, s, l] = this.referenceColor.hsl;
-                displayElement.innerHTML = `
+                
+                display.innerHTML = `
                     <div class="reference-display">
                         <div class="reference-color" style="background: ${this.referenceColor.hex};"></div>
                         <div class="reference-info">
@@ -1985,110 +905,161 @@
                         </div>
                     </div>
                 `;
+                
+                this.showSuccess('Reference color set!');
+            }
+
+            clearReference() {
+                this.referenceColor = null;
+                document.getElementById('referenceDisplay').innerHTML = '';
+                document.getElementById('toneMatchingResults').innerHTML = '';
+                this.showSuccess('Reference cleared');
             }
 
             generateToneMatching() {
                 if (!this.referenceColor) {
-                    this.messageHandler.showSuccess('먼저 기준 색상을 설정해주세요!');
+                    this.showSuccess('Please set a reference color first!');
                     return;
                 }
                 
-                const newColorHex = this.newColorInput.getValue();
-                this.generateToneMatchingSuggestions(newColorHex);
-            }
-
-            generateToneMatchingSuggestions(inputHex) {
-                const inputHsl = ColorUtils.hexToHsl(inputHex);
+                const newHex = document.getElementById('newColor').value;
+                const newHsl = ColorUtils.hexToHsl(newHex);
                 const [refH, refS, refL] = this.referenceColor.hsl;
-                
-                const referenceColors = this.colorGenerator.generateColors(this.referenceColor.hex, 'light', 0);
-                const reference500Color = referenceColors.find(c => c.step === 500);
-                const reference500 = reference500Color ? reference500Color : referenceColors[6];
-                const ref500Hsl = ColorUtils.hexToHsl(reference500.hex);
-                const [ref500H, ref500S, ref500L] = ref500Hsl;
                 
                 const suggestions = [];
                 
-                const inputColors = this.colorGenerator.generateColors(inputHex, 'light', 0);
-                const input500Color = inputColors.find(c => c.step === 500);
-                const input500 = input500Color ? input500Color : inputColors[6];
-                const input500Hsl = ColorUtils.hexToHsl(input500.hex);
-                
+                // Saturation Match
+                const satMatchRgb = ColorUtils.hslToRgb(newHsl[0], refS, newHsl[2]);
                 suggestions.push({
                     type: 'Saturation Match',
-                    hex: ColorUtils.rgbToHex(...ColorUtils.hslToRgb(input500Hsl[0], ref500S, input500Hsl[2])),
-                    explanation: `채도를 ${Math.round(ref500S)}%로 조정`
+                    hex: ColorUtils.rgbToHex(...satMatchRgb),
+                    desc: `Saturation adjusted to ${Math.round(refS)}%`
                 });
                 
+                // Lightness Match
+                const lightMatchRgb = ColorUtils.hslToRgb(newHsl[0], newHsl[1], refL);
                 suggestions.push({
                     type: 'Lightness Match',
-                    hex: ColorUtils.rgbToHex(...ColorUtils.hslToRgb(input500Hsl[0], input500Hsl[1], ref500L)),
-                    explanation: `명도를 ${Math.round(ref500L)}%로 조정`
+                    hex: ColorUtils.rgbToHex(...lightMatchRgb),
+                    desc: `Lightness adjusted to ${Math.round(refL)}%`
                 });
                 
+                // Full Tone Match
+                const fullMatchRgb = ColorUtils.hslToRgb(newHsl[0], refS, refL);
                 suggestions.push({
                     type: 'Full Tone Match',
-                    hex: ColorUtils.rgbToHex(...ColorUtils.hslToRgb(input500Hsl[0], ref500S, ref500L)),
-                    explanation: `채도 ${Math.round(ref500S)}%, 명도 ${Math.round(ref500L)}%로 조정`
+                    hex: ColorUtils.rgbToHex(...fullMatchRgb),
+                    desc: `S: ${Math.round(refS)}%, L: ${Math.round(refL)}%`
                 });
                 
-                this.displayToneMatchingSuggestions(inputHex, suggestions);
-            }
-
-            displayToneMatchingSuggestions(originalHex, suggestions) {
-                const container = document.getElementById('toneMatchingResults');
-                
-                container.innerHTML = `
-                    <div style="background: white; border: 2px solid #17a2b8; border-radius: 6px; padding: 12px; margin: 8px 0;">
-                        <h4 style="color: #17a2b8; margin-bottom: 8px; font-size: 11px;">🎨 Leonardo 500-Level Tone Matching</h4>
-                        <p style="margin-bottom: 8px; font-size: 9px;">
-                            Original: <strong>${originalHex.toUpperCase()}</strong><br>
-                            → Adjusted to match reference tone:
-                        </p>
-                        
+                const results = document.getElementById('toneMatchingResults');
+                results.innerHTML = `
+                    <div style="margin-top: 16px;">
                         <div class="tone-suggestions">
-                            ${suggestions.map((suggestion, index) => `
-                                <div class="tone-suggestion" onclick="app.applyToneToGenerator('${suggestion.hex}')">
-                                    <div class="tone-color-display" style="background: ${suggestion.hex};"></div>
-                                    <div class="tone-suggestion-title">${suggestion.type}</div>
-                                    <div class="tone-suggestion-hex">${suggestion.hex.toUpperCase()}</div>
-                                    <div class="tone-suggestion-desc">${suggestion.explanation}</div>
+                            ${suggestions.map(s => `
+                                <div class="tone-suggestion" onclick="app.applyToneToGenerator('${s.hex}')">
+                                    <div class="tone-color-display" style="background: ${s.hex};"></div>
+                                    <div class="tone-suggestion-title">${s.type}</div>
+                                    <div class="tone-suggestion-hex">${s.hex.toUpperCase()}</div>
+                                    <div class="tone-suggestion-desc">${s.desc}</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
-                    
-                    <div class="info-box">
-                        <h5>💡 Leonardo 500-Level Matching:</h5>
-                        <p>• 제안은 500 레벨에 최적화됩니다.<br>
-                        • 색상을 클릭하면 Color Scale Generator에 적용합니다.<br>
-                        • 일관된 브랜드 톤으로 13단계 스케일 생성이 가능합니다.</p>
-                    </div>
                 `;
             }
 
-            clearToneMatchingResults() {
-                const container = document.getElementById('toneMatchingResults');
-                if (container) container.innerHTML = '';
-            }
-
             applyToneToGenerator(hex) {
+                document.getElementById('baseColor').value = hex;
+                document.getElementById('hexInput').value = hex.toUpperCase();
                 this.switchTab('generator');
-                this.baseColorInput.setValue(hex);
                 this.updateDisplay();
-                this.messageHandler.showSuccess(`${hex} 색상이 Generator에 적용되었습니다!`);
+                this.showSuccess(`Applied ${hex} to generator!`);
+            }
+
+            createVariables(dualMode) {
+                const baseHex = document.getElementById('baseColor').value;
+                const variableName = prompt('Enter variable name (e.g., primary, blue, brand):') || 'color';
+                
+                if (dualMode) {
+                    const lightColors = this.colorGenerator.generateColors(baseHex, 'light');
+                    const darkColors = this.colorGenerator.generateColors(baseHex, 'dark');
+                    
+                    parent.postMessage({ 
+                        pluginMessage: {
+                            type: 'create-variables',
+                            variableName,
+                            lightColors,
+                            darkColors,
+                            dualMode: true
+                        }
+                    }, '*');
+                } else {
+                    parent.postMessage({ 
+                        pluginMessage: {
+                            type: 'create-variables',
+                            variableName,
+                            colors: this.generatedColors,
+                            dualMode: false
+                        }
+                    }, '*');
+                }
+            }
+
+            generateTokenTheme() {
+                const bgHex = document.getElementById('themeBackground').value;
+                this.currentTheme = this.tokenThemeManager.generateTheme(bgHex);
+                
+                const section = document.getElementById('tokenPreviewSection');
+                section.style.display = 'block';
+                
+                const list = document.getElementById('tokenList');
+                list.innerHTML = '';
+                
+                for (const [name, value] of Object.entries(this.currentTheme.tokens)) {
+                    const item = document.createElement('div');
+                    item.className = 'token-item';
+                    item.innerHTML = `
+                        <div class="token-color" style="background: ${value}"></div>
+                        <div class="token-name">${name}</div>
+                        <div class="token-value">${value}</div>
+                    `;
+                    list.appendChild(item);
+                }
+                
+                this.showSuccess('Token theme generated!');
+            }
+
+            applyTokenTheme() {
+                if (!this.currentTheme) return;
+                
+                parent.postMessage({ 
+                    pluginMessage: {
+                        type: 'apply-token-theme',
+                        theme: this.currentTheme
+                    }
+                }, '*');
+            }
+
+            handlePluginMessage(msg) {
+                if (msg.type === 'variable-created') {
+                    this.showSuccess('Successfully created variables!');
+                } else if (msg.type === 'token-theme-applied') {
+                    const count = msg.count || 0;
+                    this.showSuccess(`Applied theme to ${count} layers!`);
+                }
+            }
+
+            showSuccess(message) {
+                const el = document.getElementById('successMessage');
+                el.textContent = message;
+                el.classList.add('show');
+                setTimeout(() => el.classList.remove('show'), 3000);
             }
         }
 
-        // 6. 앱 초기화
-        let app;
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                app = new ColorGeneratorApp();
-            });
-        } else {
-            app = new ColorGeneratorApp();
-        }
+        // Initialize app
+        const app = new ColorGeneratorApp();
     </script>
 </body>
 </html>
