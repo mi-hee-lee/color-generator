@@ -193,55 +193,44 @@ async function applyColorsToFrameLayers(frame, scaleColors) {
           
           if (variable && variable.name) {
             const variableName = variable.name.toLowerCase();
-            console.log(`Found variable: ${variable.name} on node: ${node.name}`);
+            console.log(`Processing fill variable: "${variable.name}" on node: "${node.name}"`);
+            
+            // 매칭된 토큰을 찾기 위한 개선된 로직
+            const matchedToken = findMatchingSemanticToken(variableName);
+            
+            if (matchedToken) {
+              const scaleColor = scaleColors.find(c => c.step === matchedToken.scale);
               
-            // neutral 관련 semantic token 확인
-            if (variableName.includes('neutral') || 
-                variableName.includes('surface') || 
-                variableName.includes('background') ||
-                variableName.includes('bg-') ||
-                variableName.includes('text-') ||
-                variableName.includes('icon-') ||
-                variableName.includes('border-')) {
-              
-              // Semantic token mapping에서 찾기
-              for (const [tokenName, tokenConfig] of Object.entries(SEMANTIC_TOKEN_MAPPING)) {
-                const tokenKey = tokenName.toLowerCase().replace(/-/g, '');
-                const variableKey = variableName.replace(/\//g, '').replace(/-/g, '').replace(/semantic/g, '');
-                
-                if (variableKey.includes(tokenKey) || 
-                    variableName.includes(tokenName) ||
-                    (tokenName.includes('surface') && variableName.includes('surface')) ||
-                    (tokenName.includes('text') && variableName.includes('text')) ||
-                    (tokenName.includes('icon') && variableName.includes('icon')) ||
-                    (tokenName.includes('border') && variableName.includes('border')) ||
-                    (tokenName.includes('bg') && variableName.includes('background'))) {
-                  
-                  const scaleColor = scaleColors.find(c => c.step === tokenConfig.scale);
-                  
-                  if (scaleColor) {
-                    const rgb = hexToRgb(scaleColor.hex);
-                    node.fills = [{
-                      type: 'SOLID',
-                      color: {
-                        r: rgb.r / 255,
-                        g: rgb.g / 255,
-                        b: rgb.b / 255
-                      }
-                    }];
-                    count++;
-                    console.log(`Applied ${tokenName} (${scaleColor.hex}) to ${node.name} with variable ${variable.name}`);
-                    break;
+              if (scaleColor) {
+                const rgb = hexToRgb(scaleColor.hex);
+                node.fills = [{
+                  type: 'SOLID',
+                  color: {
+                    r: rgb.r / 255,
+                    g: rgb.g / 255,
+                    b: rgb.b / 255
                   }
-                }
+                }];
+                count++;
+                console.log(`✅ Applied ${matchedToken.name} (scale:${matchedToken.scale}, color:${scaleColor.hex}) to "${node.name}"`);
+              } else {
+                console.log(`⚠️ No scale color found for ${matchedToken.name} (scale: ${matchedToken.scale})`);
               }
-            }
-            // 다른 색상 (orange, blue 등) 처리
-            else if (!variableName.includes('neutral') && !variableName.includes('gray')) {
-              // orange, blue 등 다른 색상은 기존 Variable 값 유지
-              const colorPattern = /(orange|blue|red|green|purple|yellow|pink|teal|indigo)/;
-              if (colorPattern.test(variableName)) {
-                console.log(`Preserving non-neutral color variable: ${variable.name}`);
+            } else {
+              // neutral/gray 관련이지만 매핑되지 않은 경우
+              if (variableName.includes('neutral') || variableName.includes('gray') || 
+                  variableName.includes('surface') || variableName.includes('background') ||
+                  variableName.includes('text') || variableName.includes('icon') || 
+                  variableName.includes('border')) {
+                console.log(`⚠️ No semantic token mapping found for variable: "${variable.name}"`);
+              } else {
+                // 다른 색상 (orange, blue 등)은 보존
+                const colorPattern = /(orange|blue|red|green|purple|yellow|pink|teal|indigo|primary|secondary|accent|success|warning|error|info)/;
+                if (colorPattern.test(variableName)) {
+                  console.log(`🔵 Preserving non-neutral color variable: "${variable.name}"`);
+                } else {
+                  console.log(`❓ Unknown variable pattern: "${variable.name}"`);
+                }
               }
             }
           }
@@ -263,30 +252,31 @@ async function applyColorsToFrameLayers(frame, scaleColors) {
           
           if (variable && variable.name) {
             const variableName = variable.name.toLowerCase();
+            console.log(`Processing stroke variable: "${variable.name}" on node: "${node.name}"`);
             
-            if (variableName.includes('border') || variableName.includes('divider')) {
-              for (const [tokenName, tokenConfig] of Object.entries(SEMANTIC_TOKEN_MAPPING)) {
-                if (tokenName.includes('border') && 
-                    (variableName.includes(tokenName) || variableName.includes('border') || variableName.includes('divider'))) {
-                  
-                  const scaleColor = scaleColors.find(c => c.step === tokenConfig.scale);
-                  
-                  if (scaleColor) {
-                    const rgb = hexToRgb(scaleColor.hex);
-                    node.strokes = [{
-                      type: 'SOLID',
-                      color: {
-                        r: rgb.r / 255,
-                        g: rgb.g / 255,
-                        b: rgb.b / 255
-                      }
-                    }];
-                    count++;
-                    console.log(`Applied border ${tokenName} (${scaleColor.hex}) to ${node.name}`);
-                    break;
+            // 매칭된 토큰을 찾기 위한 개선된 로직
+            const matchedToken = findMatchingSemanticToken(variableName);
+            
+            if (matchedToken && matchedToken.type === 'border') {
+              const scaleColor = scaleColors.find(c => c.step === matchedToken.scale);
+              
+              if (scaleColor) {
+                const rgb = hexToRgb(scaleColor.hex);
+                node.strokes = [{
+                  type: 'SOLID',
+                  color: {
+                    r: rgb.r / 255,
+                    g: rgb.g / 255,
+                    b: rgb.b / 255
                   }
-                }
+                }];
+                count++;
+                console.log(`✅ Applied border ${matchedToken.name} (scale:${matchedToken.scale}, color:${scaleColor.hex}) to "${node.name}"`);
               }
+            } else if (variableName.includes('border') || variableName.includes('divider') || variableName.includes('outline')) {
+              console.log(`⚠️ No semantic token mapping found for stroke variable: "${variable.name}"`);
+            } else {
+              console.log(`🔵 Preserving non-border stroke variable: "${variable.name}"`);
             }
           }
         } catch (error) {
@@ -321,6 +311,130 @@ function findOrCreateVariable(name, collection, type) {
   
   // 새로 생성
   return figma.variables.createVariable(name, collection, type);
+}
+
+// Semantic Token 매칭 함수
+function findMatchingSemanticToken(variableName) {
+  // Variable 이름을 정규화 (소문자, 구분자 통일)
+  const normalizedName = variableName.toLowerCase()
+    .replace(/[\s_\.]/g, '/') // 공백, 언더스코어, 점을 슬래시로 통일
+    .replace(/[-]/g, '') // 하이픈 제거
+    .replace(/semantic/g, '') // semantic 키워드 제거
+    .replace(/\/+/g, '/') // 연속된 슬래시 정리
+    .replace(/^\/|\/$/g, ''); // 앞뒤 슬래시 제거
+  
+  console.log(`Normalized variable name: "${variableName}" → "${normalizedName}"`);
+  
+  // 각 semantic token에 대해 매칭 시도
+  for (const [tokenName, tokenConfig] of Object.entries(SEMANTIC_TOKEN_MAPPING)) {
+    const tokenKey = tokenName.toLowerCase().replace(/-/g, '');
+    
+    // 다양한 패턴으로 매칭 시도
+    const patterns = [
+      // 정확한 토큰 이름 매칭 
+      tokenName, // 'bg-default'
+      tokenKey, // 'bgdefault'
+      
+      // 토큰 타입별 매칭
+      ...getTokenTypePatterns(tokenName, tokenConfig.type),
+      
+      // 일반적인 변형들
+      tokenName.replace(/-/g, ''),  // 'bgdefault'
+      tokenName.replace(/-/g, '/'), // 'bg/default'
+      tokenName.replace(/-/g, '_'), // 'bg_default'
+    ];
+    
+    // 패턴 매칭 확인
+    for (const pattern of patterns) {
+      if (isVariableMatch(normalizedName, pattern)) {
+        console.log(`✅ Matched "${variableName}" to token "${tokenName}" via pattern "${pattern}"`);
+        return {
+          name: tokenName,
+          scale: tokenConfig.scale,
+          type: tokenConfig.type
+        };
+      }
+    }
+  }
+  
+  console.log(`❌ No matching semantic token found for: "${variableName}"`);
+  return null;
+}
+
+// 토큰 타입별 추가 패턴 생성
+function getTokenTypePatterns(tokenName, tokenType) {
+  const patterns = [];
+  
+  // 타입별 공통 패턴들
+  switch (tokenType) {
+    case 'background':
+      patterns.push('bg', 'background', 'surface');
+      if (tokenName.includes('default')) patterns.push('bg/default', 'background/default');
+      if (tokenName.includes('subtle')) patterns.push('bg/subtle', 'background/subtle');
+      if (tokenName.includes('muted')) patterns.push('bg/muted', 'background/muted');
+      break;
+      
+    case 'surface':
+      patterns.push('surface', 'bg', 'background');
+      if (tokenName.includes('default')) patterns.push('surface/default', 'surface/neutral/default');
+      if (tokenName.includes('subtle')) patterns.push('surface/subtle', 'surface/neutral/subtle');
+      if (tokenName.includes('muted')) patterns.push('surface/muted', 'surface/neutral/muted');
+      break;
+      
+    case 'text':
+      patterns.push('text', 'foreground', 'fg');
+      if (tokenName.includes('default')) patterns.push('text/default', 'text/neutral/default');
+      if (tokenName.includes('bold')) patterns.push('text/bold', 'text/neutral/bold');
+      if (tokenName.includes('subtle')) patterns.push('text/subtle', 'text/neutral/subtle');
+      if (tokenName.includes('muted')) patterns.push('text/muted', 'text/neutral/muted');
+      if (tokenName.includes('disabled')) patterns.push('text/disabled', 'text/neutral/disabled');
+      break;
+      
+    case 'icon':
+      patterns.push('icon', 'iconography');
+      if (tokenName.includes('default')) patterns.push('icon/default', 'icon/neutral/default');
+      if (tokenName.includes('bold')) patterns.push('icon/bold', 'icon/neutral/bold');
+      if (tokenName.includes('subtle')) patterns.push('icon/subtle', 'icon/neutral/subtle');
+      if (tokenName.includes('disabled')) patterns.push('icon/disabled', 'icon/neutral/disabled');
+      break;
+      
+    case 'border':
+      patterns.push('border', 'divider', 'outline', 'stroke');
+      if (tokenName.includes('default')) patterns.push('border/default', 'border/neutral/default');
+      if (tokenName.includes('bold')) patterns.push('border/bold', 'border/neutral/bold');
+      if (tokenName.includes('subtle')) patterns.push('border/subtle', 'border/neutral/subtle');
+      break;
+  }
+  
+  return patterns;
+}
+
+// Variable 이름이 패턴과 매칭되는지 확인
+function isVariableMatch(normalizedVariableName, pattern) {
+  const normalizedPattern = pattern.toLowerCase()
+    .replace(/[\s_\-\.]/g, '/') // 구분자 통일
+    .replace(/\/+/g, '/') // 연속된 슬래시 정리
+    .replace(/^\/|\/$/g, ''); // 앞뒤 슬래시 제거
+  
+  // 정확한 매칭
+  if (normalizedVariableName === normalizedPattern) return true;
+  
+  // 포함 매칭 (neutral 포함)
+  if (normalizedVariableName.includes(normalizedPattern) && 
+      normalizedVariableName.includes('neutral')) return true;
+      
+  // 포함 매칭 (gray 포함)
+  if (normalizedVariableName.includes(normalizedPattern) && 
+      normalizedVariableName.includes('gray')) return true;
+  
+  // 부분 매칭 (순서 상관없이)
+  const variableParts = normalizedVariableName.split('/').filter(p => p);
+  const patternParts = normalizedPattern.split('/').filter(p => p);
+  
+  // 패턴의 모든 부분이 variable에 포함되어 있는지 확인
+  return patternParts.every(part => 
+    variableParts.some(vPart => vPart.includes(part) || part.includes(vPart))
+  );
 }
 
 // 유틸리티 함수: HEX를 RGB로 변환
