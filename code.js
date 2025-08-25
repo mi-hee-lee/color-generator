@@ -1,5 +1,39 @@
 // Figma Plugin Backend Code
-figma.showUI(__html__, { width: 360, height: 600 });
+figma.showUI(__html__, { width: 360, height: 700 });
+
+// Semantic Token Mapping Configuration
+const SEMANTIC_TOKEN_MAPPING = {
+  // Background tokens
+  'bg-default': { scale: 50, type: 'background' },
+  'bg-subtle': { scale: 100, type: 'background' },
+  'bg-muted': { scale: 200, type: 'background' },
+  'surface-default': { scale: 50, type: 'surface' },
+  'surface-subtle': { scale: 100, type: 'surface' },
+  'surface-muted': { scale: 150, type: 'surface' },
+  
+  // Text tokens
+  'text-default': { scale: 900, type: 'text' },
+  'text-bold': { scale: 950, type: 'text' },
+  'text-subtle': { scale: 600, type: 'text' },
+  'text-muted': { scale: 500, type: 'text' },
+  'text-disabled': { scale: 400, type: 'text' },
+  
+  // Icon tokens
+  'icon-default': { scale: 700, type: 'icon' },
+  'icon-bold': { scale: 900, type: 'icon' },
+  'icon-subtle': { scale: 500, type: 'icon' },
+  'icon-disabled': { scale: 400, type: 'icon' },
+  
+  // Border tokens
+  'border-default': { scale: 300, type: 'border' },
+  'border-bold': { scale: 400, type: 'border' },
+  'border-subtle': { scale: 200, type: 'border' },
+  
+  // Interactive states
+  'hover': { scale: 600, type: 'interactive' },
+  'active': { scale: 700, type: 'interactive' },
+  'selected': { scale: 800, type: 'interactive' }
+};
 
 // UI에 준비 완료 메시지 전송
 figma.ui.postMessage({ 
@@ -9,43 +43,53 @@ figma.ui.postMessage({
 
 // UI로부터 메시지 수신
 figma.ui.onmessage = msg => {
-  
   // Variable 생성
   if (msg.type === 'create-variables') {
     createColorVariables(msg);
   }
-  
-  // 레이어에 색상 적용
-  else if (msg.type === 'apply-colors-to-layers') {
-    applyColorsToLayers(msg);
-  }
-  
-  // Token Theme 적용
-  else if (msg.type === 'apply-token-theme') {
-    applyTokenTheme(msg);
+  // Token Theme 적용 - Frame의 레이어들에 색상 적용
+  else if (msg.type === 'apply-token-theme-to-frame') {
+    applyTokenThemeToFrame(msg);
   }
 };
 
 // Color Variables 생성 함수
 async function createColorVariables(msg) {
   try {
-    const collection = figma.variables.createVariableCollection('Color System');
+    // 기존 컬렉션 확인 및 생성
+    let collection = figma.variables.getLocalVariableCollections()
+      .find(c => c.name === msg.collectionName || c.name === 'Color System');
+    
+    if (!collection) {
+      collection = figma.variables.createVariableCollection(msg.collectionName || 'Color System');
+    }
     
     if (msg.dualMode) {
       // Light & Dark 모드 생성
-      const lightMode = collection.addMode('Light');
-      const darkMode = collection.addMode('Dark');
+      const lightModeId = collection.modes[0].modeId;
+      let darkModeId;
+      
+      if (collection.modes.length > 1) {
+        darkModeId = collection.modes[1].modeId;
+      } else {
+        const newMode = collection.addMode('Dark');
+        darkModeId = newMode;
+      }
+      
+      // 모드 이름 설정 (renameMode는 특별한 권한이 필요할 수 있음)
+      try {
+        collection.renameMode(lightModeId, 'Light');
+      } catch (e) {
+        console.log('Could not rename mode:', e);
+      }
       
       // Light 색상
       for (const color of msg.lightColors) {
-        const variable = figma.variables.createVariable(
-          `${msg.variableName}-${color.step}`,
-          collection.id,
-          'COLOR'
-        );
+        const variableName = `${msg.variableName}/${color.step}`;
+        let variable = findOrCreateVariable(variableName, collection, 'COLOR');
         
         const rgb = hexToRgb(color.hex);
-        variable.setValueForMode(lightMode, {
+        variable.setValueForMode(lightModeId, {
           r: rgb.r / 255,
           g: rgb.g / 255,
           b: rgb.b / 255,
@@ -55,33 +99,27 @@ async function createColorVariables(msg) {
       
       // Dark 색상
       for (const color of msg.darkColors) {
-        const variable = figma.variables.getVariableByName(
-          `${msg.variableName}-${color.step}`
-        );
+        const variableName = `${msg.variableName}/${color.step}`;
+        let variable = findOrCreateVariable(variableName, collection, 'COLOR');
         
-        if (variable) {
-          const rgb = hexToRgb(color.hex);
-          variable.setValueForMode(darkMode, {
-            r: rgb.r / 255,
-            g: rgb.g / 255,
-            b: rgb.b / 255,
-            a: 1
-          });
-        }
+        const rgb = hexToRgb(color.hex);
+        variable.setValueForMode(darkModeId, {
+          r: rgb.r / 255,
+          g: rgb.g / 255,
+          b: rgb.b / 255,
+          a: 1
+        });
       }
     } else {
       // 단일 모드
-      const mode = collection.modes[0].modeId;
+      const modeId = collection.modes[0].modeId;
       
       for (const color of msg.colors) {
-        const variable = figma.variables.createVariable(
-          `${msg.variableName}-${color.step}`,
-          collection.id,
-          'COLOR'
-        );
+        const variableName = `${msg.variableName}/${color.step}`;
+        let variable = findOrCreateVariable(variableName, collection, 'COLOR');
         
         const rgb = hexToRgb(color.hex);
-        variable.setValueForMode(mode, {
+        variable.setValueForMode(modeId, {
           r: rgb.r / 255,
           g: rgb.g / 255,
           b: rgb.b / 255,
@@ -103,155 +141,23 @@ async function createColorVariables(msg) {
   }
 }
 
-// 레이어에 색상 적용 함수
-async function applyColorsToLayers(msg) {
+// Token Theme를 Frame의 레이어에 적용
+async function applyTokenThemeToFrame(msg) {
   const selection = figma.currentPage.selection;
   
   if (selection.length === 0) {
-    figma.notify('⚠️ Please select layers first');
+    figma.notify('⚠️ Please select a Frame first');
     return;
   }
   
   let appliedCount = 0;
+  const scaleColors = msg.scaleColors;
   
+  // 선택된 Frame들 처리
   for (const node of selection) {
-    const nodeName = node.name.toLowerCase();
-    
-    // 매핑 규칙에 따라 색상 찾기
-    for (const [keyword, colorData] of Object.entries(msg.layerMappings)) {
-      if (nodeName.includes(keyword)) {
-        if ('fills' in node) {
-          const rgb = hexToRgb(colorData.hex);
-          node.fills = [{
-            type: 'SOLID',
-            color: {
-              r: rgb.r / 255,
-              g: rgb.g / 255,
-              b: rgb.b / 255
-            }
-          }];
-          appliedCount++;
-          break;
-        }
-      }
+    if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+      appliedCount += await applyColorsToFrameLayers(node, scaleColors);
     }
-  }
-  
-  figma.notify(`✅ Applied colors to ${appliedCount} layers`);
-}
-
-// Token Theme를 레이어에 적용하는 함수
-async function applyTokenTheme(msg) {
-  const selection = figma.currentPage.selection;
-  
-  if (selection.length === 0) {
-    figma.notify('⚠️ Please select layers to apply theme');
-    return;
-  }
-  
-  let appliedCount = 0;
-  const theme = msg.theme;
-  
-  // 선택된 모든 노드를 재귀적으로 순회
-  function applyToNode(node) {
-    // 노드에 바인딩된 Variable 확인
-    if ('boundVariables' in node && node.boundVariables) {
-      // fills에 바인딩된 Variable 확인
-      if (node.boundVariables['fills'] && node.boundVariables['fills'].length > 0) {
-        const fillVariable = node.boundVariables['fills'][0];
-        
-        // Variable ID로 Variable 객체 가져오기
-        const variable = figma.variables.getVariableById(fillVariable.id);
-        
-        if (variable) {
-          const variableName = variable.name.toLowerCase();
-          
-          // semantic token 패턴 확인
-          for (const [tokenName, colorHex] of Object.entries(theme.tokens)) {
-            if (variableName.includes(tokenName) || 
-                variableName.includes(tokenName.replace(/-/g, '/')) ||
-                variableName.includes(tokenName.replace(/-/g, '.')) ||
-                variableName.includes(tokenName.replace(/-/g, '_'))) {
-              
-              // 색상 적용
-              if ('fills' in node) {
-                const rgb = hexToRgb(colorHex);
-                node.fills = [{
-                  type: 'SOLID',
-                  color: {
-                    r: rgb.r / 255,
-                    g: rgb.g / 255,
-                    b: rgb.b / 255
-                  }
-                }];
-                appliedCount++;
-                console.log(`Applied ${tokenName} to node with variable ${variableName}`);
-                break;
-              }
-            }
-          }
-          
-          // background 특별 처리
-          if (variableName.includes('background') || variableName.includes('bg')) {
-            if ('fills' in node) {
-              const rgb = hexToRgb(theme.background);
-              node.fills = [{
-                type: 'SOLID',
-                color: {
-                  r: rgb.r / 255,
-                  g: rgb.g / 255,
-                  b: rgb.b / 255
-                }
-              }];
-              appliedCount++;
-            }
-          }
-        }
-      }
-      
-      // strokes에 바인딩된 Variable 확인 (border tokens)
-      if (node.boundVariables['strokes'] && node.boundVariables['strokes'].length > 0) {
-        const strokeVariable = node.boundVariables['strokes'][0];
-        const variable = figma.variables.getVariableById(strokeVariable.id);
-        
-        if (variable) {
-          const variableName = variable.name.toLowerCase();
-          
-          for (const [tokenName, colorHex] of Object.entries(theme.tokens)) {
-            if (tokenName.includes('border') && 
-                (variableName.includes(tokenName) || 
-                 variableName.includes('border'))) {
-              
-              if ('strokes' in node) {
-                const rgb = hexToRgb(colorHex);
-                node.strokes = [{
-                  type: 'SOLID',
-                  color: {
-                    r: rgb.r / 255,
-                    g: rgb.g / 255,
-                    b: rgb.b / 255
-                  }
-                }];
-                appliedCount++;
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    // 자식 노드들도 처리
-    if ('children' in node) {
-      for (const child of node.children) {
-        applyToNode(child);
-      }
-    }
-  }
-  
-  // 선택된 모든 노드에 적용
-  for (const node of selection) {
-    applyToNode(node);
   }
   
   figma.ui.postMessage({ 
@@ -265,6 +171,156 @@ async function applyTokenTheme(msg) {
   } else {
     figma.notify('⚠️ No layers with semantic token variables found');
   }
+}
+
+// Frame 내부 레이어들에 색상 적용
+async function applyColorsToFrameLayers(frame, scaleColors) {
+  let count = 0;
+  
+  // 재귀적으로 모든 자식 노드 처리
+  async function processNode(node) {
+    // Fill에 바인딩된 Variable 확인
+    if ('fills' in node && node.boundVariables && node.boundVariables['fills']) {
+      // boundVariables['fills']는 배열이 아닌 단일 객체일 수 있음
+      const fillBinding = Array.isArray(node.boundVariables['fills']) 
+        ? node.boundVariables['fills'][0] 
+        : node.boundVariables['fills'];
+        
+      if (fillBinding && fillBinding.id) {
+        try {
+          // Variable ID로 Variable 객체 가져오기
+          const variable = figma.variables.getVariableById(fillBinding.id);
+          
+          if (variable && variable.name) {
+            const variableName = variable.name.toLowerCase();
+            console.log(`Found variable: ${variable.name} on node: ${node.name}`);
+              
+            // neutral 관련 semantic token 확인
+            if (variableName.includes('neutral') || 
+                variableName.includes('surface') || 
+                variableName.includes('background') ||
+                variableName.includes('bg-') ||
+                variableName.includes('text-') ||
+                variableName.includes('icon-') ||
+                variableName.includes('border-')) {
+              
+              // Semantic token mapping에서 찾기
+              for (const [tokenName, tokenConfig] of Object.entries(SEMANTIC_TOKEN_MAPPING)) {
+                const tokenKey = tokenName.toLowerCase().replace(/-/g, '');
+                const variableKey = variableName.replace(/\//g, '').replace(/-/g, '').replace(/semantic/g, '');
+                
+                if (variableKey.includes(tokenKey) || 
+                    variableName.includes(tokenName) ||
+                    (tokenName.includes('surface') && variableName.includes('surface')) ||
+                    (tokenName.includes('text') && variableName.includes('text')) ||
+                    (tokenName.includes('icon') && variableName.includes('icon')) ||
+                    (tokenName.includes('border') && variableName.includes('border')) ||
+                    (tokenName.includes('bg') && variableName.includes('background'))) {
+                  
+                  const scaleColor = scaleColors.find(c => c.step === tokenConfig.scale);
+                  
+                  if (scaleColor) {
+                    const rgb = hexToRgb(scaleColor.hex);
+                    node.fills = [{
+                      type: 'SOLID',
+                      color: {
+                        r: rgb.r / 255,
+                        g: rgb.g / 255,
+                        b: rgb.b / 255
+                      }
+                    }];
+                    count++;
+                    console.log(`Applied ${tokenName} (${scaleColor.hex}) to ${node.name} with variable ${variable.name}`);
+                    break;
+                  }
+                }
+              }
+            }
+            // 다른 색상 (orange, blue 등) 처리
+            else if (!variableName.includes('neutral') && !variableName.includes('gray')) {
+              // orange, blue 등 다른 색상은 기존 Variable 값 유지
+              const colorPattern = /(orange|blue|red|green|purple|yellow|pink|teal|indigo)/;
+              if (colorPattern.test(variableName)) {
+                console.log(`Preserving non-neutral color variable: ${variable.name}`);
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error processing variable ${fillBinding.id}:`, error);
+        }
+      }
+    }
+    
+    // Stroke에 바인딩된 Variable 확인 (border tokens)
+    if ('strokes' in node && node.boundVariables && node.boundVariables['strokes']) {
+      const strokeBinding = Array.isArray(node.boundVariables['strokes'])
+        ? node.boundVariables['strokes'][0]
+        : node.boundVariables['strokes'];
+        
+      if (strokeBinding && strokeBinding.id) {
+        try {
+          const variable = figma.variables.getVariableById(strokeBinding.id);
+          
+          if (variable && variable.name) {
+            const variableName = variable.name.toLowerCase();
+            
+            if (variableName.includes('border') || variableName.includes('divider')) {
+              for (const [tokenName, tokenConfig] of Object.entries(SEMANTIC_TOKEN_MAPPING)) {
+                if (tokenName.includes('border') && 
+                    (variableName.includes(tokenName) || variableName.includes('border') || variableName.includes('divider'))) {
+                  
+                  const scaleColor = scaleColors.find(c => c.step === tokenConfig.scale);
+                  
+                  if (scaleColor) {
+                    const rgb = hexToRgb(scaleColor.hex);
+                    node.strokes = [{
+                      type: 'SOLID',
+                      color: {
+                        r: rgb.r / 255,
+                        g: rgb.g / 255,
+                        b: rgb.b / 255
+                      }
+                    }];
+                    count++;
+                    console.log(`Applied border ${tokenName} (${scaleColor.hex}) to ${node.name}`);
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error processing stroke variable:`, error);
+        }
+      }
+    }
+    
+    // 자식 노드들도 처리
+    if ('children' in node) {
+      for (const child of node.children) {
+        await processNode(child);
+      }
+    }
+  }
+  
+  await processNode(frame);
+  return count;
+}
+
+// Variable 찾기 또는 생성
+function findOrCreateVariable(name, collection, type) {
+  // 기존 Variable 확인
+  const existingVars = figma.variables.getLocalVariables(type);
+  const existing = existingVars.find(v => 
+    v.name === name && v.variableCollectionId === collection.id
+  );
+  
+  if (existing) {
+    return existing;
+  }
+  
+  // 새로 생성
+  return figma.variables.createVariable(name, collection, type);
 }
 
 // 유틸리티 함수: HEX를 RGB로 변환

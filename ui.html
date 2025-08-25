@@ -286,90 +286,78 @@
             font-family: monospace;
         }
 
-        .reference-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .token-mapping {
+            background: #f8f9fa;
+            border-radius: 6px;
             padding: 8px;
-            background: linear-gradient(145deg, #e8f5e8, #d4f4d4);
-            border-radius: 6px;
-            border-left: 3px solid #28a745;
-            margin-bottom: 8px;
-        }
-
-        .reference-color {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .reference-info {
-            flex: 1;
-        }
-
-        .reference-info h4 {
-            font-size: 11px;
-            color: #28a745;
-            margin-bottom: 2px;
-        }
-
-        .reference-info p {
-            font-size: 9px;
-            color: #155724;
-            margin: 0;
-        }
-
-        .tone-suggestions {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
             margin-top: 8px;
         }
 
-        .tone-suggestion {
-            background: white;
-            border-radius: 6px;
+        .mapping-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 9px;
+        }
+
+        .mapping-arrow {
+            margin: 0 8px;
+            color: #666;
+        }
+
+        .scale-preview {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 2px;
+            margin-top: 8px;
             padding: 8px;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+
+        .scale-item {
             text-align: center;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid #e0e0e0;
         }
 
-        .tone-suggestion:hover {
-            border-color: #000;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        .scale-color {
+            width: 100%;
+            height: 30px;
+            border-radius: 3px;
+            margin-bottom: 2px;
         }
 
-        .tone-color-display {
-            width: 40px;
-            height: 24px;
+        .scale-label {
+            font-size: 7px;
+            color: #666;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            padding: 10px;
             border-radius: 4px;
-            margin: 0 auto 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            margin: 10px 0;
         }
 
-        .tone-suggestion-title {
-            font-weight: 600;
+        .info-box h4 {
+            font-size: 11px;
+            margin-bottom: 6px;
+            color: #1976d2;
+        }
+
+        .info-box p {
             font-size: 10px;
-            color: #333;
-            margin-bottom: 3px;
+            color: #555;
+            line-height: 1.4;
+            margin: 4px 0;
         }
 
-        .tone-suggestion-hex {
+        .info-box code {
+            background: #fff;
+            padding: 1px 3px;
+            border-radius: 2px;
             font-family: 'Monaco', monospace;
             font-size: 9px;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .tone-suggestion-desc {
-            font-size: 8px;
-            color: #666;
-            line-height: 1.2;
         }
     </style>
 </head>
@@ -379,9 +367,6 @@
         <div class="tab-navigation">
             <button class="tab-btn active" id="generatorTab">
                 Scale Generator
-            </button>
-            <button class="tab-btn" id="toneMatchingTab">
-                Tone Matching
             </button>
             <button class="tab-btn" id="tokenThemeTab">
                 Token Theme
@@ -421,86 +406,66 @@
             </div>
         </div>
 
-        <!-- Tone Matching 탭 -->
-        <div id="toneMatchingContent" class="tab-content">
-            <div class="section">
-                <div class="section-title">Step 1: Set Reference Color</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">Choose a reference color for tone matching:</p>
-                
-                <div class="color-input-group">
-                    <input type="color" id="referenceColor" class="color-picker" value="#667eea">
-                    <input type="text" id="referenceHex" class="hex-input" value="#667EEA">
-                </div>
-                
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">📌 Set Reference</button>
-                    <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1;">Clear</button>
-                </div>
-                
-                <div id="referenceDisplay"></div>
-            </div>
-            
-            <div class="section">
-                <div class="section-title">Step 2: Input New Color</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">Enter a color to match with reference tone:</p>
-                
-                <div class="color-input-group">
-                    <input type="color" id="newColor" class="color-picker" value="#ff0000">
-                    <input type="text" id="newColorHex" class="hex-input" value="#FF0000">
-                </div>
-                
-                <button id="getSuggestionsBtn" class="action-btn btn-success" style="margin-top: 8px;">
-                    ✨ Get Tone Suggestions
-                </button>
-                
-                <div id="toneMatchingResults"></div>
-            </div>
-        </div>
-
         <!-- Token Theme 탭 -->
         <div id="tokenThemeContent" class="tab-content">
             <div class="section">
-                <div class="section-title">🎨 Theme Background Color</div>
+                <div class="section-title">🎨 Base Color for Theme</div>
                 <p style="color: #666; margin-bottom: 8px; font-size: 10px;">
-                    Set a background color to generate a complete theme
+                    Enter a color to generate neutral scale (50-950)
                 </p>
                 <div class="color-input-group">
-                    <input type="color" id="themeBackground" class="color-picker" value="#FFFFFF">
-                    <input type="text" id="themeBgHex" class="hex-input" value="#FFFFFF">
+                    <input type="color" id="themeBaseColor" class="color-picker" value="#6B7280">
+                    <input type="text" id="themeBaseHex" class="hex-input" value="#6B7280">
                 </div>
             </div>
 
-            <div class="section">
-                <button class="action-btn btn-primary" id="generateTheme">
-                    🎨 Generate Token Theme
+            <div class="section" id="scalePreviewSection" style="display: none;">
+                <div class="section-title">Generated Scale</div>
+                <div class="scale-preview" id="scalePreview"></div>
+            </div>
+
+            <div class="section" id="tokenMappingSection" style="display: none;">
+                <div class="section-title">Semantic Token Mapping</div>
+                <div class="token-mapping">
+                    <div class="mapping-item">
+                        <strong>Background:</strong> 50-200
+                    </div>
+                    <div class="mapping-item">
+                        <strong>Text:</strong> 400-950
+                    </div>
+                    <div class="mapping-item">
+                        <strong>Icon:</strong> 400-900
+                    </div>
+                    <div class="mapping-item">
+                        <strong>Border:</strong> 200-400
+                    </div>
+                </div>
+                
+                <div class="token-list" id="semanticTokenList"></div>
+            </div>
+
+            <div class="info-box">
+                <h4>📝 How Token Theme Works:</h4>
+                <p>1. Generate a neutral scale (50-950) from your base color</p>
+                <p>2. Scale values are mapped to semantic tokens automatically</p>
+                <p>3. Select Frame(s) in Figma that have semantic token variables applied:</p>
+                <p>   • <code>semantic/surface/neutral-default</code></p>
+                <p>   • <code>semantic/text/neutral-bold</code></p>
+                <p>   • <code>semantic/border/divider</code></p>
+                <p>4. The plugin detects bound variables and updates their colors</p>
+                <p>   • Neutral tokens → New scale colors</p>
+                <p>   • Other colors (orange, blue) → Preserved</p>
+                <p>5. Click "Apply to Selected Frames" to update colors</p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn btn-primary" id="generateScale">
+                    🎨 Generate Scale & Tokens
                 </button>
-            </div>
-
-            <div class="section" id="tokenPreviewSection" style="display: none;">
-                <div class="section-title">Generated Token Colors</div>
-                <div class="token-list" id="tokenList"></div>
                 
-                <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; margin-top: 12px;">
-                    <h4 style="font-size: 11px; margin-bottom: 8px;">📝 How it Works:</h4>
-                    <ol style="font-size: 10px; color: #666; margin: 0; padding-left: 20px;">
-                        <li>Select layers that have semantic token variables applied<br>
-                            <span style="font-size: 9px; color: #888;">
-                                (e.g., semantic/background/neutral-default)
-                            </span>
-                        </li>
-                        <li>Generate a theme based on your background color</li>
-                        <li>Click "Apply to Selected Layers" to update colors</li>
-                    </ol>
-                    <p style="font-size: 9px; color: #888; margin-top: 8px; margin-bottom: 0;">
-                        💡 The plugin reads the variable names from your layers and applies matching colors
-                    </p>
-                </div>
-                
-                <div class="action-buttons" style="margin-top: 12px;">
-                    <button class="action-btn btn-success" id="applyTokenTheme">
-                        ✅ Apply to Selected Layers
-                    </button>
-                </div>
+                <button class="action-btn btn-success" id="applyToFrame" style="display: none;">
+                    ✅ Apply to Selected Frames
+                </button>
             </div>
         </div>
 
@@ -626,63 +591,61 @@
             }
         }
 
-        // ===== Token Theme Manager =====
-        class TokenThemeManager {
+        // ===== Semantic Token Manager =====
+        class SemanticTokenManager {
             constructor() {
-                this.tokenDefinitions = {
-                    'text-bold': { contrastMin: 7 },
-                    'text-default': { contrastMin: 4.5 },
-                    'text-subtle': { contrastMin: 3 },
-                    'text-disabled': { contrastMin: 2 },
-                    'icon-bold': { contrastMin: 7 },
-                    'icon-default': { contrastMin: 4.5 },
-                    'icon-subtle': { contrastMin: 3 },
-                    'surface-default': { contrastMin: 1 },
-                    'surface-subtle': { contrastMin: 1 },
-                    'border-bold': { contrastMin: 3 },
-                    'border-subtle': { contrastMin: 1.5 }
+                this.tokenMapping = {
+                    // Background tokens
+                    'bg-default': { scale: 50, type: 'background' },
+                    'bg-subtle': { scale: 100, type: 'background' },
+                    'bg-muted': { scale: 200, type: 'background' },
+                    'surface-default': { scale: 50, type: 'surface' },
+                    'surface-subtle': { scale: 100, type: 'surface' },
+                    'surface-muted': { scale: 150, type: 'surface' },
+                    
+                    // Text tokens
+                    'text-default': { scale: 900, type: 'text' },
+                    'text-bold': { scale: 950, type: 'text' },
+                    'text-subtle': { scale: 600, type: 'text' },
+                    'text-muted': { scale: 500, type: 'text' },
+                    'text-disabled': { scale: 400, type: 'text' },
+                    
+                    // Icon tokens
+                    'icon-default': { scale: 700, type: 'icon' },
+                    'icon-bold': { scale: 900, type: 'icon' },
+                    'icon-subtle': { scale: 500, type: 'icon' },
+                    'icon-disabled': { scale: 400, type: 'icon' },
+                    
+                    // Border tokens
+                    'border-default': { scale: 300, type: 'border' },
+                    'border-bold': { scale: 400, type: 'border' },
+                    'border-subtle': { scale: 200, type: 'border' }
                 };
             }
 
-            generateTheme(backgroundHex) {
-                const bgRgb = ColorUtils.hexToRgb(backgroundHex);
-                const bgLuminance = ColorUtils.getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
-                const isDark = bgLuminance < 0.5;
+            generateSemanticTokens(scaleColors) {
+                const tokens = {};
                 
-                const theme = {
-                    background: backgroundHex,
-                    tokens: {},
-                    mode: isDark ? 'dark' : 'light'
-                };
-                
-                // Generate tokens based on background
-                for (const [tokenName, config] of Object.entries(this.tokenDefinitions)) {
-                    if (tokenName.includes('text') || tokenName.includes('icon')) {
-                        // For text/icons, use contrasting colors
-                        theme.tokens[tokenName] = isDark ? '#FFFFFF' : '#000000';
-                        
-                        if (tokenName.includes('subtle')) {
-                            theme.tokens[tokenName] = isDark ? '#CCCCCC' : '#666666';
-                        } else if (tokenName.includes('disabled')) {
-                            theme.tokens[tokenName] = isDark ? '#808080' : '#999999';
-                        }
-                    } else if (tokenName.includes('surface')) {
-                        // For surfaces, use variations of background
-                        const [h, s, l] = ColorUtils.hexToHsl(backgroundHex);
-                        const adjustedL = tokenName.includes('subtle') 
-                            ? (isDark ? l + 5 : l - 5)
-                            : (isDark ? l + 10 : l - 10);
-                        const [r, g, b] = ColorUtils.hslToRgb(h, s, Math.max(0, Math.min(100, adjustedL)));
-                        theme.tokens[tokenName] = ColorUtils.rgbToHex(r, g, b);
-                    } else if (tokenName.includes('border')) {
-                        // For borders
-                        theme.tokens[tokenName] = tokenName.includes('bold')
-                            ? (isDark ? '#FFFFFF' : '#000000')
-                            : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)');
+                for (const [tokenName, config] of Object.entries(this.tokenMapping)) {
+                    // Find closest scale value
+                    let scaleColor = scaleColors.find(c => c.step === config.scale);
+                    
+                    // If exact match not found, find closest
+                    if (!scaleColor) {
+                        scaleColor = scaleColors.reduce((prev, curr) => {
+                            return Math.abs(curr.step - config.scale) < Math.abs(prev.step - config.scale) 
+                                ? curr : prev;
+                        });
                     }
+                    
+                    tokens[tokenName] = {
+                        hex: scaleColor.hex,
+                        scale: scaleColor.step,
+                        type: config.type
+                    };
                 }
                 
-                return theme;
+                return tokens;
             }
         }
 
@@ -690,11 +653,11 @@
         class ColorGeneratorApp {
             constructor() {
                 this.colorGenerator = new ColorGenerator();
-                this.tokenThemeManager = new TokenThemeManager();
+                this.semanticTokenManager = new SemanticTokenManager();
                 this.currentMode = 'light';
                 this.generatedColors = [];
-                this.currentTheme = null;
-                this.referenceColor = null;
+                this.currentScaleColors = [];
+                this.currentSemanticTokens = {};
                 
                 this.init();
             }
@@ -718,15 +681,11 @@
                     this.switchTab('generator');
                 });
                 
-                document.getElementById('toneMatchingTab').addEventListener('click', () => {
-                    this.switchTab('tone-matching');
-                });
-                
                 document.getElementById('tokenThemeTab').addEventListener('click', () => {
                     this.switchTab('token');
                 });
                 
-                // Color input
+                // Scale Generator
                 const baseColor = document.getElementById('baseColor');
                 const hexInput = document.getElementById('hexInput');
                 
@@ -760,65 +719,26 @@
                     this.createVariables(true);
                 });
                 
-                // Tone Matching
-                const referenceColor = document.getElementById('referenceColor');
-                const referenceHex = document.getElementById('referenceHex');
-                
-                referenceColor.addEventListener('input', () => {
-                    referenceHex.value = referenceColor.value.toUpperCase();
-                });
-                
-                referenceHex.addEventListener('input', () => {
-                    if (/^#[0-9A-F]{6}$/i.test(referenceHex.value)) {
-                        referenceColor.value = referenceHex.value;
-                    }
-                });
-                
-                document.getElementById('setRefBtn').addEventListener('click', () => {
-                    this.setReferenceColor();
-                });
-                
-                document.getElementById('clearRefBtn').addEventListener('click', () => {
-                    this.clearReference();
-                });
-                
-                const newColor = document.getElementById('newColor');
-                const newColorHex = document.getElementById('newColorHex');
-                
-                newColor.addEventListener('input', () => {
-                    newColorHex.value = newColor.value.toUpperCase();
-                });
-                
-                newColorHex.addEventListener('input', () => {
-                    if (/^#[0-9A-F]{6}$/i.test(newColorHex.value)) {
-                        newColor.value = newColorHex.value;
-                    }
-                });
-                
-                document.getElementById('getSuggestionsBtn').addEventListener('click', () => {
-                    this.generateToneMatching();
-                });
-                
                 // Token Theme
-                const themeBackground = document.getElementById('themeBackground');
-                const themeBgHex = document.getElementById('themeBgHex');
+                const themeBaseColor = document.getElementById('themeBaseColor');
+                const themeBaseHex = document.getElementById('themeBaseHex');
                 
-                themeBackground.addEventListener('input', () => {
-                    themeBgHex.value = themeBackground.value.toUpperCase();
+                themeBaseColor.addEventListener('input', () => {
+                    themeBaseHex.value = themeBaseColor.value.toUpperCase();
                 });
                 
-                themeBgHex.addEventListener('input', () => {
-                    if (/^#[0-9A-F]{6}$/i.test(themeBgHex.value)) {
-                        themeBackground.value = themeBgHex.value;
+                themeBaseHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
+                        themeBaseColor.value = themeBaseHex.value;
                     }
                 });
                 
-                document.getElementById('generateTheme').addEventListener('click', () => {
-                    this.generateTokenTheme();
+                document.getElementById('generateScale').addEventListener('click', () => {
+                    this.generateScaleAndTokens();
                 });
                 
-                document.getElementById('applyTokenTheme')?.addEventListener('click', () => {
-                    this.applyTokenTheme();
+                document.getElementById('applyToFrame').addEventListener('click', () => {
+                    this.applyTokenThemeToFrame();
                 });
             }
 
@@ -833,9 +753,6 @@
                 if (tab === 'generator') {
                     document.getElementById('generatorTab').classList.add('active');
                     document.getElementById('generatorContent').classList.add('active');
-                } else if (tab === 'tone-matching') {
-                    document.getElementById('toneMatchingTab').classList.add('active');
-                    document.getElementById('toneMatchingContent').classList.add('active');
                 } else {
                     document.getElementById('tokenThemeTab').classList.add('active');
                     document.getElementById('tokenThemeContent').classList.add('active');
@@ -873,7 +790,7 @@
                             ${color.step}
                         </div>
                         <div class="color-info">
-                            <span class="color-hex">${color.hex.toUpperCase()}</span>
+                            <span class="color-hex" onclick="app.copyToClipboard('${color.hex}')">${color.hex.toUpperCase()}</span>
                             <div class="contrast-info">
                                 <span>${color.contrast.toFixed(2)}:1</span>
                                 ${badge}
@@ -885,96 +802,76 @@
                 });
             }
 
-            setReferenceColor() {
-                const hex = document.getElementById('referenceColor').value;
-                this.referenceColor = {
-                    hex: hex.toUpperCase(),
-                    hsl: ColorUtils.hexToHsl(hex)
-                };
+            generateScaleAndTokens() {
+                const baseHex = document.getElementById('themeBaseColor').value;
                 
-                const display = document.getElementById('referenceDisplay');
-                const [h, s, l] = this.referenceColor.hsl;
+                // Generate neutral scale
+                this.currentScaleColors = this.colorGenerator.generateColors(baseHex, 'light');
                 
-                display.innerHTML = `
-                    <div class="reference-display">
-                        <div class="reference-color" style="background: ${this.referenceColor.hex};"></div>
-                        <div class="reference-info">
-                            <h4>📌 Reference Active</h4>
-                            <p><strong>${this.referenceColor.hex}</strong></p>
-                            <p>HSL(${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(l)}%)</p>
-                        </div>
-                    </div>
-                `;
+                // Generate semantic tokens
+                this.currentSemanticTokens = this.semanticTokenManager.generateSemanticTokens(this.currentScaleColors);
                 
-                this.showSuccess('Reference color set!');
+                // Display scale preview
+                const scalePreview = document.getElementById('scalePreview');
+                scalePreview.innerHTML = '';
+                
+                this.currentScaleColors.forEach(color => {
+                    const item = document.createElement('div');
+                    item.className = 'scale-item';
+                    
+                    const rgb = ColorUtils.hexToRgb(color.hex);
+                    const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
+                    
+                    item.innerHTML = `
+                        <div class="scale-color" style="background: ${color.hex}"></div>
+                        <div class="scale-label">${color.step}</div>
+                    `;
+                    
+                    scalePreview.appendChild(item);
+                });
+                
+                // Display semantic tokens
+                const tokenList = document.getElementById('semanticTokenList');
+                tokenList.innerHTML = '';
+                
+                for (const [name, data] of Object.entries(this.currentSemanticTokens)) {
+                    const item = document.createElement('div');
+                    item.className = 'token-item';
+                    item.innerHTML = `
+                        <div class="token-color" style="background: ${data.hex}"></div>
+                        <div class="token-name">${name} (${data.scale})</div>
+                        <div class="token-value">${data.hex}</div>
+                    `;
+                    tokenList.appendChild(item);
+                }
+                
+                // Show sections
+                document.getElementById('scalePreviewSection').style.display = 'block';
+                document.getElementById('tokenMappingSection').style.display = 'block';
+                document.getElementById('applyToFrame').style.display = 'block';
+                
+                this.showSuccess('Scale and tokens generated!');
             }
 
-            clearReference() {
-                this.referenceColor = null;
-                document.getElementById('referenceDisplay').innerHTML = '';
-                document.getElementById('toneMatchingResults').innerHTML = '';
-                this.showSuccess('Reference cleared');
-            }
-
-            generateToneMatching() {
-                if (!this.referenceColor) {
-                    this.showSuccess('Please set a reference color first!');
+            applyTokenThemeToFrame() {
+                if (this.currentScaleColors.length === 0) {
+                    this.showSuccess('Please generate scale first!');
                     return;
                 }
                 
-                const newHex = document.getElementById('newColor').value;
-                const newHsl = ColorUtils.hexToHsl(newHex);
-                const [refH, refS, refL] = this.referenceColor.hsl;
-                
-                const suggestions = [];
-                
-                // Saturation Match
-                const satMatchRgb = ColorUtils.hslToRgb(newHsl[0], refS, newHsl[2]);
-                suggestions.push({
-                    type: 'Saturation Match',
-                    hex: ColorUtils.rgbToHex(...satMatchRgb),
-                    desc: `Saturation adjusted to ${Math.round(refS)}%`
-                });
-                
-                // Lightness Match
-                const lightMatchRgb = ColorUtils.hslToRgb(newHsl[0], newHsl[1], refL);
-                suggestions.push({
-                    type: 'Lightness Match',
-                    hex: ColorUtils.rgbToHex(...lightMatchRgb),
-                    desc: `Lightness adjusted to ${Math.round(refL)}%`
-                });
-                
-                // Full Tone Match
-                const fullMatchRgb = ColorUtils.hslToRgb(newHsl[0], refS, refL);
-                suggestions.push({
-                    type: 'Full Tone Match',
-                    hex: ColorUtils.rgbToHex(...fullMatchRgb),
-                    desc: `S: ${Math.round(refS)}%, L: ${Math.round(refL)}%`
-                });
-                
-                const results = document.getElementById('toneMatchingResults');
-                results.innerHTML = `
-                    <div style="margin-top: 16px;">
-                        <div class="tone-suggestions">
-                            ${suggestions.map(s => `
-                                <div class="tone-suggestion" onclick="app.applyToneToGenerator('${s.hex}')">
-                                    <div class="tone-color-display" style="background: ${s.hex};"></div>
-                                    <div class="tone-suggestion-title">${s.type}</div>
-                                    <div class="tone-suggestion-hex">${s.hex.toUpperCase()}</div>
-                                    <div class="tone-suggestion-desc">${s.desc}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            applyToneToGenerator(hex) {
-                document.getElementById('baseColor').value = hex;
-                document.getElementById('hexInput').value = hex.toUpperCase();
-                this.switchTab('generator');
-                this.updateDisplay();
-                this.showSuccess(`Applied ${hex} to generator!`);
+                parent.postMessage({ 
+                    pluginMessage: {
+                        type: 'apply-token-theme-to-frame',
+                        scaleColors: this.currentScaleColors,
+                        semanticTokens: this.currentSemanticTokens,
+                        theme: {
+                            mode: 'light',
+                            tokens: Object.fromEntries(
+                                Object.entries(this.currentSemanticTokens).map(([k, v]) => [k, v.hex])
+                            )
+                        }
+                    }
+                }, '*');
             }
 
             createVariables(dualMode) {
@@ -989,6 +886,7 @@
                         pluginMessage: {
                             type: 'create-variables',
                             variableName,
+                            collectionName: `${variableName} System`,
                             lightColors,
                             darkColors,
                             dualMode: true
@@ -999,6 +897,7 @@
                         pluginMessage: {
                             type: 'create-variables',
                             variableName,
+                            collectionName: `${variableName} System`,
                             colors: this.generatedColors,
                             dualMode: false
                         }
@@ -1006,39 +905,10 @@
                 }
             }
 
-            generateTokenTheme() {
-                const bgHex = document.getElementById('themeBackground').value;
-                this.currentTheme = this.tokenThemeManager.generateTheme(bgHex);
-                
-                const section = document.getElementById('tokenPreviewSection');
-                section.style.display = 'block';
-                
-                const list = document.getElementById('tokenList');
-                list.innerHTML = '';
-                
-                for (const [name, value] of Object.entries(this.currentTheme.tokens)) {
-                    const item = document.createElement('div');
-                    item.className = 'token-item';
-                    item.innerHTML = `
-                        <div class="token-color" style="background: ${value}"></div>
-                        <div class="token-name">${name}</div>
-                        <div class="token-value">${value}</div>
-                    `;
-                    list.appendChild(item);
-                }
-                
-                this.showSuccess('Token theme generated!');
-            }
-
-            applyTokenTheme() {
-                if (!this.currentTheme) return;
-                
-                parent.postMessage({ 
-                    pluginMessage: {
-                        type: 'apply-token-theme',
-                        theme: this.currentTheme
-                    }
-                }, '*');
+            copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.showSuccess(`Copied ${text} to clipboard!`);
+                });
             }
 
             handlePluginMessage(msg) {
