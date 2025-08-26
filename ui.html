@@ -286,6 +286,39 @@
             font-family: monospace;
         }
 
+        .apply-options {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            color: #333;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .radio-option input[type="radio"]:checked + span {
+            font-weight: 600;
+            color: #000;
+        }
+
         .token-mapping {
             background: #f8f9fa;
             border-radius: 6px;
@@ -307,7 +340,7 @@
 
         .scale-preview {
             display: grid;
-            grid-template-columns: repeat(11, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
             gap: 2px;
             margin-top: 8px;
             padding: 8px;
@@ -334,15 +367,50 @@
         .info-box {
             background: #e3f2fd;
             border-left: 3px solid #2196f3;
-            padding: 10px;
             border-radius: 4px;
             margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .info-box-header {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .info-box-header:hover {
+            background: #d7edfc;
         }
 
         .info-box h4 {
             font-size: 11px;
-            margin-bottom: 6px;
+            margin: 0;
             color: #1976d2;
+        }
+
+        .info-box-toggle {
+            font-size: 10px;
+            color: #1976d2;
+            transition: transform 0.2s;
+        }
+
+        .info-box-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .info-box-content {
+            padding: 0 10px 10px 10px;
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .info-box-content.collapsed {
+            max-height: 0;
+            padding: 0 10px;
         }
 
         .info-box p {
@@ -419,25 +487,55 @@
                 </div>
             </div>
 
+            <div class="section">
+                <div class="section-title">Background Mode</div>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" id="themeLightBtn">☀️ Light</button>
+                    <button class="mode-btn" id="themeDarkBtn">🌙 Dark</button>
+                </div>
+            </div>
+
             <div class="section" id="scalePreviewSection" style="display: none;">
                 <div class="section-title">Generated Scale</div>
                 <div class="scale-preview" id="scalePreview"></div>
+                <button class="action-btn btn-primary" id="regenerateScale" style="margin-top: 12px;">
+                    🎨 Generate Scale & Tokens
+                </button>
             </div>
 
             <div class="section" id="tokenMappingSection" style="display: none;">
                 <div class="section-title">Semantic Token Mapping</div>
+                
+                <!-- 적용 옵션 추가 -->
+                <div class="apply-options">
+                    <label class="radio-option">
+                        <input type="radio" name="applyMode" value="all" checked>
+                        <span>Apply All Tokens</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="applyMode" value="boldOnly">
+                        <span>Apply Bold Tokens Only</span>
+                    </label>
+                </div>
+                
                 <div class="token-mapping">
                     <div class="mapping-item">
-                        <strong>Background:</strong> 50-200
+                        <strong>Background:</strong> 50, 950
                     </div>
                     <div class="mapping-item">
-                        <strong>Text:</strong> 400-950
+                        <strong>Surface:</strong> 50, 75, 900, 950
                     </div>
                     <div class="mapping-item">
-                        <strong>Icon:</strong> 400-900
+                        <strong>Container:</strong> 50, 75, 150, 900
                     </div>
                     <div class="mapping-item">
-                        <strong>Border:</strong> 200-400
+                        <strong>Text:</strong> 400, 600, 700, 900
+                    </div>
+                    <div class="mapping-item">
+                        <strong>Icon:</strong> 300, 400, 600, 700, 900
+                    </div>
+                    <div class="mapping-item">
+                        <strong>Border:</strong> 200, 950
                     </div>
                 </div>
                 
@@ -445,25 +543,42 @@
             </div>
 
             <div class="info-box">
-                <h4>📝 How Token Theme Works:</h4>
-                <p>1. Generate a neutral scale (50-950) from your base color</p>
-                <p>2. Scale values are mapped to semantic tokens automatically</p>
-                <p>3. Select Frame(s) in Figma that have semantic token variables applied:</p>
-                <p>   • <code>semantic/surface/neutral-default</code></p>
-                <p>   • <code>semantic/text/neutral-bold</code></p>
-                <p>   • <code>semantic/border/divider</code></p>
-                <p>4. The plugin detects bound variables and updates their colors</p>
-                <p>   • Neutral tokens → New scale colors</p>
-                <p>   • Other colors (orange, blue) → Preserved</p>
-                <p>5. Click "Apply to Selected Frames" to update colors</p>
+                <div class="info-box-header" onclick="app.toggleInfoBox()">
+                    <h4>📍 How Token Theme Works:</h4>
+                    <span class="info-box-toggle collapsed">▼</span>
+                </div>
+                <div class="info-box-content collapsed">
+                    <p>1. Generate a neutral scale (50-950) from your base color</p>
+                    <p>2. Scale values are mapped to semantic tokens automatically</p>
+                    <p>3. <strong>Bold tokens use your key color:</strong></p>
+                    <p>   • <code>text/neutral-bold</code> → key color</p>
+                    <p>   • <code>icon/neutral-bold</code> → key color</p>
+                    <p>   • <code>border/neutral-bold</code> → key color</p>
+                    <p>   • <code>container/neutral-bold</code> → key color</p>
+                    <p>4. Other tokens use scale colors:</p>
+                    <p>   • <code>surface/neutral-default</code> → scale 75</p>
+                    <p>   • <code>text/neutral-subtle</code> → scale 600</p>
+                    <p>   • <code>border/neutral-subtle</code> → scale 200</p>
+                    <p>5. <strong>Skipped layers:</strong></p>
+                    <p>   • <code>semantic/common/*</code> tokens are preserved</p>
+                    <p>   • Text with Typography styles not containing <code>body</code> or <code>label</code></p>
+                    <p>   • Layers with <code>Card</code> in name</p>
+                    <p>   • Layers with <code>title</code> or <code>Title</code> in name</p>
+                    <p>   • Layers with <code>sectionHeader</code> in name (case-insensitive)</p>
+                    <p>   • Layers with <code>isSelected=false</code> in name</p>
+                    <p>   • Layers with <code>isDisabled=true</code> in name</p>
+                    <p>6. Select Frame(s) and click "Apply to Selected Frames"</p>
+                </div>
             </div>
 
             <div class="action-buttons">
                 <button class="action-btn btn-primary" id="generateScale">
                     🎨 Generate Scale & Tokens
                 </button>
-                
-                <button class="action-btn btn-success" id="applyToFrame" style="display: none;">
+            </div>
+            
+            <div class="action-buttons" id="applyButtonSection" style="display: none;">
+                <button class="action-btn btn-success" id="applyToFrame">
                     ✅ Apply to Selected Frames
                 </button>
             </div>
@@ -550,7 +665,8 @@
         // ===== Color Generator =====
         class ColorGenerator {
             constructor() {
-                this.steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+                // ver2.json과 동일한 scale steps
+                this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
                 this.currentMode = 'light';
             }
 
@@ -558,13 +674,15 @@
                 const [h, s, l] = ColorUtils.hexToHsl(inputHex);
                 const colors = [];
                 
-                this.steps.forEach((step, index) => {
+                this.steps.forEach((step) => {
                     let lightness;
                     
                     if (mode === 'light') {
-                        lightness = 95 - (index * 8.5);
+                        // 50 → 95%, 950 → 5%로 매핑
+                        lightness = 95 - ((step - 50) / 900 * 90);
                     } else {
-                        lightness = 5 + (index * 8.5);
+                        // Dark mode: 반전
+                        lightness = 5 + ((step - 50) / 900 * 90);
                     }
                     
                     const [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
@@ -594,32 +712,42 @@
         // ===== Semantic Token Manager =====
         class SemanticTokenManager {
             constructor() {
+                // ver2.json 기반 정확한 매핑
                 this.tokenMapping = {
-                    // Background tokens
-                    'bg-default': { scale: 50, type: 'background' },
-                    'bg-subtle': { scale: 100, type: 'background' },
-                    'bg-muted': { scale: 200, type: 'background' },
-                    'surface-default': { scale: 50, type: 'surface' },
-                    'surface-subtle': { scale: 100, type: 'surface' },
-                    'surface-muted': { scale: 150, type: 'surface' },
+                    // Background
+                    'background/neutral-default': { scale: 50, type: 'background' },
+                    'background/neutral-black': { scale: 950, type: 'background' },
                     
-                    // Text tokens
-                    'text-default': { scale: 900, type: 'text' },
-                    'text-bold': { scale: 950, type: 'text' },
-                    'text-subtle': { scale: 600, type: 'text' },
-                    'text-muted': { scale: 500, type: 'text' },
-                    'text-disabled': { scale: 400, type: 'text' },
+                    // Surface  
+                    'surface/neutral-default': { scale: 75, type: 'surface' },
+                    'surface/neutral-black': { scale: 950, type: 'surface' },
+                    'surface/neutral-floating': { scale: 900, type: 'surface' },
+                    'surface/neutral-dialog': { scale: 50, type: 'surface' },
+                    'surface/neutral-sheet': { scale: 50, type: 'surface' },
                     
-                    // Icon tokens
-                    'icon-default': { scale: 700, type: 'icon' },
-                    'icon-bold': { scale: 900, type: 'icon' },
-                    'icon-subtle': { scale: 500, type: 'icon' },
-                    'icon-disabled': { scale: 400, type: 'icon' },
+                    // Container
+                    'container/neutral-bold': { scale: 900, type: 'container' },
+                    'container/neutral-subtle': { scale: 75, type: 'container' },
+                    'container/neutral-muted': { scale: 50, type: 'container' },
+                    'container/disabled': { scale: 150, type: 'container' },
                     
-                    // Border tokens
-                    'border-default': { scale: 300, type: 'border' },
-                    'border-bold': { scale: 400, type: 'border' },
-                    'border-subtle': { scale: 200, type: 'border' }
+                    // Text
+                    'text/neutral-bold': { scale: 900, type: 'text' },
+                    'text/neutral-default': { scale: 700, type: 'text' },
+                    'text/neutral-subtle': { scale: 600, type: 'text' },
+                    'text/disabled': { scale: 400, type: 'text' },
+                    
+                    // Icon
+                    'icon/neutral-bold': { scale: 900, type: 'icon' },
+                    'icon/neutral-default': { scale: 700, type: 'icon' },
+                    'icon/neutral-subtle': { scale: 600, type: 'icon' },
+                    'icon/neutral-muted': { scale: 300, type: 'icon' },
+                    'icon/disabled': { scale: 400, type: 'icon' },
+                    
+                    // Border
+                    'border/neutral-bold': { scale: 950, type: 'border' },
+                    'border/neutral-subtle': { scale: 200, type: 'border' },
+                    'border/disabled': { scale: 200, type: 'border' }
                 };
             }
 
@@ -627,22 +755,16 @@
                 const tokens = {};
                 
                 for (const [tokenName, config] of Object.entries(this.tokenMapping)) {
-                    // Find closest scale value
-                    let scaleColor = scaleColors.find(c => c.step === config.scale);
+                    // 정확한 scale 값 찾기
+                    const scaleColor = scaleColors.find(c => c.step === config.scale);
                     
-                    // If exact match not found, find closest
-                    if (!scaleColor) {
-                        scaleColor = scaleColors.reduce((prev, curr) => {
-                            return Math.abs(curr.step - config.scale) < Math.abs(prev.step - config.scale) 
-                                ? curr : prev;
-                        });
+                    if (scaleColor) {
+                        tokens[tokenName] = {
+                            hex: scaleColor.hex,
+                            scale: scaleColor.step,
+                            type: config.type
+                        };
                     }
-                    
-                    tokens[tokenName] = {
-                        hex: scaleColor.hex,
-                        scale: scaleColor.step,
-                        type: config.type
-                    };
                 }
                 
                 return tokens;
@@ -655,6 +777,7 @@
                 this.colorGenerator = new ColorGenerator();
                 this.semanticTokenManager = new SemanticTokenManager();
                 this.currentMode = 'light';
+                this.themeMode = 'light'; // Token Theme용 모드 추가
                 this.generatedColors = [];
                 this.currentScaleColors = [];
                 this.currentSemanticTokens = {};
@@ -733,9 +856,26 @@
                     }
                 });
                 
+                // Token Theme Mode buttons
+                document.getElementById('themeLightBtn').addEventListener('click', () => {
+                    this.setThemeMode('light');
+                });
+                
+                document.getElementById('themeDarkBtn').addEventListener('click', () => {
+                    this.setThemeMode('dark');
+                });
+                
                 document.getElementById('generateScale').addEventListener('click', () => {
                     this.generateScaleAndTokens();
                 });
+                
+                // Generated Scale 섹션 내부의 regenerate 버튼
+                const regenerateBtn = document.getElementById('regenerateScale');
+                if (regenerateBtn) {
+                    regenerateBtn.addEventListener('click', () => {
+                        this.generateScaleAndTokens();
+                    });
+                }
                 
                 document.getElementById('applyToFrame').addEventListener('click', () => {
                     this.applyTokenThemeToFrame();
@@ -764,6 +904,17 @@
                 document.getElementById('lightBtn').classList.toggle('active', mode === 'light');
                 document.getElementById('darkBtn').classList.toggle('active', mode === 'dark');
                 this.updateDisplay();
+            }
+
+            setThemeMode(mode) {
+                this.themeMode = mode;
+                document.getElementById('themeLightBtn').classList.toggle('active', mode === 'light');
+                document.getElementById('themeDarkBtn').classList.toggle('active', mode === 'dark');
+                
+                // 이미 생성된 scale이 있으면 다시 생성
+                if (document.getElementById('scalePreviewSection').style.display === 'block') {
+                    this.generateScaleAndTokens();
+                }
             }
 
             updateDisplay() {
@@ -805,8 +956,8 @@
             generateScaleAndTokens() {
                 const baseHex = document.getElementById('themeBaseColor').value;
                 
-                // Generate neutral scale
-                this.currentScaleColors = this.colorGenerator.generateColors(baseHex, 'light');
+                // themeMode에 따라 neutral scale 생성
+                this.currentScaleColors = this.colorGenerator.generateColors(baseHex, this.themeMode);
                 
                 // Generate semantic tokens
                 this.currentSemanticTokens = this.semanticTokenManager.generateSemanticTokens(this.currentScaleColors);
@@ -848,9 +999,13 @@
                 // Show sections
                 document.getElementById('scalePreviewSection').style.display = 'block';
                 document.getElementById('tokenMappingSection').style.display = 'block';
-                document.getElementById('applyToFrame').style.display = 'block';
+                document.getElementById('applyButtonSection').style.display = 'block';
                 
-                this.showSuccess('Scale and tokens generated!');
+                // 첫 번째 generate 버튼 숨기기
+                document.getElementById('generateScale').style.display = 'none';
+                
+                const modeText = this.themeMode === 'dark' ? ' (Dark Mode)' : ' (Light Mode)';
+                this.showSuccess(`Scale and tokens generated${modeText}!`);
             }
 
             applyTokenThemeToFrame() {
@@ -859,17 +1014,20 @@
                     return;
                 }
                 
+                // 적용 모드 확인
+                const applyMode = document.querySelector('input[name="applyMode"]:checked').value;
+                
+                // 입력한 원본 색상도 함께 전달
+                const keyColor = document.getElementById('themeBaseColor').value;
+                
                 parent.postMessage({ 
                     pluginMessage: {
                         type: 'apply-token-theme-to-frame',
                         scaleColors: this.currentScaleColors,
                         semanticTokens: this.currentSemanticTokens,
-                        theme: {
-                            mode: 'light',
-                            tokens: Object.fromEntries(
-                                Object.entries(this.currentSemanticTokens).map(([k, v]) => [k, v.hex])
-                            )
-                        }
+                        keyColor: keyColor,
+                        applyMode: applyMode,
+                        themeMode: this.themeMode // dark/light 모드 추가
                     }
                 }, '*');
             }
@@ -918,6 +1076,14 @@
                     const count = msg.count || 0;
                     this.showSuccess(`Applied theme to ${count} layers!`);
                 }
+            }
+
+            toggleInfoBox() {
+                const content = document.querySelector('.info-box-content');
+                const toggle = document.querySelector('.info-box-toggle');
+                
+                content.classList.toggle('collapsed');
+                toggle.classList.toggle('collapsed');
             }
 
             showSuccess(message) {
