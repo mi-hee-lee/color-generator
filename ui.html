@@ -426,10 +426,10 @@
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
 
-        /* Inverse Toggle 스타일 */
-        .toggle-group {
+        /* Radio Button 스타일 */
+        .radio-group {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 8px;
             padding: 8px;
             background: rgba(255,255,255,0.5);
@@ -437,63 +437,62 @@
             margin-bottom: 8px;
         }
 
-        .toggle-switch {
-            position: relative;
-            width: 36px;
-            height: 20px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 20px;
+            transition: all 0.2s;
         }
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
         }
 
-        input:checked + .toggle-slider {
-            background-color: #667eea;
+        .radio-option input[type="radio"] {
+            margin: 0;
         }
 
-        input:checked + .toggle-slider:before {
-            transform: translateX(16px);
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
         }
 
-        .toggle-label {
+        .radio-label {
+            flex: 1;
             font-size: 10px;
             font-weight: 500;
             color: #333;
-            flex: 1;
         }
 
-        .toggle-hint {
+        .radio-hint {
             font-size: 8px;
             color: #666;
-            margin-left: 44px;
-            margin-top: -4px;
-            margin-bottom: 8px;
+            margin-left: 20px;
+        }
+
+        .brightness-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .brightness-light {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .brightness-dark {
+            background: #343a40;
+            color: #f8f9fa;
         }
     </style>
 </head>
@@ -595,18 +594,26 @@
                 <div class="color-input-group">
                     <input type="color" id="themeBaseColor" class="color-picker" value="#667eea">
                     <input type="text" id="themeBaseHex" class="hex-input" value="#667EEA">
+                    <span id="brightnessIndicator" class="brightness-indicator">분석 중...</span>
                 </div>
                 
-                <!-- Inverse Toggle 추가 -->
-                <div class="toggle-group">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="inverseToggle">
-                        <span class="toggle-slider"></span>
+                <!-- Application Mode Radio Buttons -->
+                <div class="radio-group">
+                    <label class="radio-option selected">
+                        <input type="radio" name="applicationMode" value="element" checked>
+                        <span class="radio-label">🎯 Key color를 Element에 적용</span>
                     </label>
-                    <span class="toggle-label">Inverse Mode</span>
-                </div>
-                <div class="toggle-hint">
-                    밝은 색상(L≥80)의 텍스트 매핑을 반전시킵니다
+                    <div class="radio-hint">
+                        입력 색상을 fill-primary, border 등 강조 요소에 사용합니다
+                    </div>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="applicationMode" value="background">
+                        <span class="radio-label">🎨 Key color를 Background에 적용</span>
+                    </label>
+                    <div class="radio-hint">
+                        입력 색상을 background/default 배경 요소에 사용합니다
+                    </div>
                 </div>
                 
                 <button id="generateThemeBtn" class="action-btn btn-primary">완전한 테마 생성</button>
@@ -639,7 +646,7 @@
                 • Light/Dark 모드 동시 지원<br>
                 • background, text, fill, border 등 모든 카테고리 포함<br>
                 • 13단계 스케일 + semantic 토큰들이 한번에 생성됩니다<br>
-                • Inverse Mode: 밝은 색상의 텍스트 대비를 반전시킵니다</p>
+                • 밝기 판단: 흰색 대비(CR) < 4.5 = 밝은 색, ≥ 4.5 = 어두운 색</p>
             </div>
         </div>
 
@@ -725,6 +732,19 @@
                 const lighter = Math.max(l1, l2);
                 const darker = Math.min(l1, l2);
                 return (lighter + 0.05) / (darker + 0.05);
+            }
+
+            // Y값 계산 (0~1)
+            static getYValue(hex) {
+                const rgb = this.hexToRgb(hex);
+                return this.getLuminance(rgb.r, rgb.g, rgb.b);
+            }
+
+            // 밝기 판단 (흰색 대비 4.5 기준)
+            static isLight(hex) {
+                const whiteContrast = this.getContrast(this.hexToRgb(hex), { r: 255, g: 255, b: 255 });
+                // 대비 비율 < 4.5 → 밝은 색
+                return whiteContrast < 4.5;
             }
         }
 
@@ -817,7 +837,7 @@
                 };
             }
 
-            generateTheme(baseHex, themeName) {
+            generateTheme(baseHex, themeName, applicationMode) {
                 const colorGenerator = new ColorGenerator();
                 const lightColors = colorGenerator.generateColors(baseHex, 'light');
                 const darkColors = colorGenerator.generateColors(baseHex, 'dark');
@@ -858,6 +878,7 @@
                 return {
                     themeName,
                     baseColor: baseHex,
+                    applicationMode,
                     scaleColors: { light: lightColors, dark: darkColors },
                     semanticTokens: themeTokens
                 };
@@ -953,13 +974,27 @@
             return row;
         }
 
+        // 밝기 표시 업데이트
+        function updateBrightnessIndicator(hex) {
+            const indicator = document.getElementById('brightnessIndicator');
+            const whiteContrast = ColorUtils.getContrast(ColorUtils.hexToRgb(hex), { r: 255, g: 255, b: 255 });
+            const isLight = whiteContrast < 4.5;
+            
+            let text = `White CR: ${whiteContrast.toFixed(1)}`;
+            text += ` (${isLight ? '밝은 색' : '어두운 색'})`;
+            
+            indicator.textContent = text;
+            indicator.className = `brightness-indicator ${isLight ? 'brightness-light' : 'brightness-dark'}`;
+        }
+
         function generateCustomTheme() {
             const baseColor = document.getElementById('themeBaseColor').value;
             const themeName = document.getElementById('themeNameInput').value || 'brand-theme';
+            const applicationMode = document.querySelector('input[name="applicationMode"]:checked').value;
             
-            console.log('Generating custom theme:', themeName, baseColor);
+            console.log('Generating custom theme:', themeName, baseColor, 'Mode:', applicationMode);
             
-            currentTheme = themeGenerator.generateTheme(baseColor, themeName);
+            currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode);
             displayThemePreview(currentTheme);
             
             // 테마 적용 섹션 표시
@@ -1036,6 +1071,7 @@
                     <h5>커스텀 테마:</h5>
                     <p>• ${theme.semanticTokens.length}개의 semantic 토큰이 생성됩니다<br>
                     • Light/Dark 모드를 모두 지원합니다<br>
+                    • Application Mode: ${theme.applicationMode === 'element' ? 'Element' : 'Background'}<br>
                     • ruler_v2 컬렉션에 추가됩니다</p>
                 </div>
             `;
@@ -1048,13 +1084,10 @@
                 return;
             }
             
-            const inverseMode = document.getElementById('inverseToggle').checked;
-            
             parent.postMessage({
                 pluginMessage: {
                     type: 'preview-theme-application',
-                    theme: currentTheme,
-                    inverse: inverseMode
+                    theme: currentTheme
                 }
             }, '*');
             
@@ -1067,13 +1100,10 @@
                 return;
             }
             
-            const inverseMode = document.getElementById('inverseToggle').checked;
-            
             parent.postMessage({
                 pluginMessage: {
                     type: 'apply-theme-to-selection',
-                    theme: currentTheme,
-                    inverse: inverseMode
+                    theme: currentTheme
                 }
             }, '*');
             
@@ -1125,15 +1155,12 @@
                 return;
             }
             
-            const inverseMode = document.getElementById('inverseToggle').checked;
-            
-            console.log('Creating custom theme variables:', currentTheme, 'Inverse mode:', inverseMode);
+            console.log('Creating custom theme variables:', currentTheme);
             
             parent.postMessage({
                 pluginMessage: {
                     type: 'create-custom-theme',
-                    theme: currentTheme,
-                    inverse: inverseMode
+                    theme: currentTheme
                 }
             }, '*');
             
@@ -1281,7 +1308,7 @@
                 <div class="info-box">
                     <h5>💡 Tone Matching:</h5>
                     <p>• 제안은 기준 색상의 톤과 매칭됩니다.<br>
-                    • 색상을 클릭하면 Scale Generator에 적용합니다.<br>
+                    • 색상을 클릭하면 Scale Generator에 적용됩니다.<br>
                     • 일관된 브랜드 톤으로 13단계 스케일 생성이 가능합니다.</p>
                 </div>
             `;
@@ -1376,17 +1403,32 @@
             
             themeBaseColor.addEventListener('input', () => {
                 themeBaseHex.value = themeBaseColor.value.toUpperCase();
+                updateBrightnessIndicator(themeBaseColor.value);
             });
             
             themeBaseHex.addEventListener('input', () => {
                 if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
                     themeBaseColor.value = themeBaseHex.value;
+                    updateBrightnessIndicator(themeBaseHex.value);
                 }
+            });
+
+            // Radio button 스타일 업데이트
+            document.querySelectorAll('input[name="applicationMode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    document.querySelectorAll('.radio-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    e.target.parentElement.classList.add('selected');
+                });
             });
 
             document.getElementById('generateThemeBtn').addEventListener('click', generateCustomTheme);
             document.getElementById('previewThemeApplicationBtn').addEventListener('click', previewThemeApplication);
             document.getElementById('applyThemeBtn').addEventListener('click', applyThemeToSelection);
+
+            // 초기 밝기 표시
+            updateBrightnessIndicator(themeBaseColor.value);
 
             console.log('Event listeners set up successfully');
         }

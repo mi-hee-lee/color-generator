@@ -1,4 +1,4 @@
-// Figma Plugin Backend Code - Version 10 (Clean)
+// Figma Plugin Backend Code - Version 11
 console.log('Backend script loading...');
 
 // UI 표시
@@ -7,6 +7,123 @@ figma.showUI(__html__, {
   height: 700,
   themeColors: true 
 });
+
+// =====================================
+// 색상 안전 레일 함수들 (네온/고채도 처리)
+// =====================================
+
+// HSL 채도 조정
+function setSaturation(hex, targetSaturation) {
+  var hsl = hexToHsl(hex);
+  hsl[1] = Math.min(hsl[1], targetSaturation);
+  return hslToHex(hsl[0], hsl[1], hsl[2]);
+}
+
+// 네온 색상 감지
+function isNeon(hex) {
+  var hsl = hexToHsl(hex);
+  var L = hsl[2];
+  var S = hsl[1];
+  
+  // 매우 밝고(L≥85) 채도가 높은(S≥60) 경우 네온으로 간주
+  if (L >= 85 && S >= 60) {
+    return true;
+  }
+  
+  // 추가 조건: 매우 밝은 노랑/녹색 계열
+  var H = hsl[0];
+  if (L >= 80 && S >= 40 && (H >= 50 && H <= 150)) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Y값 계산 (sRGB relative luminance, 0~1)
+function getYValue(hex) {
+  var rgb = hexToRgb(hex);
+  return relativeLuminance(rgb);
+}
+
+// 밝기 판단 (흰색 대비 4.5 기준)
+function isLightColor(hex) {
+  // 흰색과의 대비 비율 계산
+  var whiteContrast = contrastRatio(hex, '#FFFFFF');
+  
+  // 대비 비율 >= 4.5 → 어두운 색 (false 반환)
+  // 대비 비율 < 4.5 → 밝은 색 (true 반환)
+  var isLight = whiteContrast < 4.5;
+  
+  console.log('[BRIGHTNESS] White contrast:', whiteContrast.toFixed(2), '→', isLight ? 'Light' : 'Dark');
+  return isLight;
+}
+
+// 텍스트 대비 기준으로 배경 단계 선택
+function pickBackgroundStepByContrast(theme, themeName, mode, targetContrast) {
+  var candidateSteps = [50, 75, 100, 150, 200, 300, 400];
+  var textColor = mode === 'light' ? '#0C0C0D' : '#FAFAFA'; // GRAY:900 / GRAY:50
+  var selectedStep = null;
+  var maxContrast = 0;
+  
+  // 목표 대비(7.0) 이상인 가장 낮은 단계 찾기
+  for (var i = 0; i < candidateSteps.length; i++) {
+    var step = candidateSteps[i];
+    var colors = mode === 'light' ? theme.scaleColors.light : theme.scaleColors.dark;
+    var stepColor = colors.find(function(c) { return c.step === step; });
+    
+    if (stepColor) {
+      var contrast = contrastRatio(stepColor.hex, textColor);
+      console.log('[CONTRAST CHECK] Step', step, ':', contrast.toFixed(2));
+      
+      // 목표 대비 이상인 첫 번째 단계
+      if (contrast >= targetContrast && !selectedStep) {
+        selectedStep = step;
+        break;
+      }
+      
+      // 최대 대비 추적 (fallback용)
+      if (contrast > maxContrast) {
+        maxContrast = contrast;
+        if (contrast >= 4.5 && !selectedStep) {
+          selectedStep = step;
+        }
+      }
+    }
+  }
+  
+  // 적절한 단계를 못 찾으면 50 사용
+  if (!selectedStep) {
+    selectedStep = 50;
+    console.warn('[CONTRAST WARNING] No step meets contrast requirements, using step 50');
+  }
+  
+  return selectedStep;
+}
+
+// 배경 안전 처리
+function getSafeBackgroundMapping(theme, themeName, inputHex, mode) {
+  var neon = isNeon(inputHex);
+  var result = {};
+  
+  console.log('[SAFETY CHECK] Input:', inputHex, 'Mode:', mode, 'Neon:', neon);
+  
+  if (neon) {
+    // 네온 색상: 가장 안전한 설정
+    result['semantic/background/default'] = 'REF:' + themeName + '50';
+    result['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
+    console.log('[NEON SAFETY] Using step 50 for background, alpha-100 for surface');
+  } else {
+    // 일반 색상: 대비 기준으로 선택
+    var targetContrast = 7.0; // AA Large Text / AAA Normal Text
+    var backgroundStep = pickBackgroundStepByContrast(theme, themeName, mode, targetContrast);
+    
+    result['semantic/background/default'] = 'REF:' + themeName + backgroundStep;
+    result['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
+    console.log('[CONTRAST SAFETY] Using step', backgroundStep, 'for background');
+  }
+  
+  return result;
+}
 
 // =====================================
 // WCAG 대비비율 계산 함수들
@@ -252,7 +369,7 @@ function findOrCreateMode(collection, modeName) {
   }
 }
 
-// 가장 가까운 step 찾기
+// 가장 가까운 step 찾기 (모드별 독립 계산)
 function findClosestStep(scaleColors, inputHex) {
   var inputHsl = hexToHsl(inputHex);
   var inputLightness = inputHsl[2];
@@ -268,147 +385,203 @@ function findClosestStep(scaleColors, inputHex) {
     }
   }
   
+  console.log('[CLOSEST] Input L:', inputLightness.toFixed(2), '→ Step:', closestStep, 'Diff:', minDifference.toFixed(2));
   return closestStep;
 }
 
 // =====================================
-// 동적 매핑 함수
+// 동적 매핑 함수 (개선된 로직)
 // =====================================
 
-// 동적 매핑 생성
-function getDynamicMappings(closestStep, themeName, inputHex, inverseMode) {
-  var mappings = {};
-  var inputHsl = hexToHsl(inputHex);
-  var inputLightness = inputHsl[2];
+// 단계 조정 헬퍼 함수 (±단계 이동 with 클램핑)
+function adjustStep(currentStep, adjustment) {
+  var steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+  var currentIndex = steps.indexOf(currentStep);
   
-  // fill/primary는 항상 closestStep 사용 (모든 경우에 동일)
-  mappings['semantic/fill/primary'] = {
-    light: 'REF:' + themeName + closestStep,
-    dark: 'REF:' + themeName + closestStep
-  };
-  
-  console.log('[fill/primary enforced] closestStep:', closestStep);
-  
-  // text/on-color 자동 결정 (WCAG 대비비율 기준)
-  var textColorDecision = decideTextColor(inputHex, { largeText: false });
-  mappings['semantic/text/on-color'] = {
-    light: textColorDecision.textToken,
-    dark: textColorDecision.textToken
-  };
-  
-  if (textColorDecision.lowContrast) {
-    console.warn('[CONTRAST WARNING] Low contrast detected for on-color text');
+  if (currentIndex === -1) {
+    // 현재 단계를 찾을 수 없으면 가장 가까운 단계 찾기
+    var minDiff = Infinity;
+    for (var i = 0; i < steps.length; i++) {
+      var diff = Math.abs(steps[i] - currentStep);
+      if (diff < minDiff) {
+        minDiff = diff;
+        currentIndex = i;
+      }
+    }
   }
   
-  if (inputLightness >= 80) {
-    // LIGHT CASE (L값 80 이상)
-    console.log('Light color mapping (L >= 80), inverse mode:', inverseMode);
-    
-    if (inverseMode) {
-      // Inverse mode ON - 밝은 색상일 때 어두운 텍스트 사용
-      mappings['semantic/text/primary'] = {
-        light: 'GRAY:900',
-        dark: 'GRAY:900'
+  var newIndex = currentIndex + adjustment;
+  
+  // 클램핑: 50-950 범위 내로 제한
+  if (newIndex < 0) {
+    console.log('[STEP ADJUST] Clamped to minimum: 50');
+    return steps[0]; // 50
+  }
+  if (newIndex >= steps.length) {
+    console.log('[STEP ADJUST] Clamped to maximum: 950');
+    return steps[steps.length - 1]; // 950
+  }
+  
+  console.log('[STEP ADJUST] From', currentStep, 'to', steps[newIndex], '(' + (adjustment > 0 ? '+' : '') + adjustment + ' steps)');
+  return steps[newIndex];
+}
+
+// 동적 매핑 생성 (Application Mode 적용)
+function getDynamicMappings(closestStepLight, closestStepDark, themeName, inputHex, applicationMode, theme) {
+  var mappings = {};
+  var isLight = isLightColor(inputHex);
+  var whiteContrast = contrastRatio(inputHex, '#FFFFFF');
+  var blackContrast = contrastRatio(inputHex, '#000000');
+  
+  console.log('[BRIGHTNESS ANALYSIS]');
+  console.log('  White Contrast:', whiteContrast.toFixed(2));
+  console.log('  Black Contrast:', blackContrast.toFixed(2));
+  console.log('  Result:', isLight ? 'Light (white contrast < 4.5)' : 'Dark (white contrast >= 4.5)');
+  console.log('[APPLICATION MODE]', applicationMode);
+  console.log('[closestStep]', { light: closestStepLight, dark: closestStepDark });
+  
+  // Element 적용 모드
+  if (applicationMode === 'element') {
+    if (isLight) {
+      // 밝은 색 + Element 적용
+      mappings['semantic/text/primary'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:100', dark: 'GRAY:100' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:200', dark: 'GRAY:200' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      
+      // background: 입력 색상 +2단계 (더 강하게)
+      var bgStepLight = adjustStep(closestStepLight, 2);
+      var bgStepDark = adjustStep(closestStepDark, 2);
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + bgStepLight,
+        dark: 'REF:' + themeName + bgStepDark
       };
-      mappings['semantic/text/secondary'] = {
-        light: 'GRAY:700',
-        dark: 'GRAY:700'
+      
+      // 입력 색상과 유사한 단계 사용
+      mappings['semantic/fill/primary'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
-      mappings['semantic/text/tertiary'] = {
-        light: 'GRAY:600',
-        dark: 'GRAY:600'
+      mappings['semantic/border/divider-strong'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
-      mappings['semantic/text/disabled'] = {
-        light: 'GRAY:400',
-        dark: 'GRAY:400'
+      mappings['semantic/border/line-selected'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
     } else {
-      // Normal mode - 기존 로직
-      mappings['semantic/text/primary'] = {
-        light: 'GRAY:50',
-        dark: 'GRAY:50'
+      // 어두운 색 + Element 적용
+      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + '50',
+        dark: 'REF:' + themeName + '50'
       };
-      mappings['semantic/text/secondary'] = {
-        light: 'GRAY:100',
-        dark: 'GRAY:100'
+      
+      // 입력 색상과 유사한 단계 사용
+      mappings['semantic/fill/primary'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
-      mappings['semantic/text/tertiary'] = {
-        light: 'GRAY:200',
-        dark: 'GRAY:200'
+      mappings['semantic/border/divider-strong'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
-      mappings['semantic/text/disabled'] = {
-        light: 'GRAY:600',
-        dark: 'GRAY:600'
+      mappings['semantic/border/line-selected'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
       };
     }
-    
-    // Background - 400 사용 (중간톤)
-    mappings['semantic/background/default'] = {
-      light: 'REF:' + themeName + '400',
-      dark: 'REF:' + themeName + '400'
-    };
-    
-    // Fill 토큰 (primary는 위에서 이미 설정)
-    mappings['semantic/fill/tertiary'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
-    mappings['semantic/fill/disabled'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
-    mappings['semantic/fill/surface-contents'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
-    
-  } else {
-    // DARK CASE (L값 80 미만) - 변경 없음
-    console.log('Dark color mapping (L < 80)');
-    
-    // Text 토큰 - gray 변수 참조
-    mappings['semantic/text/primary'] = {
-      light: 'GRAY:900',
-      dark: 'GRAY:900'
-    };
-    mappings['semantic/text/secondary'] = {
-      light: 'GRAY:700',
-      dark: 'GRAY:700'
-    };
-    mappings['semantic/text/tertiary'] = {
-      light: 'GRAY:600',
-      dark: 'GRAY:600'
-    };
-    mappings['semantic/text/disabled'] = {
-      light: 'GRAY:400',
-      dark: 'GRAY:400'
-    };
-    
-    // Background - 50 사용 (매우 밝음)
-    mappings['semantic/background/default'] = {
-      light: 'REF:' + themeName + '50',
-      dark: 'REF:' + themeName + '50'
-    };
-    
-    // Fill 토큰 (primary는 위에서 이미 설정)
-    mappings['semantic/fill/tertiary'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
-    mappings['semantic/fill/disabled'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
-    mappings['semantic/fill/surface-contents'] = {
-      light: 'ALPHA:' + themeName + '100',
-      dark: 'ALPHA:' + themeName + '100'
-    };
   }
+  // Background 적용 모드
+  else if (applicationMode === 'background') {
+    if (isLight) {
+      // 밝은 색 + Background 적용
+      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      
+      // 입력 색상과 유사한 단계를 배경으로
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
+      };
+      
+      // fill/border: 입력 색상 +2단계 (더 강하게)
+      var fillStepLight = adjustStep(closestStepLight, 2);
+      var fillStepDark = adjustStep(closestStepDark, 2);
+      
+      mappings['semantic/fill/primary'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+      mappings['semantic/border/divider-strong'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+      mappings['semantic/border/line-selected'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+    } else {
+      // 어두운 색 + Background 적용
+      mappings['semantic/text/primary'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:100', dark: 'GRAY:100' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:200', dark: 'GRAY:200' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      
+      // 입력 색상과 유사한 단계를 배경으로
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + closestStepLight,
+        dark: 'REF:' + themeName + closestStepDark
+      };
+      
+      // fill/border: 입력 색상 -2단계 (더 연하게)
+      var fillStepLight = adjustStep(closestStepLight, -2);
+      var fillStepDark = adjustStep(closestStepDark, -2);
+      
+      mappings['semantic/fill/primary'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+      mappings['semantic/border/divider-strong'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+      mappings['semantic/border/line-selected'] = {
+        light: 'REF:' + themeName + fillStepLight,
+        dark: 'REF:' + themeName + fillStepDark
+      };
+    }
+  }
+  
+  // 공통 매핑 (Fill 토큰들)
+  mappings['semantic/fill/tertiary'] = {
+    light: 'ALPHA:' + themeName + '100',
+    dark: 'ALPHA:' + themeName + '100'
+  };
+  mappings['semantic/fill/disabled'] = {
+    light: 'ALPHA:' + themeName + '100',
+    dark: 'ALPHA:' + themeName + '100'
+  };
+  mappings['semantic/fill/surface-contents'] = {
+    light: 'ALPHA:' + themeName + '100',
+    dark: 'ALPHA:' + themeName + '100'
+  };
   
   // 로그로 매핑 결과 확인
   console.log('Dynamic mappings for background/default:', mappings['semantic/background/default']);
   console.log('Dynamic mappings for fill/primary:', mappings['semantic/fill/primary']);
-  console.log('Dynamic mappings for text/on-color:', mappings['semantic/text/on-color']);
+  console.log('Dynamic mappings for text/primary:', mappings['semantic/text/primary']);
   
   return mappings;
 }
@@ -494,12 +667,12 @@ async function handleCreateVariables(msg) {
   figma.notify('Created ' + createdCount + ' variables');
 }
 
-// Custom Theme 생성 핸들러
+// Custom Theme 생성 핸들러 (Application Mode 지원)
 async function handleCreateCustomTheme(msg) {
   var theme = msg.theme;
-  var inverseMode = msg.inverse || false;
+  var applicationMode = theme.applicationMode || 'element';
   
-  console.log('Creating theme with inverse mode:', inverseMode);
+  console.log('Creating theme with application mode:', applicationMode);
   
   var collections = await figma.variables.getLocalVariableCollectionsAsync();
   var collection = collections.find(function(c) { 
@@ -657,21 +830,36 @@ async function handleCreateCustomTheme(msg) {
   }
   
   // =====================================
-  // STEP 5: 동적 매핑 계산
+  // STEP 5: 동적 매핑 계산 (Light/Dark 모드별 독립 계산)
   // =====================================
   
   var inputHsl = hexToHsl(theme.baseColor);
-  var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
   
-  console.log('Input color analysis - Closest step:', closestStep, 'L value:', inputHsl[2]);
+  // Light 모드의 closestStep 계산
+  console.log('=== Finding closest step for Light mode ===');
+  var closestStepLight = findClosestStep(theme.scaleColors.light, theme.baseColor);
   
-  var dynamicMappings = getDynamicMappings(closestStep, theme.themeName, theme.baseColor, inverseMode);
+  // Dark 모드의 closestStep 계산  
+  console.log('=== Finding closest step for Dark mode ===');
+  var closestStepDark = findClosestStep(theme.scaleColors.dark, theme.baseColor);
+  
+  console.log('Input color analysis - Y value:', getYValue(theme.baseColor).toFixed(3));
+  console.log('Closest steps - Light:', closestStepLight, 'Dark:', closestStepDark);
+  
+  var dynamicMappings = getDynamicMappings(closestStepLight, closestStepDark, theme.themeName, theme.baseColor, applicationMode, theme);
   
   // =====================================
   // STEP 6: Semantic 토큰 생성 및 매핑
   // =====================================
   
   console.log('=== Applying Semantic Mappings ===');
+  
+  // 강제로 closestStep을 적용할 토큰들
+  var forceRefTokens = [
+    'semantic/fill/primary',
+    'semantic/border/divider-strong',
+    'semantic/border/line-selected'
+  ];
   
   // 보존해야 할 토큰 목록
   var preserveTokens = [
@@ -699,15 +887,6 @@ async function handleCreateCustomTheme(msg) {
     // 동적 매핑 확인
     var mappedValue = dynamicMappings[token.name];
     
-    // fill/primary는 무조건 closestStep 사용
-    if (token.name === 'semantic/fill/primary') {
-      mappedValue = {
-        light: 'REF:' + theme.themeName + closestStep,
-        dark: 'REF:' + theme.themeName + closestStep
-      };
-      console.log('[OVERRIDE] fill/primary enforced to closestStep:', closestStep);
-    }
-    
     if (mappedValue) {
       // GRAY: 프리픽스 처리
       if (mappedValue.light && mappedValue.light.startsWith('GRAY:')) {
@@ -733,29 +912,27 @@ async function handleCreateCustomTheme(msg) {
           skippedCount++;
         }
       }
-      // REF: 프리픽스 처리 - scale 변수를 alias로 참조
+      // REF: 프리픽스 처리 - 값 복사 방식 (alias 아님)
       else if (mappedValue.light && mappedValue.light.startsWith('REF:')) {
-        var refInfo = mappedValue.light.replace('REF:', '');
-        var step = parseInt(refInfo.match(/\d+$/)[0]);
-        var scaleVariableName = 'scale/' + theme.themeName + step;
+        // Light 모드 처리
+        var lightRefInfo = mappedValue.light.replace('REF:', '');
+        var lightStep = parseInt(lightRefInfo.match(/\d+$/)[0]);
+        var lightColor = theme.scaleColors.light.find(function(c) { return c.step === lightStep; });
         
-        var scaleVar = allVariables.find(function(v) {
-          return v.name === scaleVariableName && v.variableCollectionId === collection.id;
-        });
+        // Dark 모드 처리 (다를 수 있음)
+        var darkRefInfo = mappedValue.dark.replace('REF:', '');
+        var darkStep = parseInt(darkRefInfo.match(/\d+$/)[0]);
+        var darkColor = theme.scaleColors.dark.find(function(c) { return c.step === darkStep; });
         
-        if (scaleVar) {
-          // Alias 방식으로 변경 (직접 값 복사 대신 변수 참조)
-          variable.setValueForMode(customLightModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: scaleVar.id
-          });
-          variable.setValueForMode(customDarkModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: scaleVar.id
-          });
-          console.log('[SEM]', token.name, 'CustomLight/Dark', 'REF-ALIAS', step);
+        if (lightColor && darkColor) {
+          // 값 복사 방식 사용
+          variable.setValueForMode(customLightModeId, hexToFigmaRGB(lightColor.hex));
+          variable.setValueForMode(customDarkModeId, hexToFigmaRGB(darkColor.hex));
+          console.log('[SEM]', token.name, 'CustomLight/Dark', 'REF-COPY', 
+                      'Light:' + lightStep, 'Dark:' + darkStep);
         } else {
-          console.log('[SKIP]', token.name, 'missing-scale-variable', scaleVariableName);
+          console.log('[SKIP]', token.name, 'missing-scale-color', 
+                      'Light:' + lightStep, 'Dark:' + darkStep);
           skippedCount++;
         }
       } 
@@ -806,30 +983,6 @@ async function handleCreateCustomTheme(msg) {
         }
       }
       console.log('[SEM]', token.name, 'CustomLight/Dark', 'PRESERVE', 'base-value');
-    } else if (token.name === 'semantic/border/divider-strong' || 
-               token.name === 'semantic/border/line-selected') {
-      // 특별 처리 토큰 - closestStep scale 변수 참조
-      var scaleVariableName = 'scale/' + theme.themeName + closestStep;
-      var scaleVar = allVariables.find(function(v) {
-        return v.name === scaleVariableName && v.variableCollectionId === collection.id;
-      });
-      
-      if (scaleVar) {
-        variable.setValueForMode(customLightModeId, {
-          type: 'VARIABLE_ALIAS',
-          id: scaleVar.id
-        });
-        variable.setValueForMode(customDarkModeId, {
-          type: 'VARIABLE_ALIAS',
-          id: scaleVar.id
-        });
-        console.log('[SEM]', token.name, 'CustomLight/Dark', 'SPECIAL-ALIAS', closestStep);
-      } else {
-        // Fallback: 직접 값 설정
-        variable.setValueForMode(customLightModeId, hexToFigmaRGB(theme.baseColor));
-        variable.setValueForMode(customDarkModeId, hexToFigmaRGB(theme.baseColor));
-        console.log('[SEM]', token.name, 'CustomLight/Dark', 'SPECIAL-DIRECT', 'base-color');
-      }
     } else {
       // 일반 토큰 - UI에서 제공한 값에서 가장 가까운 scale 찾아 참조
       var lightHex = token.light;
