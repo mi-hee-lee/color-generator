@@ -35,14 +35,15 @@
 
         .tab-btn {
             flex: 1;
-            padding: 8px 12px;
+            padding: 8px 8px;
             background: none;
             border: none;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             color: #6c757d;
+            text-align: center;
         }
 
         .tab-btn.active {
@@ -87,6 +88,7 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             cursor: pointer;
+            background: none;
         }
 
         .hex-input {
@@ -124,10 +126,52 @@
             border-color: #000;
         }
 
+        .action-btn {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: #000;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
         .color-grid {
             display: flex;
             flex-direction: column;
             gap: 3px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .color-row {
@@ -174,62 +218,7 @@
 
         .color-hex:hover {
             background: #f0f8ff;
-        }
-
-        .contrast-info {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 8px;
-        }
-
-        .accessibility-badge {
-            padding: 1px 3px;
-            border-radius: 2px;
-            font-size: 7px;
-            font-weight: 600;
-        }
-
-        .badge-aaa { background: #28a745; color: white; }
-        .badge-aa { background: #ffc107; color: black; }
-        .badge-a { background: #fd7e14; color: white; }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 8px;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: #000;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #333;
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #495057;
-            border: 1px solid #e0e0e0;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
+            transform: scale(1.05);
         }
 
         .success-message {
@@ -247,185 +236,264 @@
             display: block;
         }
 
-        .token-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 8px;
-        }
-
-        .token-item {
+        /* 톤 매칭 스타일 */
+        .reference-display {
             display: flex;
             align-items: center;
-            padding: 6px;
-            border-bottom: 1px solid #f0f0f0;
+            gap: 8px;
+            padding: 8px;
+            background: linear-gradient(145deg, #e8f5e8, #d4f4d4);
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+            margin-bottom: 8px;
         }
 
-        .token-item:last-child {
-            border-bottom: none;
+        .reference-color {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .token-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            margin-right: 8px;
-        }
-
-        .token-name {
+        .reference-info {
             flex: 1;
-            font-size: 10px;
-            font-weight: 500;
         }
 
-        .token-value {
-            font-size: 9px;
-            color: #666;
-            font-family: monospace;
-        }
-
-        .apply-options {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            font-size: 10px;
-            color: #333;
-        }
-
-        .radio-option input[type="radio"] {
-            margin: 0;
-            cursor: pointer;
-        }
-
-        .radio-option span {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .radio-option input[type="radio"]:checked + span {
-            font-weight: 600;
-            color: #000;
-        }
-
-        .token-mapping {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 8px;
-            margin-top: 8px;
-        }
-
-        .mapping-item {
-            display: flex;
-            align-items: center;
-            padding: 4px 0;
-            font-size: 9px;
-        }
-
-        .mapping-arrow {
-            margin: 0 8px;
-            color: #666;
-        }
-
-        .scale-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 2px;
-            margin-top: 8px;
-            padding: 8px;
-            background: #f0f0f0;
-            border-radius: 6px;
-        }
-
-        .scale-item {
-            text-align: center;
-        }
-
-        .scale-color {
-            width: 100%;
-            height: 30px;
-            border-radius: 3px;
+        .reference-info h4 {
+            font-size: 11px;
+            color: #28a745;
             margin-bottom: 2px;
         }
 
-        .scale-label {
-            font-size: 7px;
+        .reference-info p {
+            font-size: 9px;
+            color: #155724;
+            margin: 0;
+        }
+
+        .tone-input-area {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 2px dashed #000;
+            margin-bottom: 8px;
+        }
+
+        .tone-suggestions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tone-suggestion {
+            background: white;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+        }
+
+        .tone-suggestion:hover {
+            border-color: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .tone-color-display {
+            width: 40px;
+            height: 24px;
+            border-radius: 4px;
+            margin: 0 auto 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .tone-suggestion-title {
+            font-weight: 600;
+            font-size: 10px;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .tone-suggestion-hex {
+            font-family: 'Monaco', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .tone-suggestion-desc {
+            font-size: 8px;
             color: #666;
+            line-height: 1.2;
         }
 
         .info-box {
-            background: #e3f2fd;
-            border-left: 3px solid #2196f3;
+            background: #e8f5e8;
+            border: 1px solid #d4edda;
             border-radius: 4px;
-            margin: 10px 0;
-            overflow: hidden;
+            padding: 8px;
+            margin-top: 8px;
         }
 
-        .info-box-header {
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-
-        .info-box-header:hover {
-            background: #d7edfc;
-        }
-
-        .info-box h4 {
-            font-size: 11px;
-            margin: 0;
-            color: #1976d2;
-        }
-
-        .info-box-toggle {
+        .info-box h5 {
+            color: #28a745;
             font-size: 10px;
-            color: #1976d2;
-            transition: transform 0.2s;
-        }
-
-        .info-box-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .info-box-content {
-            padding: 0 10px 10px 10px;
-            max-height: 500px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .info-box-content.collapsed {
-            max-height: 0;
-            padding: 0 10px;
+            margin-bottom: 4px;
         }
 
         .info-box p {
-            font-size: 10px;
-            color: #555;
-            line-height: 1.4;
-            margin: 4px 0;
+            font-size: 9px;
+            color: #155724;
+            margin: 0;
+            line-height: 1.3;
         }
 
-        .info-box code {
-            background: #fff;
-            padding: 1px 3px;
+        /* Custom Theme 스타일 */
+        .theme-input-section {
+            background: linear-gradient(145deg, #f0f4ff, #e6f0ff);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .theme-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .theme-mode-preview {
+            background: white;
+            border-radius: 6px;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .theme-mode-title {
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .theme-semantic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .semantic-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 8px;
+        }
+
+        .semantic-color {
+            width: 12px;
+            height: 12px;
             border-radius: 2px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .semantic-name {
+            flex: 1;
             font-family: 'Monaco', monospace;
-            font-size: 9px;
+            color: #666;
+        }
+
+        .theme-name-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #667eea;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .theme-name-input:focus {
+            outline: none;
+            border-color: #4c63d2;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Inverse Toggle 스타일 */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+
+        .toggle-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .toggle-hint {
+            font-size: 8px;
+            color: #666;
+            margin-left: 44px;
+            margin-top: -4px;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -436,8 +504,11 @@
             <button class="tab-btn active" id="generatorTab">
                 Scale Generator
             </button>
-            <button class="tab-btn" id="tokenThemeTab">
-                Token Theme
+            <button class="tab-btn" id="toneMatchingTab">
+                Tone Matching
+            </button>
+            <button class="tab-btn" id="customThemeTab">
+                Custom Theme
             </button>
         </div>
 
@@ -447,140 +518,128 @@
                 <div class="section-title">Base Color Input</div>
                 <div class="color-input-group">
                     <input type="color" id="baseColor" class="color-picker" value="#667eea">
-                    <input type="text" id="hexInput" class="hex-input" value="#667EEA" placeholder="#000000">
+                    <input type="text" id="hexInput" class="hex-input" value="#667EEA">
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-title">Background Mode</div>
                 <div class="mode-buttons">
-                    <button class="mode-btn active" id="lightBtn">☀️ Light</button>
-                    <button class="mode-btn" id="darkBtn">🌙 Dark</button>
+                    <button class="mode-btn active" onclick="setMode('light')">☀️ Light</button>
+                    <button class="mode-btn" onclick="setMode('dark')">🌙 Dark</button>
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-title">Generated Color Palette</div>
-                <div class="color-grid" id="colorResults"></div>
+                <div class="color-grid" id="colorResults">
+                    <!-- 색상들이 여기에 표시됩니다 -->
+                </div>
             </div>
 
-            <div class="action-buttons">
-                <button class="action-btn btn-primary" id="createVariables">
-                    🎨 Create Variables
-                </button>
-                <button class="action-btn btn-success" id="createDualMode">
-                    🌓 Create Light + Dark Variables
-                </button>
+            <button class="action-btn btn-primary" onclick="createVariables()">
+                🎨 Create Variables
+            </button>
+        </div>
+
+        <!-- Tone Matching 탭 -->
+        <div id="toneMatchingContent" class="tab-content">
+            <!-- 기준 색상 설정 -->
+            <div class="section">
+                <div class="section-title">Step 1: Set Reference Color</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">기준이 될 색상을 선택하세요:</p>
+                
+                <div class="color-input-group">
+                    <input type="color" id="referenceColorPicker" class="color-picker" value="#667eea">
+                    <input type="text" id="referenceColorHex" class="hex-input" value="#667EEA">
+                </div>
+                
+                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">📌 Set Reference</button>
+                    <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1; min-width: 60px;">Clear</button>
+                </div>
+                
+                <div id="referenceStatus" style="color: #666; font-size: 10px; margin-top: 4px;">현재 설정된 기준 컬러가 없습니다.</div>
+                <div id="referenceDisplay"></div>
+            </div>
+            
+            <!-- 새 색상 입력 -->
+            <div class="section">
+                <div class="section-title">Step 2: 새로운 컬러 입력하기</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">원하는 색상을 입력하면 톤 매칭이 제공됩니다:</p>
+                
+                <div class="tone-input-area">
+                    <div class="color-input-group">
+                        <input type="color" id="newColorPicker" class="color-picker" value="#ff0000">
+                        <input type="text" id="newColorHex" class="hex-input" value="#FF0000">
+                    </div>
+                    <button id="getSuggestionsBtn" class="action-btn btn-success">✨ Get Suggestions</button>
+                    <p style="font-size: 8px; color: #666; margin-top: 4px;">This color will be adjusted to match your reference tone</p>
+                </div>
+                
+                <div id="toneMatchingResults"></div>
             </div>
         </div>
 
-        <!-- Token Theme 탭 -->
-        <div id="tokenThemeContent" class="tab-content">
-            <div class="section">
-                <div class="section-title">🎨 Base Color for Theme</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">
-                    Enter a color to generate neutral scale (50-950)
+        <!-- Custom Theme 탭 -->
+        <div id="customThemeContent" class="tab-content">
+            <div class="theme-input-section">
+                <div class="section-title">테마 생성기</div>
+                <p style="color: #667eea; margin-bottom: 8px; font-size: 10px;">
+                    베이스 색상을 기반으로 완전한 semantic 토큰 시스템을 생성합니다
                 </p>
+                
+                <input type="text" id="themeNameInput" class="theme-name-input" 
+                       placeholder="테마 이름 (예: brand-blue)" value="custom-theme">
+                
                 <div class="color-input-group">
-                    <input type="color" id="themeBaseColor" class="color-picker" value="#6B7280">
-                    <input type="text" id="themeBaseHex" class="hex-input" value="#6B7280">
+                    <input type="color" id="themeBaseColor" class="color-picker" value="#667eea">
+                    <input type="text" id="themeBaseHex" class="hex-input" value="#667EEA">
                 </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Background Mode</div>
-                <div class="mode-buttons">
-                    <button class="mode-btn active" id="themeLightBtn">☀️ Light</button>
-                    <button class="mode-btn" id="themeDarkBtn">🌙 Dark</button>
-                </div>
-            </div>
-
-            <div class="section" id="scalePreviewSection" style="display: none;">
-                <div class="section-title">Generated Scale</div>
-                <div class="scale-preview" id="scalePreview"></div>
-                <button class="action-btn btn-primary" id="regenerateScale" style="margin-top: 12px;">
-                    🎨 Generate Scale & Tokens
-                </button>
-            </div>
-
-            <div class="section" id="tokenMappingSection" style="display: none;">
-                <div class="section-title">Semantic Token Mapping</div>
                 
-                <!-- 적용 옵션 추가 -->
-                <div class="apply-options">
-                    <label class="radio-option">
-                        <input type="radio" name="applyMode" value="all" checked>
-                        <span>Apply All Tokens</span>
+                <!-- Inverse Toggle 추가 -->
+                <div class="toggle-group">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="inverseToggle">
+                        <span class="toggle-slider"></span>
                     </label>
-                    <label class="radio-option">
-                        <input type="radio" name="applyMode" value="boldOnly">
-                        <span>Apply Bold Tokens Only</span>
-                    </label>
+                    <span class="toggle-label">Inverse Mode</span>
+                </div>
+                <div class="toggle-hint">
+                    밝은 색상(L≥80)의 텍스트 매핑을 반전시킵니다
                 </div>
                 
-                <div class="token-mapping">
-                    <div class="mapping-item">
-                        <strong>Background:</strong> 50, 950
-                    </div>
-                    <div class="mapping-item">
-                        <strong>Surface:</strong> 50, 75, 900, 950
-                    </div>
-                    <div class="mapping-item">
-                        <strong>Container:</strong> 50, 75, 150, 900
-                    </div>
-                    <div class="mapping-item">
-                        <strong>Text:</strong> 400, 600, 700, 900
-                    </div>
-                    <div class="mapping-item">
-                        <strong>Icon:</strong> 300, 400, 600, 700, 900
-                    </div>
-                    <div class="mapping-item">
-                        <strong>Border:</strong> 200, 950
-                    </div>
-                </div>
+                <button id="generateThemeBtn" class="action-btn btn-primary">완전한 테마 생성</button>
                 
-                <div class="token-list" id="semanticTokenList"></div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-box-header" onclick="app.toggleInfoBox()">
-                    <h4>📍 How Token Theme Works:</h4>
-                    <span class="info-box-toggle collapsed">▼</span>
-                </div>
-                <div class="info-box-content collapsed">
-                    <p>1. Generate a neutral scale (50-950) from your base color</p>
-                    <p>2. Scale values are mapped to semantic tokens automatically</p>
-                    <p>3. <strong>Bold tokens use your key color:</strong></p>
-                    <p>   • <code>text/neutral-bold</code> → key color</p>
-                    <p>   • <code>icon/neutral-bold</code> → key color</p>
-                    <p>   • <code>border/neutral-bold</code> → key color</p>
-                    <p>   • <code>container/neutral-bold</code> → key color</p>
-                    <p>4. Other tokens use scale colors:</p>
-                    <p>   • <code>surface/neutral-default</code> → scale 75</p>
-                    <p>   • <code>text/neutral-subtle</code> → scale 600</p>
-                    <p>   • <code>border/neutral-subtle</code> → scale 200</p>
-                    <p>5. <strong>Skipped layers:</strong></p>
-                    <p>   • <code>semantic/common/*</code> tokens are preserved</p>
-                    <p>   • Text with Typography styles not containing <code>body</code> or <code>label</code></p>
-                    <p>   • Layers with <code>Card</code> in name</p>
-                    <p>   • Layers with <code>title</code> or <code>Title</code> in name</p>
-                    <p>   • Layers with <code>sectionHeader</code> in name (case-insensitive)</p>
-                    <p>   • Layers with <code>isSelected=false</code> in name</p>
-                    <p>   • Layers with <code>isDisabled=true</code> in name</p>
-                    <p>6. Select Frame(s) and click "Apply to Selected Frames"</p>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="action-btn btn-primary" id="generateScale">
-                    🎨 Generate Scale & Tokens
-                </button>
+                <div id="themePreviewContainer"></div>
             </div>
             
-            <div class="action-buttons" id="applyButtonSection" style="display: none;">
-                <button class="action-btn btn-success" id="applyToFrame">
-                    ✅ Apply to Selected Frames
-                </button>
+            <!-- 테마 적용 섹션 -->
+            <div class="section" id="themeApplicationSection" style="display: none;">
+                <div class="section-title">테마 적용</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">
+                    선택된 Frame의 기존 컬러 토큰을 새 테마 색상으로 교체합니다
+                </p>
+                
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button id="previewThemeApplicationBtn" class="action-btn btn-secondary" style="flex: 1;">
+                        미리보기
+                    </button>
+                    <button id="applyThemeBtn" class="action-btn btn-success" style="flex: 1;">
+                        테마 적용
+                    </button>
+                </div>
+                
+                <div id="themeApplicationResults"></div>
+            </div>
+            
+            <div class="info-box" style="margin-top: 12px;">
+                <h5>커스텀 테마 기능:</h5>
+                <p>• ruler_v2.json 구조를 기반으로 semantic 토큰 자동 생성<br>
+                • Light/Dark 모드 동시 지원<br>
+                • background, text, fill, border 등 모든 카테고리 포함<br>
+                • 13단계 스케일 + semantic 토큰들이 한번에 생성됩니다<br>
+                • Inverse Mode: 밝은 색상의 텍스트 대비를 반전시킵니다</p>
             </div>
         </div>
 
@@ -589,25 +648,32 @@
     </div>
 
     <script>
-        // ===== 유틸리티 함수들 =====
+        console.log('UI Script starting...');
+        
+        // 전역 변수
+        let currentMode = 'light';
+        let generatedColors = [];
+        let referenceColor = null;
+        let currentTheme = null;
+
+        // 색상 유틸리티
         class ColorUtils {
             static hexToRgb(hex) {
-                const r = parseInt(hex.slice(1, 3), 16);
-                const g = parseInt(hex.slice(3, 5), 16);
-                const b = parseInt(hex.slice(5, 7), 16);
-                return { r, g, b };
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : { r: 0, g: 0, b: 0 };
             }
 
             static rgbToHex(r, g, b) {
-                return "#" + [r, g, b].map(x => {
-                    const hex = x.toString(16);
-                    return hex.length === 1 ? "0" + hex : hex;
-                }).join("");
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
             }
 
             static hexToHsl(hex) {
-                const { r, g, b } = this.hexToRgb(hex);
-                return this.rgbToHsl(r / 255, g / 255, b / 255);
+                const rgb = this.hexToRgb(hex);
+                return this.rgbToHsl(rgb.r / 255, rgb.g / 255, rgb.b / 255);
             }
 
             static rgbToHsl(r, g, b) {
@@ -632,17 +698,17 @@
             }
 
             static hslToRgb(h, s, l) {
-                h /= 360;
-                s /= 100;
-                l /= 100;
-                
+                h /= 360; s /= 100; l /= 100;
                 const a = s * Math.min(l, 1 - l);
                 const f = n => {
                     const k = (n + h * 12) % 12;
                     return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
                 };
-                
-                return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+                return [
+                    Math.round(f(0) * 255),
+                    Math.round(f(8) * 255),
+                    Math.round(f(4) * 255)
+                ];
             }
 
             static getLuminance(r, g, b) {
@@ -662,440 +728,753 @@
             }
         }
 
-        // ===== Color Generator =====
+        // 색상 생성기
         class ColorGenerator {
             constructor() {
-                // ver2.json과 동일한 scale steps
                 this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-                this.currentMode = 'light';
             }
 
             generateColors(inputHex, mode) {
                 const [h, s, l] = ColorUtils.hexToHsl(inputHex);
                 const colors = [];
-                
-                this.steps.forEach((step) => {
+                const backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
+
+                this.steps.forEach(step => {
                     let lightness;
-                    
                     if (mode === 'light') {
-                        // 50 → 95%, 950 → 5%로 매핑
                         lightness = 95 - ((step - 50) / 900 * 90);
                     } else {
-                        // Dark mode: 반전
                         lightness = 5 + ((step - 50) / 900 * 90);
                     }
-                    
+
                     const [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
                     const hex = ColorUtils.rgbToHex(r, g, b);
-                    
-                    const backgroundRgb = mode === 'light' 
-                        ? { r: 255, g: 255, b: 255 }
-                        : { r: 0, g: 0, b: 0 };
-                    
-                    const contrast = ColorUtils.getContrast(
-                        ColorUtils.hexToRgb(hex),
-                        backgroundRgb
-                    );
-                    
+                    const rgb = ColorUtils.hexToRgb(hex);
+                    const contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+
                     colors.push({
                         step,
                         hex,
                         contrast,
-                        isClosest: step === 500
+                        isClosest: Math.abs(lightness - l) < 5
                     });
                 });
-                
+
                 return colors;
             }
         }
 
-        // ===== Semantic Token Manager =====
-        class SemanticTokenManager {
+        // Custom Theme 생성기
+        class CustomThemeGenerator {
             constructor() {
-                // ver2.json 기반 정확한 매핑
-                this.tokenMapping = {
-                    // Background
-                    'background/neutral-default': { scale: 50, type: 'background' },
-                    'background/neutral-black': { scale: 950, type: 'background' },
+                // ruler_v2.json 기반 semantic 토큰 매핑
+                this.semanticMappings = {
+                    // Background colors
+                    'background/default': { light: 50, dark: 50 },
+                    'background/black': { light: 950, dark: 50 },
+                    'fill/surface-contents': { light: 75, dark: 100 },
+                    'fill/surface-floating': { light: 900, dark: 900 },
+                    'fill/surface-dialog': { light: 50, dark: 75 },
+                    'fill/surface-sheet': { light: 50, dark: 75 },
+                    'fill/surface-black': { light: 950, dark: 50 },
                     
-                    // Surface  
-                    'surface/neutral-default': { scale: 75, type: 'surface' },
-                    'surface/neutral-black': { scale: 950, type: 'surface' },
-                    'surface/neutral-floating': { scale: 900, type: 'surface' },
-                    'surface/neutral-dialog': { scale: 50, type: 'surface' },
-                    'surface/neutral-sheet': { scale: 50, type: 'surface' },
+                    // Text colors
+                    'text/primary': { light: 900, dark: 900 },
+                    'text/secondary': { light: 700, dark: 700 },
+                    'text/tertiary': { light: 600, dark: 600 },
+                    'text/disabled': { light: 400, dark: 400 },
+                    'text/on-color': { light: 50, dark: 50 },
                     
-                    // Container
-                    'container/neutral-bold': { scale: 900, type: 'container' },
-                    'container/neutral-subtle': { scale: 75, type: 'container' },
-                    'container/neutral-muted': { scale: 50, type: 'container' },
-                    'container/disabled': { scale: 150, type: 'container' },
+                    // Fill colors
+                    'fill/primary': { light: 900, dark: 950 },
+                    'fill/tertiary': { light: 75, dark: 100 },
+                    'fill/disabled': { light: 150, dark: 150 },
+                    'fill/silent': { light: 50, dark: 75 },
+                    'fill/primary-hover': { light: 950, dark: 900 },
+                    'fill/primary-pressed': { light: 950, dark: 900 },
+                    'fill/silent-hover': { light: 100, dark: 100 },
+                    'fill/silent-pressed': { light: 100, dark: 100 },
+                    'fill/tertiary-hover': { light: 100, dark: 150 },
+                    'fill/tertiary-pressed': { light: 100, dark: 150 },
                     
-                    // Text
-                    'text/neutral-bold': { scale: 900, type: 'text' },
-                    'text/neutral-default': { scale: 700, type: 'text' },
-                    'text/neutral-subtle': { scale: 600, type: 'text' },
-                    'text/disabled': { scale: 400, type: 'text' },
+                    // Border colors
+                    'border/divider': { light: 100, dark: 150 },
+                    'border/divider-strong': { light: 950, dark: 950 },
+                    'border/line': { light: 200, dark: 200 },
+                    'border/line-disabled': { light: 200, dark: 100 },
+                    'border/line-selected': { light: 950, dark: 950 },
                     
-                    // Icon
-                    'icon/neutral-bold': { scale: 900, type: 'icon' },
-                    'icon/neutral-default': { scale: 700, type: 'icon' },
-                    'icon/neutral-subtle': { scale: 600, type: 'icon' },
-                    'icon/neutral-muted': { scale: 300, type: 'icon' },
-                    'icon/disabled': { scale: 400, type: 'icon' },
+                    // Interactive states
+                    'common/on-white': { light: 50, dark: 950 },
+                    'common/on-white-hover': { light: 75, dark: 900 },
+                    'common/on-white-pressed': { light: 75, dark: 900 },
+                    'common/on-black': { light: 900, dark: 75 },
+                    'common/on-black-hover': { light: 950, dark: 50 },
+                    'common/on-black-pressed': { light: 950, dark: 50 },
                     
-                    // Border
-                    'border/neutral-bold': { scale: 950, type: 'border' },
-                    'border/neutral-subtle': { scale: 200, type: 'border' },
-                    'border/disabled': { scale: 200, type: 'border' }
+                    // Overlay
+                    'overlay/dimmed': { light: 700, dark: 700 }
                 };
             }
 
-            generateSemanticTokens(scaleColors) {
-                const tokens = {};
+            generateTheme(baseHex, themeName) {
+                const colorGenerator = new ColorGenerator();
+                const lightColors = colorGenerator.generateColors(baseHex, 'light');
+                const darkColors = colorGenerator.generateColors(baseHex, 'dark');
                 
-                for (const [tokenName, config] of Object.entries(this.tokenMapping)) {
-                    // 정확한 scale 값 찾기
-                    const scaleColor = scaleColors.find(c => c.step === config.scale);
+                // 색상 매핑 객체 생성
+                const lightColorMap = {};
+                const darkColorMap = {};
+                
+                lightColors.forEach(color => {
+                    lightColorMap[color.step] = color.hex;
+                });
+                
+                darkColors.forEach(color => {
+                    darkColorMap[color.step] = color.hex;
+                });
+
+                const themeTokens = [];
+
+                // Semantic 토큰 생성
+                for (const [tokenPath, mapping] of Object.entries(this.semanticMappings)) {
+                    const lightStep = mapping.light;
+                    const darkStep = mapping.dark;
                     
-                    if (scaleColor) {
-                        tokens[tokenName] = {
-                            hex: scaleColor.hex,
-                            scale: scaleColor.step,
-                            type: config.type
-                        };
+                    const lightHex = lightColorMap[lightStep];
+                    const darkHex = darkColorMap[darkStep];
+                    
+                    if (lightHex && darkHex) {
+                        themeTokens.push({
+                            name: `semantic/${tokenPath}`,
+                            light: lightHex,
+                            dark: darkHex,
+                            category: tokenPath.split('/')[0],
+                            subcategory: tokenPath.split('/')[1] || ''
+                        });
                     }
                 }
-                
-                return tokens;
+
+                return {
+                    themeName,
+                    baseColor: baseHex,
+                    scaleColors: { light: lightColors, dark: darkColors },
+                    semanticTokens: themeTokens
+                };
             }
         }
 
-        // ===== Main App =====
-        class ColorGeneratorApp {
-            constructor() {
-                this.colorGenerator = new ColorGenerator();
-                this.semanticTokenManager = new SemanticTokenManager();
-                this.currentMode = 'light';
-                this.themeMode = 'light'; // Token Theme용 모드 추가
-                this.generatedColors = [];
-                this.currentScaleColors = [];
-                this.currentSemanticTokens = {};
-                
-                this.init();
-            }
+        // 인스턴스 생성
+        const colorGenerator = new ColorGenerator();
+        const themeGenerator = new CustomThemeGenerator();
 
-            init() {
-                this.setupEventListeners();
-                this.updateDisplay();
-                
-                // Listen for messages from Figma
-                window.addEventListener('message', (event) => {
-                    const msg = event.data.pluginMessage;
-                    if (msg) {
-                        this.handlePluginMessage(msg);
-                    }
-                });
+        // 탭 전환 함수
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 모든 탭 콘텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'generator') {
+                document.getElementById('generatorTab').classList.add('active');
+                document.getElementById('generatorContent').classList.add('active');
+            } else if (tabName === 'tone-matching') {
+                document.getElementById('toneMatchingTab').classList.add('active');
+                document.getElementById('toneMatchingContent').classList.add('active');
+            } else if (tabName === 'custom-theme') {
+                document.getElementById('customThemeTab').classList.add('active');
+                document.getElementById('customThemeContent').classList.add('active');
             }
+        }
 
-            setupEventListeners() {
-                // Tab switching
-                document.getElementById('generatorTab').addEventListener('click', () => {
-                    this.switchTab('generator');
-                });
-                
-                document.getElementById('tokenThemeTab').addEventListener('click', () => {
-                    this.switchTab('token');
-                });
-                
-                // Scale Generator
-                const baseColor = document.getElementById('baseColor');
-                const hexInput = document.getElementById('hexInput');
-                
-                baseColor.addEventListener('input', () => {
-                    hexInput.value = baseColor.value.toUpperCase();
-                    this.updateDisplay();
-                });
-                
-                hexInput.addEventListener('input', () => {
-                    if (/^#[0-9A-F]{6}$/i.test(hexInput.value)) {
-                        baseColor.value = hexInput.value;
-                        this.updateDisplay();
-                    }
-                });
-                
-                // Mode buttons
-                document.getElementById('lightBtn').addEventListener('click', () => {
-                    this.setMode('light');
-                });
-                
-                document.getElementById('darkBtn').addEventListener('click', () => {
-                    this.setMode('dark');
-                });
-                
-                // Action buttons
-                document.getElementById('createVariables').addEventListener('click', () => {
-                    this.createVariables(false);
-                });
-                
-                document.getElementById('createDualMode').addEventListener('click', () => {
-                    this.createVariables(true);
-                });
-                
-                // Token Theme
-                const themeBaseColor = document.getElementById('themeBaseColor');
-                const themeBaseHex = document.getElementById('themeBaseHex');
-                
-                themeBaseColor.addEventListener('input', () => {
-                    themeBaseHex.value = themeBaseColor.value.toUpperCase();
-                });
-                
-                themeBaseHex.addEventListener('input', () => {
-                    if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
-                        themeBaseColor.value = themeBaseHex.value;
-                    }
-                });
-                
-                // Token Theme Mode buttons
-                document.getElementById('themeLightBtn').addEventListener('click', () => {
-                    this.setThemeMode('light');
-                });
-                
-                document.getElementById('themeDarkBtn').addEventListener('click', () => {
-                    this.setThemeMode('dark');
-                });
-                
-                document.getElementById('generateScale').addEventListener('click', () => {
-                    this.generateScaleAndTokens();
-                });
-                
-                // Generated Scale 섹션 내부의 regenerate 버튼
-                const regenerateBtn = document.getElementById('regenerateScale');
-                if (regenerateBtn) {
-                    regenerateBtn.addEventListener('click', () => {
-                        this.generateScaleAndTokens();
-                    });
+        // 모드 설정 함수
+        function setMode(mode) {
+            console.log('Setting mode:', mode);
+            currentMode = mode;
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            updateDisplay();
+        }
+
+        // 디스플레이 업데이트
+        function updateDisplay() {
+            console.log('Updating display...');
+            const baseColor = document.getElementById('baseColor');
+            if (!baseColor) return;
+
+            const inputHex = baseColor.value;
+            generatedColors = colorGenerator.generateColors(inputHex, currentMode);
+            
+            displayColors();
+        }
+
+        // 색상 표시
+        function displayColors() {
+            const container = document.getElementById('colorResults');
+            if (!container) return;
+
+            container.innerHTML = '';
+            
+            generatedColors.forEach(color => {
+                const row = createColorRow(color);
+                container.appendChild(row);
+            });
+        }
+
+        // 색상 행 생성
+        function createColorRow(color) {
+            const row = document.createElement('div');
+            row.className = color.isClosest ? 'color-row closest' : 'color-row';
+            
+            const rgb = ColorUtils.hexToRgb(color.hex);
+            const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
+            
+            row.innerHTML = `
+                <div class="color-swatch" style="background: ${color.hex}; color: ${textColor}">
+                    ${color.step}
+                </div>
+                <div class="color-info">
+                    <span class="color-hex" onclick="copyColor('${color.hex}')">${color.hex.toUpperCase()}</span>
+                    <span>${color.contrast.toFixed(2)}:1</span>
+                </div>
+            `;
+            
+            return row;
+        }
+
+        function generateCustomTheme() {
+            const baseColor = document.getElementById('themeBaseColor').value;
+            const themeName = document.getElementById('themeNameInput').value || 'brand-theme';
+            
+            console.log('Generating custom theme:', themeName, baseColor);
+            
+            currentTheme = themeGenerator.generateTheme(baseColor, themeName);
+            displayThemePreview(currentTheme);
+            
+            // 테마 적용 섹션 표시
+            document.getElementById('themeApplicationSection').style.display = 'block';
+            
+            showMessage(`${themeName} 테마가 생성되었습니다!`);
+        }
+
+        function displayThemePreview(theme) {
+            const container = document.getElementById('themePreviewContainer');
+            
+            const groupedTokens = {};
+            theme.semanticTokens.forEach(token => {
+                if (!groupedTokens[token.category]) {
+                    groupedTokens[token.category] = [];
                 }
-                
-                document.getElementById('applyToFrame').addEventListener('click', () => {
-                    this.applyTokenThemeToFrame();
-                });
-            }
-
-            switchTab(tab) {
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                if (tab === 'generator') {
-                    document.getElementById('generatorTab').classList.add('active');
-                    document.getElementById('generatorContent').classList.add('active');
-                } else {
-                    document.getElementById('tokenThemeTab').classList.add('active');
-                    document.getElementById('tokenThemeContent').classList.add('active');
-                }
-            }
-
-            setMode(mode) {
-                this.currentMode = mode;
-                document.getElementById('lightBtn').classList.toggle('active', mode === 'light');
-                document.getElementById('darkBtn').classList.toggle('active', mode === 'dark');
-                this.updateDisplay();
-            }
-
-            setThemeMode(mode) {
-                this.themeMode = mode;
-                document.getElementById('themeLightBtn').classList.toggle('active', mode === 'light');
-                document.getElementById('themeDarkBtn').classList.toggle('active', mode === 'dark');
-                
-                // 이미 생성된 scale이 있으면 다시 생성
-                if (document.getElementById('scalePreviewSection').style.display === 'block') {
-                    this.generateScaleAndTokens();
-                }
-            }
-
-            updateDisplay() {
-                const inputHex = document.getElementById('baseColor').value;
-                this.generatedColors = this.colorGenerator.generateColors(inputHex, this.currentMode);
-                
-                const container = document.getElementById('colorResults');
-                container.innerHTML = '';
-                
-                this.generatedColors.forEach(color => {
-                    const row = document.createElement('div');
-                    row.className = color.isClosest ? 'color-row closest' : 'color-row';
-                    
-                    const rgb = ColorUtils.hexToRgb(color.hex);
-                    const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
-                    
-                    let badge = '';
-                    if (color.contrast >= 7) badge = '<span class="accessibility-badge badge-aaa">AAA</span>';
-                    else if (color.contrast >= 4.5) badge = '<span class="accessibility-badge badge-aa">AA</span>';
-                    else if (color.contrast >= 3) badge = '<span class="accessibility-badge badge-a">A</span>';
-                    
-                    row.innerHTML = `
-                        <div class="color-swatch" style="background: ${color.hex}; color: ${textColor}">
-                            ${color.step}
+                groupedTokens[token.category].push(token);
+            });
+            
+            container.innerHTML = `
+                <div class="theme-preview">
+                    <div class="theme-mode-preview">
+                        <div class="theme-mode-title">CustomLight 모드</div>
+                        <div class="theme-semantic-list">
+                            ${Object.entries(groupedTokens).map(([category, tokens]) => `
+                                <div style="margin-bottom: 8px;">
+                                    <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
+                                    ${tokens.map(token => `
+                                        <div class="semantic-item">
+                                            <div class="semantic-color" style="background: ${token.light};"></div>
+                                            <span class="semantic-name">${token.subcategory}</span>
+                                            <span style="font-size: 7px; color: #999;">${token.light}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
                         </div>
-                        <div class="color-info">
-                            <span class="color-hex" onclick="app.copyToClipboard('${color.hex}')">${color.hex.toUpperCase()}</span>
-                            <div class="contrast-info">
-                                <span>${color.contrast.toFixed(2)}:1</span>
-                                ${badge}
+                    </div>
+                    
+                    <div class="theme-mode-preview">
+                        <div class="theme-mode-title">CustomDark 모드</div>
+                        <div class="theme-semantic-list">
+                            ${Object.entries(groupedTokens).map(([category, tokens]) => `
+                                <div style="margin-bottom: 8px;">
+                                    <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
+                                    ${tokens.map(token => `
+                                        <div class="semantic-item">
+                                            <div class="semantic-color" style="background: ${token.dark};"></div>
+                                            <span class="semantic-name">${token.subcategory}</span>
+                                            <span style="font-size: 7px; color: #999;">${token.dark}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
+                    모든 테마 변수 생성
+                </button>
+                
+                <!-- Custom Mode 적용 섹션 -->
+                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
+                        CustomLight 적용
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
+                        CustomDark 적용
+                    </button>
+                </div>
+                
+                <div class="info-box">
+                    <h5>커스텀 테마:</h5>
+                    <p>• ${theme.semanticTokens.length}개의 semantic 토큰이 생성됩니다<br>
+                    • Light/Dark 모드를 모두 지원합니다<br>
+                    • ruler_v2 컬렉션에 추가됩니다</p>
+                </div>
+            `;
+        }
+
+        // 테마 적용 관련 함수들
+        function previewThemeApplication() {
+            if (!currentTheme) {
+                showMessage('먼저 테마를 생성해주세요!');
+                return;
+            }
+            
+            const inverseMode = document.getElementById('inverseToggle').checked;
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'preview-theme-application',
+                    theme: currentTheme,
+                    inverse: inverseMode
+                }
+            }, '*');
+            
+            showMessage('테마 적용 미리보기 중...');
+        }
+
+        function applyThemeToSelection() {
+            if (!currentTheme) {
+                showMessage('먼저 테마를 생성해주세요!');
+                return;
+            }
+            
+            const inverseMode = document.getElementById('inverseToggle').checked;
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'apply-theme-to-selection',
+                    theme: currentTheme,
+                    inverse: inverseMode
+                }
+            }, '*');
+            
+            showMessage('선택된 Frame에 테마 적용 중...');
+        }
+
+        function displayThemeApplicationResults(results) {
+            const container = document.getElementById('themeApplicationResults');
+            
+            if (results.mappedLayers.length === 0) {
+                container.innerHTML = `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 8px; margin-top: 8px;">
+                        <p style="font-size: 10px; color: #856404; margin: 0;">
+                            매핑된 레이어가 없습니다. ruler_v2 컬러 토큰을 사용하는 레이어를 선택해주세요.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 8px; margin-top: 8px;">
+                    <h5 style="color: #0c5460; font-size: 10px; margin-bottom: 4px;">
+                        ${results.previewMode ? '미리보기 결과' : '적용 완료'}:
+                    </h5>
+                    <p style="font-size: 9px; color: #0c5460; margin: 0;">
+                        ${results.mappedLayers.length}개 레이어에서 ${results.totalMappings}개 토큰이 ${results.previewMode ? '교체될 예정입니다' : '교체되었습니다'}
+                    </p>
+                    
+                    <div style="margin-top: 6px; max-height: 120px; overflow-y: auto;">
+                        ${results.mappedLayers.slice(0, 10).map(layer => `
+                            <div style="font-size: 8px; color: #045862; margin: 2px 0; padding: 2px 4px; background: rgba(255,255,255,0.5); border-radius: 2px;">
+                                <strong>${layer.name}</strong>: ${layer.oldToken} → ${layer.newToken}
                             </div>
-                        </div>
-                    `;
-                    
-                    container.appendChild(row);
-                });
-            }
+                        `).join('')}
+                        ${results.mappedLayers.length > 10 ? `
+                            <div style="font-size: 8px; color: #666; text-align: center; margin-top: 4px;">
+                                ... 그리고 ${results.mappedLayers.length - 10}개 더
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
 
-            generateScaleAndTokens() {
-                const baseHex = document.getElementById('themeBaseColor').value;
-                
-                // themeMode에 따라 neutral scale 생성
-                this.currentScaleColors = this.colorGenerator.generateColors(baseHex, this.themeMode);
-                
-                // Generate semantic tokens
-                this.currentSemanticTokens = this.semanticTokenManager.generateSemanticTokens(this.currentScaleColors);
-                
-                // Display scale preview
-                const scalePreview = document.getElementById('scalePreview');
-                scalePreview.innerHTML = '';
-                
-                this.currentScaleColors.forEach(color => {
-                    const item = document.createElement('div');
-                    item.className = 'scale-item';
-                    
-                    const rgb = ColorUtils.hexToRgb(color.hex);
-                    const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
-                    
-                    item.innerHTML = `
-                        <div class="scale-color" style="background: ${color.hex}"></div>
-                        <div class="scale-label">${color.step}</div>
-                    `;
-                    
-                    scalePreview.appendChild(item);
-                });
-                
-                // Display semantic tokens
-                const tokenList = document.getElementById('semanticTokenList');
-                tokenList.innerHTML = '';
-                
-                for (const [name, data] of Object.entries(this.currentSemanticTokens)) {
-                    const item = document.createElement('div');
-                    item.className = 'token-item';
-                    item.innerHTML = `
-                        <div class="token-color" style="background: ${data.hex}"></div>
-                        <div class="token-name">${name} (${data.scale})</div>
-                        <div class="token-value">${data.hex}</div>
-                    `;
-                    tokenList.appendChild(item);
+        function createCustomThemeVariables() {
+            if (!currentTheme) {
+                showMessage('먼저 테마를 생성해주세요!');
+                return;
+            }
+            
+            const inverseMode = document.getElementById('inverseToggle').checked;
+            
+            console.log('Creating custom theme variables:', currentTheme, 'Inverse mode:', inverseMode);
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'create-custom-theme',
+                    theme: currentTheme,
+                    inverse: inverseMode
                 }
-                
-                // Show sections
-                document.getElementById('scalePreviewSection').style.display = 'block';
-                document.getElementById('tokenMappingSection').style.display = 'block';
-                document.getElementById('applyButtonSection').style.display = 'block';
-                
-                // 첫 번째 generate 버튼 숨기기
-                document.getElementById('generateScale').style.display = 'none';
-                
-                const modeText = this.themeMode === 'dark' ? ' (Dark Mode)' : ' (Light Mode)';
-                this.showSuccess(`Scale and tokens generated${modeText}!`);
-            }
+            }, '*');
+            
+            showMessage('Custom Theme Variables 생성 중...');
+        }
 
-            applyTokenThemeToFrame() {
-                if (this.currentScaleColors.length === 0) {
-                    this.showSuccess('Please generate scale first!');
-                    return;
+        // Custom Mode 적용 함수
+        function applyCustomMode(modeName) {
+            console.log('Applying custom mode:', modeName);
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'apply-custom-mode-to-frame',
+                    modeName: modeName
                 }
-                
-                // 적용 모드 확인
-                const applyMode = document.querySelector('input[name="applyMode"]:checked').value;
-                
-                // 입력한 원본 색상도 함께 전달
-                const keyColor = document.getElementById('themeBaseColor').value;
-                
-                parent.postMessage({ 
-                    pluginMessage: {
-                        type: 'apply-token-theme-to-frame',
-                        scaleColors: this.currentScaleColors,
-                        semanticTokens: this.currentSemanticTokens,
-                        keyColor: keyColor,
-                        applyMode: applyMode,
-                        themeMode: this.themeMode // dark/light 모드 추가
-                    }
-                }, '*');
+            }, '*');
+            
+            showMessage(modeName + ' 모드 적용 중...');
+        }
+
+        // 색상 복사
+        function copyColor(hex) {
+            navigator.clipboard.writeText(hex).then(() => {
+                showMessage(`📋 ${hex} 복사됨!`);
+            }).catch(() => {
+                showMessage('복사 실패');
+            });
+        }
+
+        // 변수 생성
+        function createVariables() {
+            console.log('Creating variables...');
+            
+            if (generatedColors.length === 0) {
+                showMessage('먼저 색상을 생성해주세요!');
+                return;
             }
 
-            createVariables(dualMode) {
-                const baseHex = document.getElementById('baseColor').value;
-                const variableName = prompt('Enter variable name (e.g., primary, blue, brand):') || 'color';
-                
-                if (dualMode) {
-                    const lightColors = this.colorGenerator.generateColors(baseHex, 'light');
-                    const darkColors = this.colorGenerator.generateColors(baseHex, 'dark');
+            const variableName = 'test-color';
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'create-variables',
+                    colors: generatedColors,
+                    variableName: variableName,
+                    mode: currentMode,
+                    dualMode: false
+                }
+            }, '*');
+            
+            showMessage('Variables 생성 중...');
+        }
+
+        // 톤 매칭 관련 함수들
+        function setReferenceColor() {
+            const picker = document.getElementById('referenceColorPicker');
+            const hex = document.getElementById('referenceColorHex');
+            
+            referenceColor = {
+                hex: picker.value.toUpperCase(),
+                hsl: ColorUtils.hexToHsl(picker.value)
+            };
+            
+            updateReferenceDisplay();
+            showMessage('기준 색상이 설정되었습니다!');
+        }
+
+        function clearReference() {
+            referenceColor = null;
+            updateReferenceDisplay();
+            clearToneMatchingResults();
+            showMessage('기준 색상이 초기화되었습니다.');
+        }
+
+        function updateReferenceDisplay() {
+            const statusElement = document.getElementById('referenceStatus');
+            const displayElement = document.getElementById('referenceDisplay');
+            
+            if (!referenceColor) {
+                statusElement.textContent = '현재 설정된 기준 컬러가 없습니다.';
+                statusElement.style.color = '#666';
+                displayElement.innerHTML = '';
+                return;
+            }
+            
+            statusElement.textContent = `✅ Reference Set: ${referenceColor.hex}`;
+            statusElement.style.color = '#28a745';
+            
+            const [h, s, l] = referenceColor.hsl;
+            displayElement.innerHTML = `
+                <div class="reference-display">
+                    <div class="reference-color" style="background: ${referenceColor.hex};"></div>
+                    <div class="reference-info">
+                        <h4>📌 Reference Active</h4>
+                        <p><strong>${referenceColor.hex}</strong></p>
+                        <p>HSL(${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(l)}%)</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateToneMatching() {
+            if (!referenceColor) {
+                showMessage('먼저 기준 색상을 설정해주세요!');
+                return;
+            }
+            
+            const newColorHex = document.getElementById('newColorPicker').value;
+            
+            // 백엔드에 톤 매칭 요청
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'generate-tone-matching',
+                    referenceColor: referenceColor.hex,
+                    inputColor: newColorHex
+                }
+            }, '*');
+            
+            showMessage('톤 매칭 제안을 생성하는 중...');
+        }
+
+        function displayToneMatchingSuggestions(originalHex, suggestions) {
+            const container = document.getElementById('toneMatchingResults');
+            
+            container.innerHTML = `
+                <div style="background: white; border: 2px solid #17a2b8; border-radius: 6px; padding: 12px; margin: 8px 0;">
+                    <h4 style="color: #17a2b8; margin-bottom: 8px; font-size: 11px;">🎨 Tone Matching Results</h4>
+                    <p style="margin-bottom: 8px; font-size: 9px;">
+                        Original: <strong>${originalHex.toUpperCase()}</strong><br>
+                        → Adjusted to match reference tone:
+                    </p>
                     
-                    parent.postMessage({ 
-                        pluginMessage: {
-                            type: 'create-variables',
-                            variableName,
-                            collectionName: `${variableName} System`,
-                            lightColors,
-                            darkColors,
-                            dualMode: true
-                        }
-                    }, '*');
-                } else {
-                    parent.postMessage({ 
-                        pluginMessage: {
-                            type: 'create-variables',
-                            variableName,
-                            collectionName: `${variableName} System`,
-                            colors: this.generatedColors,
-                            dualMode: false
-                        }
-                    }, '*');
-                }
-            }
-
-            copyToClipboard(text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    this.showSuccess(`Copied ${text} to clipboard!`);
-                });
-            }
-
-            handlePluginMessage(msg) {
-                if (msg.type === 'variable-created') {
-                    this.showSuccess('Successfully created variables!');
-                } else if (msg.type === 'token-theme-applied') {
-                    const count = msg.count || 0;
-                    this.showSuccess(`Applied theme to ${count} layers!`);
-                }
-            }
-
-            toggleInfoBox() {
-                const content = document.querySelector('.info-box-content');
-                const toggle = document.querySelector('.info-box-toggle');
+                    <div class="tone-suggestions">
+                        ${suggestions.map((suggestion, index) => `
+                            <div class="tone-suggestion" onclick="applyToneToGenerator('${suggestion.hex}')">
+                                <div class="tone-color-display" style="background: ${suggestion.hex};"></div>
+                                <div class="tone-suggestion-title">${suggestion.type}</div>
+                                <div class="tone-suggestion-hex">${suggestion.hex.toUpperCase()}</div>
+                                <div class="tone-suggestion-desc">${suggestion.explanation}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
                 
-                content.classList.toggle('collapsed');
-                toggle.classList.toggle('collapsed');
-            }
+                <div class="info-box">
+                    <h5>💡 Tone Matching:</h5>
+                    <p>• 제안은 기준 색상의 톤과 매칭됩니다.<br>
+                    • 색상을 클릭하면 Scale Generator에 적용합니다.<br>
+                    • 일관된 브랜드 톤으로 13단계 스케일 생성이 가능합니다.</p>
+                </div>
+            `;
+        }
 
-            showSuccess(message) {
-                const el = document.getElementById('successMessage');
+        function applyToneToGenerator(hex) {
+            switchTab('generator');
+            document.getElementById('baseColor').value = hex;
+            document.getElementById('hexInput').value = hex.toUpperCase();
+            updateDisplay();
+            showMessage(`${hex} 색상이 Generator에 적용되었습니다!`);
+        }
+
+        function clearToneMatchingResults() {
+            const container = document.getElementById('toneMatchingResults');
+            if (container) container.innerHTML = '';
+        }
+
+        // 메시지 표시
+        function showMessage(message) {
+            const el = document.getElementById('successMessage');
+            if (el) {
                 el.textContent = message;
                 el.classList.add('show');
                 setTimeout(() => el.classList.remove('show'), 3000);
             }
         }
 
-        // Initialize app
-        const app = new ColorGeneratorApp();
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+
+            // 탭 버튼들
+            document.getElementById('generatorTab').addEventListener('click', () => switchTab('generator'));
+            document.getElementById('toneMatchingTab').addEventListener('click', () => switchTab('tone-matching'));
+            document.getElementById('customThemeTab').addEventListener('click', () => switchTab('custom-theme'));
+
+            // 색상 입력
+            const baseColor = document.getElementById('baseColor');
+            const hexInput = document.getElementById('hexInput');
+
+            if (baseColor && hexInput) {
+                baseColor.addEventListener('input', () => {
+                    hexInput.value = baseColor.value.toUpperCase();
+                    updateDisplay();
+                });
+
+                hexInput.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(hexInput.value)) {
+                        baseColor.value = hexInput.value;
+                        updateDisplay();
+                    }
+                });
+            }
+
+            // 톤 매칭 관련
+            document.getElementById('setRefBtn').addEventListener('click', setReferenceColor);
+            document.getElementById('clearRefBtn').addEventListener('click', clearReference);
+            document.getElementById('getSuggestionsBtn').addEventListener('click', generateToneMatching);
+
+            // Reference 색상 입력 동기화
+            const refPicker = document.getElementById('referenceColorPicker');
+            const refHex = document.getElementById('referenceColorHex');
+            
+            refPicker.addEventListener('input', () => {
+                refHex.value = refPicker.value.toUpperCase();
+            });
+            
+            refHex.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(refHex.value)) {
+                    refPicker.value = refHex.value;
+                }
+            });
+
+            // New 색상 입력 동기화
+            const newPicker = document.getElementById('newColorPicker');
+            const newHex = document.getElementById('newColorHex');
+            
+            newPicker.addEventListener('input', () => {
+                newHex.value = newPicker.value.toUpperCase();
+            });
+            
+            newHex.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(newHex.value)) {
+                    newPicker.value = newHex.value;
+                }
+            });
+
+            // Custom Theme 관련
+            const themeBaseColor = document.getElementById('themeBaseColor');
+            const themeBaseHex = document.getElementById('themeBaseHex');
+            
+            themeBaseColor.addEventListener('input', () => {
+                themeBaseHex.value = themeBaseColor.value.toUpperCase();
+            });
+            
+            themeBaseHex.addEventListener('input', () => {
+                if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
+                    themeBaseColor.value = themeBaseHex.value;
+                }
+            });
+
+            document.getElementById('generateThemeBtn').addEventListener('click', generateCustomTheme);
+            document.getElementById('previewThemeApplicationBtn').addEventListener('click', previewThemeApplication);
+            document.getElementById('applyThemeBtn').addEventListener('click', applyThemeToSelection);
+
+            console.log('Event listeners set up successfully');
+        }
+
+        // 플러그인 메시지 수신
+        window.addEventListener('message', (event) => {
+            const msg = event.data.pluginMessage;
+            if (!msg) return;
+
+            console.log('Received message:', msg);
+            
+            switch(msg.type) {
+                case 'plugin-ready':
+                    console.log('Plugin ready:', msg.message);
+                    break;
+                case 'variable-created':
+                    if (msg.success) {
+                        showMessage(`Variables 생성 완료! (${msg.count || 0}개)`);
+                    } else {
+                        showMessage('에러: ' + msg.error);
+                    }
+                    break;
+                case 'custom-theme-created':
+                    if (msg.success) {
+                        showMessage(`${msg.themeName} 테마 생성 완료! (${msg.count || 0}개 변수)`);
+                    } else {
+                        showMessage('테마 생성 에러: ' + msg.error);
+                    }
+                    break;
+                case 'theme-application-preview':
+                    displayThemeApplicationResults(msg.results);
+                    break;
+                case 'theme-applied':
+                    if (msg.success) {
+                        displayThemeApplicationResults(msg.results);
+                        showMessage(`테마 적용 완료! ${msg.results.totalMappings}개 토큰 교체됨`);
+                    } else {
+                        showMessage('테마 적용 에러: ' + msg.error);
+                    }
+                    break;
+                case 'custom-mode-applied':
+                    if (msg.success) {
+                        var message = msg.modeName + ' 모드 적용 완료!';
+                        if (msg.excluded && msg.excluded > 0) {
+                            message += ' (' + msg.count + '개 적용, ' + msg.excluded + '개 fallback 적용)';
+                        } else {
+                            message += ' (' + msg.count + '개 적용)';
+                        }
+                        showMessage(message);
+                    } else {
+                        showMessage('모드 적용 에러: ' + msg.error);
+                    }
+                    break;
+                case 'tone-matching-complete':
+                    displayToneMatchingSuggestions(msg.originalColor, msg.suggestions);
+                    showMessage('톤 매칭 제안이 완료되었습니다!');
+                    break;
+                case 'tone-matching-error':
+                    showMessage('톤 매칭 에러: ' + msg.error);
+                    break;
+                case 'error':
+                    showMessage('에러: ' + msg.message);
+                    break;
+            }
+        });
+
+        // 초기화
+        function init() {
+            console.log('Initializing UI...');
+            setupEventListeners();
+            updateDisplay();
+            console.log('UI initialized successfully');
+        }
+
+        // DOM 로드 완료 후 초기화
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        // 페이지 로드 완료 후에도 확인
+        window.addEventListener('load', () => {
+            console.log('Window loaded, ensuring initialization...');
+            if (generatedColors.length === 0) {
+                updateDisplay();
+            }
+        });
     </script>
 </body>
 </html>
