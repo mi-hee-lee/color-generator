@@ -1,4 +1,4 @@
-// Figma Plugin Backend Code - Version 11
+// Figma Plugin Backend Code - Version 12 (Modified Custom Theme Logic)
 console.log('Backend script loading...');
 
 // UI 표시
@@ -45,110 +45,9 @@ function getYValue(hex) {
   return relativeLuminance(rgb);
 }
 
-// 밝기 판단 (흰색 대비 4.5 기준)
-function isLightColor(hex) {
-  // 흰색과의 대비 비율 계산
-  var whiteContrast = contrastRatio(hex, '#FFFFFF');
-  
-  // 대비 비율 >= 4.5 → 어두운 색 (false 반환)
-  // 대비 비율 < 4.5 → 밝은 색 (true 반환)
-  var isLight = whiteContrast < 4.5;
-  
-  console.log('[BRIGHTNESS] White contrast:', whiteContrast.toFixed(2), '→', isLight ? 'Light' : 'Dark');
-  return isLight;
-}
-
-// 텍스트 대비 기준으로 배경 단계 선택
-function pickBackgroundStepByContrast(theme, themeName, mode, targetContrast) {
-  var candidateSteps = [50, 75, 100, 150, 200, 300, 400];
-  var textColor = mode === 'light' ? '#0C0C0D' : '#FAFAFA'; // GRAY:900 / GRAY:50
-  var selectedStep = null;
-  var maxContrast = 0;
-  
-  // 목표 대비(7.0) 이상인 가장 낮은 단계 찾기
-  for (var i = 0; i < candidateSteps.length; i++) {
-    var step = candidateSteps[i];
-    var colors = mode === 'light' ? theme.scaleColors.light : theme.scaleColors.dark;
-    var stepColor = colors.find(function(c) { return c.step === step; });
-    
-    if (stepColor) {
-      var contrast = contrastRatio(stepColor.hex, textColor);
-      console.log('[CONTRAST CHECK] Step', step, ':', contrast.toFixed(2));
-      
-      // 목표 대비 이상인 첫 번째 단계
-      if (contrast >= targetContrast && !selectedStep) {
-        selectedStep = step;
-        break;
-      }
-      
-      // 최대 대비 추적 (fallback용)
-      if (contrast > maxContrast) {
-        maxContrast = contrast;
-        if (contrast >= 4.5 && !selectedStep) {
-          selectedStep = step;
-        }
-      }
-    }
-  }
-  
-  // 적절한 단계를 못 찾으면 50 사용
-  if (!selectedStep) {
-    selectedStep = 50;
-    console.warn('[CONTRAST WARNING] No step meets contrast requirements, using step 50');
-  }
-  
-  return selectedStep;
-}
-
-// 배경 안전 처리
-function getSafeBackgroundMapping(theme, themeName, inputHex, mode) {
-  var neon = isNeon(inputHex);
-  var result = {};
-  
-  console.log('[SAFETY CHECK] Input:', inputHex, 'Mode:', mode, 'Neon:', neon);
-  
-  if (neon) {
-    // 네온 색상: 가장 안전한 설정
-    result['semantic/background/default'] = 'REF:' + themeName + '50';
-    result['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
-    console.log('[NEON SAFETY] Using step 50 for background, alpha-100 for surface');
-  } else {
-    // 일반 색상: 대비 기준으로 선택
-    var targetContrast = 7.0; // AA Large Text / AAA Normal Text
-    var backgroundStep = pickBackgroundStepByContrast(theme, themeName, mode, targetContrast);
-    
-    result['semantic/background/default'] = 'REF:' + themeName + backgroundStep;
-    result['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
-    console.log('[CONTRAST SAFETY] Using step', backgroundStep, 'for background');
-  }
-  
-  return result;
-}
-
 // =====================================
 // WCAG 대비비율 계산 함수들
 // =====================================
-
-// 알파 합성 - 전경색(알파 포함)을 배경색과 합성
-function composeAlpha(fgHex8, underlayHex) {
-  var fg = hexToFigmaRGB(fgHex8);
-  var bg = hexToFigmaRGB(underlayHex || '#FFFFFF');
-  
-  // 알파가 없거나 1인 경우 그대로 반환
-  if (fg.a === undefined || fg.a === 1) {
-    return fgHex8.substring(0, 7);
-  }
-  
-  // 알파 블렌딩 공식: result = fg * alpha + bg * (1 - alpha)
-  var r = Math.round((fg.r * fg.a + bg.r * (1 - fg.a)) * 255);
-  var g = Math.round((fg.g * fg.a + bg.g * (1 - fg.a)) * 255);
-  var b = Math.round((fg.b * fg.a + bg.b * (1 - fg.a)) * 255);
-  
-  return '#' + [r, g, b].map(function(x) {
-    var hex = x.toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }).join('').toUpperCase();
-}
 
 // sRGB를 선형 RGB로 변환
 function srgbToLinear(n) {
@@ -210,55 +109,6 @@ function hexToRgb(hex) {
     g: parseInt(result[2], 16),
     b: parseInt(result[3], 16)
   };
-}
-
-// 텍스트 색상 자동 결정
-function decideTextColor(bgHex, options) {
-  options = options || {};
-  var largeText = options.largeText || false;
-  var underlayHex = options.underlayHex || '#FFFFFF';
-  
-  // 1. 최종 배경색 계산 (알파 합성)
-  var finalBg = bgHex;
-  if (bgHex.length > 7) {
-    finalBg = composeAlpha(bgHex, underlayHex);
-  }
-  
-  // 2. 검정/흰색과의 대비 계산
-  var blackContrast = contrastRatio(finalBg, '#000000');
-  var whiteContrast = contrastRatio(finalBg, '#FFFFFF');
-  
-  // 3. 임계값 설정
-  var threshold = largeText ? 3.0 : 4.5;
-  
-  // 4. 더 높은 대비를 주는 색상 선택
-  var result;
-  if (blackContrast >= whiteContrast) {
-    result = {
-      textToken: 'GRAY:900',
-      chosen: '#000000',
-      contrast: blackContrast,
-      otherContrast: whiteContrast,
-      lowContrast: blackContrast < threshold
-    };
-  } else {
-    result = {
-      textToken: 'GRAY:50',
-      chosen: '#FFFFFF',
-      contrast: whiteContrast,
-      otherContrast: blackContrast,
-      lowContrast: whiteContrast < threshold
-    };
-  }
-  
-  // 5. 디버깅 로그
-  console.log('[CONTRAST] Background:', finalBg, 
-              'Black:', blackContrast.toFixed(2), 
-              'White:', whiteContrast.toFixed(2),
-              'Chosen:', result.textToken,
-              'Low:', result.lowContrast);
-  
-  return result;
 }
 
 // =====================================
@@ -390,7 +240,7 @@ function findClosestStep(scaleColors, inputHex) {
 }
 
 // =====================================
-// 동적 매핑 함수 (개선된 로직)
+// 동적 매핑 함수 (수정된 로직)
 // =====================================
 
 // 단계 조정 헬퍼 함수 (±단계 이동 with 클램핑)
@@ -426,39 +276,114 @@ function adjustStep(currentStep, adjustment) {
   return steps[newIndex];
 }
 
-// 동적 매핑 생성 (Application Mode 적용)
+// 동적 매핑 생성 (수정된 Application Mode 적용)
 function getDynamicMappings(closestStepLight, closestStepDark, themeName, inputHex, applicationMode, theme) {
   var mappings = {};
-  var isLight = isLightColor(inputHex);
-  var whiteContrast = contrastRatio(inputHex, '#FFFFFF');
-  var blackContrast = contrastRatio(inputHex, '#000000');
   
-  console.log('[BRIGHTNESS ANALYSIS]');
-  console.log('  White Contrast:', whiteContrast.toFixed(2));
-  console.log('  Black Contrast:', blackContrast.toFixed(2));
-  console.log('  Result:', isLight ? 'Light (white contrast < 4.5)' : 'Dark (white contrast >= 4.5)');
+  // 300/400 기준으로 분류
+  var isLightRange = closestStepLight <= 300; // 300 이하
+  var isDarkRange = closestStepLight >= 400;  // 400 이상
+  
+  console.log('[CLASSIFICATION] closestStep:', closestStepLight);
+  console.log('[CLASSIFICATION] Range:', isLightRange ? '300 이하' : isDarkRange ? '400 이상' : '중간값(에러)');
   console.log('[APPLICATION MODE]', applicationMode);
-  console.log('[closestStep]', { light: closestStepLight, dark: closestStepDark });
   
-  // Element 적용 모드
-  if (applicationMode === 'element') {
-    if (isLight) {
-      // 밝은 색 + Element 적용
+  // Application Mode 1: 강조 요소 ON / 배경 요소 OFF
+  if (applicationMode === 'accent-on-bg-off') {
+    if (isDarkRange) {
+      // 400 이상일 때
+      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + '50',
+        dark: 'REF:' + themeName + '50'
+      };
+    } else {
+      // 300 이하일 때
       mappings['semantic/text/primary'] = { light: 'GRAY:50', dark: 'GRAY:50' };
       mappings['semantic/text/secondary'] = { light: 'GRAY:100', dark: 'GRAY:100' };
       mappings['semantic/text/tertiary'] = { light: 'GRAY:200', dark: 'GRAY:200' };
       mappings['semantic/text/disabled'] = { light: 'GRAY:600', dark: 'GRAY:600' };
       mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
       
-      // background: 입력 색상 +2단계 (더 강하게)
-      var bgStepLight = adjustStep(closestStepLight, 2);
-      var bgStepDark = adjustStep(closestStepDark, 2);
       mappings['semantic/background/default'] = {
-        light: 'REF:' + themeName + bgStepLight,
-        dark: 'REF:' + themeName + bgStepDark
+        light: 'REF:' + themeName + '400',
+        dark: 'REF:' + themeName + '400'
+      };
+    }
+    
+    // 강조 요소는 입력색과 유사 단계
+    mappings['semantic/fill/primary'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+    mappings['semantic/border/divider-strong'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+    mappings['semantic/border/line-selected'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+  }
+  // Application Mode 2: 강조 요소 ON / 배경 변경 X (Light Mode 고정)
+  else if (applicationMode === 'accent-on-bg-fixed') {
+    if (isDarkRange) {
+      // 400 이상일 때
+      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+    } else {
+      // 300 이하일 때 (Light Mode 고정이므로 텍스트는 항상 어둡게)
+      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+    }
+    
+    // 배경은 항상 gray50 (Light Mode 유지)
+    mappings['semantic/background/default'] = {
+      light: 'GRAY:50',
+      dark: 'GRAY:50'
+    };
+    
+    // 강조 요소는 입력색과 유사 단계
+    mappings['semantic/fill/primary'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+    mappings['semantic/border/divider-strong'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+    mappings['semantic/border/line-selected'] = {
+      light: 'REF:' + themeName + closestStepLight,
+      dark: 'REF:' + themeName + closestStepDark
+    };
+  }
+  // Application Mode 3: 강조 요소 OFF / 배경 요소 ON
+  else if (applicationMode === 'accent-off-bg-on') {
+    if (isDarkRange) {
+      // 400 이상일 때
+      mappings['semantic/text/primary'] = { light: 'GRAY:50', dark: 'GRAY:50' };
+      mappings['semantic/text/secondary'] = { light: 'GRAY:100', dark: 'GRAY:100' };
+      mappings['semantic/text/tertiary'] = { light: 'GRAY:200', dark: 'GRAY:200' };
+      mappings['semantic/text/disabled'] = { light: 'GRAY:600', dark: 'GRAY:600' };
+      mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
+      
+      mappings['semantic/background/default'] = {
+        light: 'REF:' + themeName + '400',
+        dark: 'REF:' + themeName + '400'
       };
       
-      // 입력 색상과 유사한 단계 사용
+      // 강조 요소는 입력색과 유사 단계
       mappings['semantic/fill/primary'] = {
         light: 'REF:' + themeName + closestStepLight,
         dark: 'REF:' + themeName + closestStepDark
@@ -472,7 +397,7 @@ function getDynamicMappings(closestStepLight, closestStepDark, themeName, inputH
         dark: 'REF:' + themeName + closestStepDark
       };
     } else {
-      // 어두운 색 + Element 적용
+      // 300 이하일 때
       mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
       mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
       mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
@@ -484,82 +409,18 @@ function getDynamicMappings(closestStepLight, closestStepDark, themeName, inputH
         dark: 'REF:' + themeName + '50'
       };
       
-      // 입력 색상과 유사한 단계 사용
+      // 강조 요소는 300으로 고정
       mappings['semantic/fill/primary'] = {
-        light: 'REF:' + themeName + closestStepLight,
-        dark: 'REF:' + themeName + closestStepDark
+        light: 'REF:' + themeName + '300',
+        dark: 'REF:' + themeName + '300'
       };
       mappings['semantic/border/divider-strong'] = {
-        light: 'REF:' + themeName + closestStepLight,
-        dark: 'REF:' + themeName + closestStepDark
+        light: 'REF:' + themeName + '300',
+        dark: 'REF:' + themeName + '300'
       };
       mappings['semantic/border/line-selected'] = {
-        light: 'REF:' + themeName + closestStepLight,
-        dark: 'REF:' + themeName + closestStepDark
-      };
-    }
-  }
-  // Background 적용 모드
-  else if (applicationMode === 'background') {
-    if (isLight) {
-      // 밝은 색 + Background 적용
-      mappings['semantic/text/primary'] = { light: 'GRAY:900', dark: 'GRAY:900' };
-      mappings['semantic/text/secondary'] = { light: 'GRAY:700', dark: 'GRAY:700' };
-      mappings['semantic/text/tertiary'] = { light: 'GRAY:600', dark: 'GRAY:600' };
-      mappings['semantic/text/disabled'] = { light: 'GRAY:400', dark: 'GRAY:400' };
-      mappings['semantic/text/on-color'] = { light: 'GRAY:50', dark: 'GRAY:50' };
-      
-      // 입력 색상과 유사한 단계를 배경으로
-      mappings['semantic/background/default'] = {
-        light: 'REF:' + themeName + closestStepLight,
-        dark: 'REF:' + themeName + closestStepDark
-      };
-      
-      // fill/border: 입력 색상 +2단계 (더 강하게)
-      var fillStepLight = adjustStep(closestStepLight, 2);
-      var fillStepDark = adjustStep(closestStepDark, 2);
-      
-      mappings['semantic/fill/primary'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
-      };
-      mappings['semantic/border/divider-strong'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
-      };
-      mappings['semantic/border/line-selected'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
-      };
-    } else {
-      // 어두운 색 + Background 적용
-      mappings['semantic/text/primary'] = { light: 'GRAY:50', dark: 'GRAY:50' };
-      mappings['semantic/text/secondary'] = { light: 'GRAY:100', dark: 'GRAY:100' };
-      mappings['semantic/text/tertiary'] = { light: 'GRAY:200', dark: 'GRAY:200' };
-      mappings['semantic/text/disabled'] = { light: 'GRAY:600', dark: 'GRAY:600' };
-      mappings['semantic/text/on-color'] = { light: 'GRAY:900', dark: 'GRAY:900' };
-      
-      // 입력 색상과 유사한 단계를 배경으로
-      mappings['semantic/background/default'] = {
-        light: 'REF:' + themeName + closestStepLight,
-        dark: 'REF:' + themeName + closestStepDark
-      };
-      
-      // fill/border: 입력 색상 -2단계 (더 연하게)
-      var fillStepLight = adjustStep(closestStepLight, -2);
-      var fillStepDark = adjustStep(closestStepDark, -2);
-      
-      mappings['semantic/fill/primary'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
-      };
-      mappings['semantic/border/divider-strong'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
-      };
-      mappings['semantic/border/line-selected'] = {
-        light: 'REF:' + themeName + fillStepLight,
-        dark: 'REF:' + themeName + fillStepDark
+        light: 'REF:' + themeName + '300',
+        dark: 'REF:' + themeName + '300'
       };
     }
   }
@@ -667,10 +528,10 @@ async function handleCreateVariables(msg) {
   figma.notify('Created ' + createdCount + ' variables');
 }
 
-// Custom Theme 생성 핸들러 (Application Mode 지원)
+// Custom Theme 생성 핸들러 (수정된 Application Mode 지원)
 async function handleCreateCustomTheme(msg) {
   var theme = msg.theme;
-  var applicationMode = theme.applicationMode || 'element';
+  var applicationMode = theme.applicationMode || 'accent-on-bg-off';
   
   console.log('Creating theme with application mode:', applicationMode);
   
@@ -853,13 +714,6 @@ async function handleCreateCustomTheme(msg) {
   // =====================================
   
   console.log('=== Applying Semantic Mappings ===');
-  
-  // 강제로 closestStep을 적용할 토큰들
-  var forceRefTokens = [
-    'semantic/fill/primary',
-    'semantic/border/divider-strong',
-    'semantic/border/line-selected'
-  ];
   
   // 보존해야 할 토큰 목록
   var preserveTokens = [

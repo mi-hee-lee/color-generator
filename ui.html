@@ -439,9 +439,9 @@
 
         .radio-option {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
-            padding: 6px;
+            padding: 8px;
             background: white;
             border-radius: 4px;
             border: 1px solid #e0e0e0;
@@ -455,28 +455,34 @@
         }
 
         .radio-option input[type="radio"] {
-            margin: 0;
+            margin-top: 2px;
         }
 
         .radio-option.selected {
             border-color: #667eea;
             background: #f0f4ff;
+            border-width: 2px;
+        }
+
+        .radio-content {
+            flex: 1;
         }
 
         .radio-label {
-            flex: 1;
             font-size: 10px;
-            font-weight: 500;
+            font-weight: 600;
             color: #333;
+            margin-bottom: 2px;
+            display: block;
         }
 
         .radio-hint {
             font-size: 8px;
             color: #666;
-            margin-left: 20px;
+            line-height: 1.3;
         }
 
-        .brightness-indicator {
+        .step-indicator {
             display: inline-block;
             padding: 2px 6px;
             border-radius: 3px;
@@ -485,14 +491,49 @@
             margin-left: 6px;
         }
 
-        .brightness-light {
+        .step-light {
             background: #fff3cd;
             color: #856404;
         }
 
-        .brightness-dark {
+        .step-dark {
             background: #343a40;
             color: #f8f9fa;
+        }
+
+        .classification-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .classification-300 {
+            background: #cfe2ff;
+            color: #084298;
+            border: 1px solid #b6d4fe;
+        }
+
+        .classification-400 {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .warning-box p {
+            font-size: 9px;
+            color: #856404;
+            margin: 0;
         }
     </style>
 </head>
@@ -594,26 +635,50 @@
                 <div class="color-input-group">
                     <input type="color" id="themeBaseColor" class="color-picker" value="#667eea">
                     <input type="text" id="themeBaseHex" class="hex-input" value="#667EEA">
-                    <span id="brightnessIndicator" class="brightness-indicator">분석 중...</span>
+                    <span id="stepIndicator" class="step-indicator">분석 중...</span>
+                    <span id="classificationBadge" class="classification-badge">분류 중...</span>
                 </div>
                 
-                <!-- Application Mode Radio Buttons -->
+                <!-- 스텝 분류 설명 -->
+                <div class="warning-box" id="stepClassificationInfo" style="display: none;">
+                    <p id="stepClassificationText"></p>
+                </div>
+                
+                <!-- Application Mode Radio Buttons (3가지 옵션) -->
                 <div class="radio-group">
                     <label class="radio-option selected">
-                        <input type="radio" name="applicationMode" value="element" checked>
-                        <span class="radio-label">🎯 Key color를 Element에 적용</span>
+                        <input type="radio" name="applicationMode" value="accent-on-bg-off" checked>
+                        <div class="radio-content">
+                            <span class="radio-label">🎯 Mode 1: 강조 요소 ON / 배경 요소 OFF</span>
+                            <div class="radio-hint">
+                                입력 색상을 fill-primary, border 등 강조 요소에 적용<br>
+                                배경은 상태에 따라 자동 조정 (300이하→400, 400이상→50)
+                            </div>
+                        </div>
                     </label>
-                    <div class="radio-hint">
-                        입력 색상을 fill-primary, border 등 강조 요소에 사용합니다
-                    </div>
                     
                     <label class="radio-option">
-                        <input type="radio" name="applicationMode" value="background">
-                        <span class="radio-label">🎨 Key color를 Background에 적용</span>
+                        <input type="radio" name="applicationMode" value="accent-on-bg-fixed">
+                        <div class="radio-content">
+                            <span class="radio-label">💡 Mode 2: 강조 요소 ON / 배경 Light 고정</span>
+                            <div class="radio-hint">
+                                입력 색상을 강조 요소에 적용<br>
+                                배경은 항상 gray50 (Light Mode 유지)
+                            </div>
+                        </div>
                     </label>
-                    <div class="radio-hint">
-                        입력 색상을 background/default 배경 요소에 사용합니다
-                    </div>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="applicationMode" value="accent-off-bg-on">
+                        <div class="radio-content">
+                            <span class="radio-label">🎨 Mode 3: 강조 요소 OFF / 배경 요소 ON</span>
+                            <div class="radio-hint">
+                                입력 색상을 배경에 적용<br>
+                                • 300이하→배경 50, 강조요소 300 고정<br>
+                                • 400이상→배경 400, 강조요소는 입력색과 유사
+                            </div>
+                        </div>
+                    </label>
                 </div>
                 
                 <button id="generateThemeBtn" class="action-btn btn-primary">완전한 테마 생성</button>
@@ -621,32 +686,14 @@
                 <div id="themePreviewContainer"></div>
             </div>
             
-            <!-- 테마 적용 섹션 -->
-            <div class="section" id="themeApplicationSection" style="display: none;">
-                <div class="section-title">테마 적용</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">
-                    선택된 Frame의 기존 컬러 토큰을 새 테마 색상으로 교체합니다
-                </p>
-                
-                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                    <button id="previewThemeApplicationBtn" class="action-btn btn-secondary" style="flex: 1;">
-                        미리보기
-                    </button>
-                    <button id="applyThemeBtn" class="action-btn btn-success" style="flex: 1;">
-                        테마 적용
-                    </button>
-                </div>
-                
-                <div id="themeApplicationResults"></div>
-            </div>
-            
             <div class="info-box" style="margin-top: 12px;">
                 <h5>커스텀 테마 기능:</h5>
-                <p>• ruler_v2.json 구조를 기반으로 semantic 토큰 자동 생성<br>
-                • Light/Dark 모드 동시 지원<br>
-                • background, text, fill, border 등 모든 카테고리 포함<br>
-                • 13단계 스케일 + semantic 토큰들이 한번에 생성됩니다<br>
-                • 밝기 판단: 흰색 대비(CR) < 4.5 = 밝은 색, ≥ 4.5 = 어두운 색</p>
+                <p>• 13단계 스케일(50~950) 자동 생성<br>
+                • closestStep ≤ 300 → "300 이하" 분류<br>
+                • closestStep ≥ 400 → "400 이상" 분류<br>
+                • 3가지 Application Mode 지원<br>
+                • Light/Dark 모드 동시 생성<br>
+                • WCAG 대비율 자동 확보</p>
             </div>
         </div>
 
@@ -734,17 +781,29 @@
                 return (lighter + 0.05) / (darker + 0.05);
             }
 
-            // Y값 계산 (0~1)
-            static getYValue(hex) {
-                const rgb = this.hexToRgb(hex);
-                return this.getLuminance(rgb.r, rgb.g, rgb.b);
-            }
-
-            // 밝기 판단 (흰색 대비 4.5 기준)
-            static isLight(hex) {
-                const whiteContrast = this.getContrast(this.hexToRgb(hex), { r: 255, g: 255, b: 255 });
-                // 대비 비율 < 4.5 → 밝은 색
-                return whiteContrast < 4.5;
+            // 가장 가까운 스텝 찾기
+            static findClosestStep(hex, mode = 'light') {
+                const [h, s, l] = this.hexToHsl(hex);
+                const steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+                let closestStep = 500;
+                let minDiff = Infinity;
+                
+                steps.forEach(step => {
+                    let targetLightness;
+                    if (mode === 'light') {
+                        targetLightness = 95 - ((step - 50) / 900 * 90);
+                    } else {
+                        targetLightness = 5 + ((step - 50) / 900 * 90);
+                    }
+                    
+                    const diff = Math.abs(l - targetLightness);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestStep = step;
+                    }
+                });
+                
+                return closestStep;
             }
         }
 
@@ -784,7 +843,7 @@
             }
         }
 
-        // Custom Theme 생성기
+        // Custom Theme 생성기 (수정된 버전)
         class CustomThemeGenerator {
             constructor() {
                 // ruler_v2.json 기반 semantic 토큰 매핑
@@ -974,17 +1033,32 @@
             return row;
         }
 
-        // 밝기 표시 업데이트
-        function updateBrightnessIndicator(hex) {
-            const indicator = document.getElementById('brightnessIndicator');
-            const whiteContrast = ColorUtils.getContrast(ColorUtils.hexToRgb(hex), { r: 255, g: 255, b: 255 });
-            const isLight = whiteContrast < 4.5;
+        // 스텝 분류 표시 업데이트
+        function updateStepIndicator(hex) {
+            const stepIndicator = document.getElementById('stepIndicator');
+            const classificationBadge = document.getElementById('classificationBadge');
+            const classificationInfo = document.getElementById('stepClassificationInfo');
+            const classificationText = document.getElementById('stepClassificationText');
             
-            let text = `White CR: ${whiteContrast.toFixed(1)}`;
-            text += ` (${isLight ? '밝은 색' : '어두운 색'})`;
+            const closestStep = ColorUtils.findClosestStep(hex, 'light');
             
-            indicator.textContent = text;
-            indicator.className = `brightness-indicator ${isLight ? 'brightness-light' : 'brightness-dark'}`;
+            stepIndicator.textContent = `Step: ${closestStep}`;
+            
+            if (closestStep <= 300) {
+                stepIndicator.className = 'step-indicator step-light';
+                classificationBadge.textContent = '300 이하';
+                classificationBadge.className = 'classification-badge classification-300';
+                
+                classificationInfo.style.display = 'block';
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(300 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else if (closestStep >= 400) {
+                stepIndicator.className = 'step-indicator step-dark';
+                classificationBadge.textContent = '400 이상';
+                classificationBadge.className = 'classification-badge classification-400';
+                
+                classificationInfo.style.display = 'block';
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 어두운 색상(400 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            }
         }
 
         function generateCustomTheme() {
@@ -996,9 +1070,6 @@
             
             currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode);
             displayThemePreview(currentTheme);
-            
-            // 테마 적용 섹션 표시
-            document.getElementById('themeApplicationSection').style.display = 'block';
             
             showMessage(`${themeName} 테마가 생성되었습니다!`);
         }
@@ -1014,7 +1085,23 @@
                 groupedTokens[token.category].push(token);
             });
             
+            // Application Mode에 따른 설명
+            let modeDescription = '';
+            if (theme.applicationMode === 'accent-on-bg-off') {
+                modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
+            } else if (theme.applicationMode === 'accent-on-bg-fixed') {
+                modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
+            } else if (theme.applicationMode === 'accent-off-bg-on') {
+                modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
+            }
+            
             container.innerHTML = `
+                <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
+                    <p style="font-size: 10px; color: #155724; margin: 0;">
+                        <strong>적용된 Mode:</strong> ${modeDescription}
+                    </p>
+                </div>
+                
                 <div class="theme-preview">
                     <div class="theme-mode-preview">
                         <div class="theme-mode-title">CustomLight 모드</div>
@@ -1022,13 +1109,14 @@
                             ${Object.entries(groupedTokens).map(([category, tokens]) => `
                                 <div style="margin-bottom: 8px;">
                                     <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
-                                    ${tokens.map(token => `
+                                    ${tokens.slice(0, 5).map(token => `
                                         <div class="semantic-item">
                                             <div class="semantic-color" style="background: ${token.light};"></div>
                                             <span class="semantic-name">${token.subcategory}</span>
                                             <span style="font-size: 7px; color: #999;">${token.light}</span>
                                         </div>
                                     `).join('')}
+                                    ${tokens.length > 5 ? `<div style="font-size: 7px; color: #999; text-align: center;">... +${tokens.length - 5} more</div>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -1040,13 +1128,14 @@
                             ${Object.entries(groupedTokens).map(([category, tokens]) => `
                                 <div style="margin-bottom: 8px;">
                                     <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
-                                    ${tokens.map(token => `
+                                    ${tokens.slice(0, 5).map(token => `
                                         <div class="semantic-item">
                                             <div class="semantic-color" style="background: ${token.dark};"></div>
                                             <span class="semantic-name">${token.subcategory}</span>
                                             <span style="font-size: 7px; color: #999;">${token.dark}</span>
                                         </div>
                                     `).join('')}
+                                    ${tokens.length > 5 ? `<div style="font-size: 7px; color: #999; text-align: center;">... +${tokens.length - 5} more</div>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -1068,83 +1157,11 @@
                 </div>
                 
                 <div class="info-box">
-                    <h5>커스텀 테마:</h5>
-                    <p>• ${theme.semanticTokens.length}개의 semantic 토큰이 생성됩니다<br>
-                    • Light/Dark 모드를 모두 지원합니다<br>
-                    • Application Mode: ${theme.applicationMode === 'element' ? 'Element' : 'Background'}<br>
-                    • ruler_v2 컬렉션에 추가됩니다</p>
-                </div>
-            `;
-        }
-
-        // 테마 적용 관련 함수들
-        function previewThemeApplication() {
-            if (!currentTheme) {
-                showMessage('먼저 테마를 생성해주세요!');
-                return;
-            }
-            
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'preview-theme-application',
-                    theme: currentTheme
-                }
-            }, '*');
-            
-            showMessage('테마 적용 미리보기 중...');
-        }
-
-        function applyThemeToSelection() {
-            if (!currentTheme) {
-                showMessage('먼저 테마를 생성해주세요!');
-                return;
-            }
-            
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'apply-theme-to-selection',
-                    theme: currentTheme
-                }
-            }, '*');
-            
-            showMessage('선택된 Frame에 테마 적용 중...');
-        }
-
-        function displayThemeApplicationResults(results) {
-            const container = document.getElementById('themeApplicationResults');
-            
-            if (results.mappedLayers.length === 0) {
-                container.innerHTML = `
-                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 8px; margin-top: 8px;">
-                        <p style="font-size: 10px; color: #856404; margin: 0;">
-                            매핑된 레이어가 없습니다. ruler_v2 컬러 토큰을 사용하는 레이어를 선택해주세요.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = `
-                <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 8px; margin-top: 8px;">
-                    <h5 style="color: #0c5460; font-size: 10px; margin-bottom: 4px;">
-                        ${results.previewMode ? '미리보기 결과' : '적용 완료'}:
-                    </h5>
-                    <p style="font-size: 9px; color: #0c5460; margin: 0;">
-                        ${results.mappedLayers.length}개 레이어에서 ${results.totalMappings}개 토큰이 ${results.previewMode ? '교체될 예정입니다' : '교체되었습니다'}
-                    </p>
-                    
-                    <div style="margin-top: 6px; max-height: 120px; overflow-y: auto;">
-                        ${results.mappedLayers.slice(0, 10).map(layer => `
-                            <div style="font-size: 8px; color: #045862; margin: 2px 0; padding: 2px 4px; background: rgba(255,255,255,0.5); border-radius: 2px;">
-                                <strong>${layer.name}</strong>: ${layer.oldToken} → ${layer.newToken}
-                            </div>
-                        `).join('')}
-                        ${results.mappedLayers.length > 10 ? `
-                            <div style="font-size: 8px; color: #666; text-align: center; margin-top: 4px;">
-                                ... 그리고 ${results.mappedLayers.length - 10}개 더
-                            </div>
-                        ` : ''}
-                    </div>
+                    <h5>생성된 테마 정보:</h5>
+                    <p>• ${theme.semanticTokens.length}개의 semantic 토큰<br>
+                    • 13단계 색상 스케일<br>
+                    • Application Mode: ${theme.applicationMode}<br>
+                    • Light/Dark 모드 지원</p>
                 </div>
             `;
         }
@@ -1403,13 +1420,13 @@
             
             themeBaseColor.addEventListener('input', () => {
                 themeBaseHex.value = themeBaseColor.value.toUpperCase();
-                updateBrightnessIndicator(themeBaseColor.value);
+                updateStepIndicator(themeBaseColor.value);
             });
             
             themeBaseHex.addEventListener('input', () => {
                 if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
                     themeBaseColor.value = themeBaseHex.value;
-                    updateBrightnessIndicator(themeBaseHex.value);
+                    updateStepIndicator(themeBaseHex.value);
                 }
             });
 
@@ -1424,11 +1441,9 @@
             });
 
             document.getElementById('generateThemeBtn').addEventListener('click', generateCustomTheme);
-            document.getElementById('previewThemeApplicationBtn').addEventListener('click', previewThemeApplication);
-            document.getElementById('applyThemeBtn').addEventListener('click', applyThemeToSelection);
 
-            // 초기 밝기 표시
-            updateBrightnessIndicator(themeBaseColor.value);
+            // 초기 스텝 표시
+            updateStepIndicator(themeBaseColor.value);
 
             console.log('Event listeners set up successfully');
         }
@@ -1458,22 +1473,11 @@
                         showMessage('테마 생성 에러: ' + msg.error);
                     }
                     break;
-                case 'theme-application-preview':
-                    displayThemeApplicationResults(msg.results);
-                    break;
-                case 'theme-applied':
-                    if (msg.success) {
-                        displayThemeApplicationResults(msg.results);
-                        showMessage(`테마 적용 완료! ${msg.results.totalMappings}개 토큰 교체됨`);
-                    } else {
-                        showMessage('테마 적용 에러: ' + msg.error);
-                    }
-                    break;
                 case 'custom-mode-applied':
                     if (msg.success) {
                         var message = msg.modeName + ' 모드 적용 완료!';
-                        if (msg.excluded && msg.excluded > 0) {
-                            message += ' (' + msg.count + '개 적용, ' + msg.excluded + '개 fallback 적용)';
+                        if (msg.cleared && msg.cleared > 0) {
+                            message += ' (' + msg.count + '개 적용, ' + msg.cleared + '개 자식 상속)';
                         } else {
                             message += ' (' + msg.count + '개 적용)';
                         }
@@ -1518,5 +1522,3 @@
             }
         });
     </script>
-</body>
-</html>
