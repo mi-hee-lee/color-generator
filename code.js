@@ -317,7 +317,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
   // =====================================
   if (applicationMode === 'accent-on-bg-off') {
     if (isLightRange) {
-      // 300 미만
+      // 200 미만
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'GRAY:100';
       mappings['semantic/text/tertiary'] = 'GRAY:200';
@@ -345,7 +345,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 300 이상
+      // 200 이상
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -380,7 +380,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
     mappings['semantic/background/default'] = 'GRAY:50';
     
     if (isLightRange) {
-      // 300 미만
+      // 200 미만
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -406,7 +406,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 3);
       
     } else {
-      // 300 이상
+      // 200 이상
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -437,7 +437,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
   // =====================================
   } else if (applicationMode === 'accent-off-bg-on') {
     if (isLightRange) {
-      // 300 미만
+      // 200 미만
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -465,7 +465,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 300 이상
+      // 200 이상
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'ON-COLOR-ALPHA:800';
       mappings['semantic/text/tertiary'] = 'ON-COLOR-ALPHA:700';
