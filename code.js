@@ -284,11 +284,10 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
   var mappings = {};
   
   // 200/300 기준으로 분류
-  var isLightRange = closestStepLight <= 200;
-  var isMidRange = closestStepLight >= 300;
+  var isLightRange = closestStepLight < 300;  // 300 미만 (50, 75, 100, 150, 200)
+  var isMidRange = closestStepLight >= 300;   // 300 이상 (300, 400, 500, 600, 700, 800, 900)
   
-  console.log('[LIGHT CLASSIFICATION] closestStep:', closestStepLight);
-  console.log('[LIGHT CLASSIFICATION] Range:', isLightRange ? '200 이하' : isMidRange ? '300 이상' : '중간값(에러)');
+  console.log('🌟 [LIGHT] Step:', closestStepLight, '→', isLightRange ? '300 미만' : '300 이상');
   
   // =====================================
   // 옵션 1: 강조 요소 ON / 배경 요소 OFF
@@ -458,6 +457,7 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
   mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
   mappings['semantic/fill/disabled'] = 'ALPHA:' + themeName + '100';
   mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
+  mappings['semantic/overlay/dimmed'] = 'STATIC:black-700';
   
   return mappings;
 }
@@ -472,8 +472,7 @@ function getDynamicMappingsDark(closestStepDark, themeName, applicationMode) {
   var isLightRange = closestStepDark <= 300;
   var isMidRange = closestStepDark >= 400;
   
-  console.log('[DARK CLASSIFICATION] closestStep:', closestStepDark);
-  console.log('[DARK CLASSIFICATION] Range:', isLightRange ? '300 이하' : isMidRange ? '400 이상' : '중간값');
+  console.log('🌙 [DARK] Step:', closestStepDark, '→', isLightRange ? '300 이하' : isMidRange ? '400 이상' : '중간값');
 
   // =====================================
   // 옵션 1: 강조 요소 ON / 배경 요소 OFF
@@ -670,6 +669,7 @@ function getDynamicMappingsDark(closestStepDark, themeName, applicationMode) {
   mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
   mappings['semantic/fill/disabled'] = 'ALPHA:' + themeName + '100';
   mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
+  mappings['semantic/overlay/dimmed'] = 'STATIC:black-700';
   
   console.log('[DARK FINAL] border/divider:', mappings['semantic/border/divider']);
   return mappings;
@@ -726,10 +726,43 @@ async function copyScaleTokensFromCollection(sourceCollection, targetCollection)
   var sourceVariables = await figma.variables.getLocalVariablesAsync('COLOR');
   var sourceScaleVariables = sourceVariables.filter(function(v) {
     return v.variableCollectionId === sourceCollection.id && 
-           (v.name.startsWith('scale/') || v.name.startsWith('primitive/'));
+           (v.name.startsWith('scale/') || v.name.startsWith('primitive/') || v.name.startsWith('semantic/') || v.name.startsWith('static/'));
+  }).sort(function(a, b) {
+    // 카테고리별 우선순위 정의 (Figma에서 보이는 순서대로)
+    var categoryOrder = ['static/', 'scale/', 'primitive/', 'semantic/'];
+    
+    var aCat = categoryOrder.findIndex(function(cat) { return a.name.startsWith(cat); });
+    var bCat = categoryOrder.findIndex(function(cat) { return b.name.startsWith(cat); });
+    
+    if (aCat !== bCat) {
+      return aCat - bCat; // 카테고리 우선순위로 정렬
+    }
+    
+    // 같은 카테고리 내에서는 세부 정렬
+    if (a.name.startsWith('semantic/')) {
+      // semantic 토큰의 경우 하위 카테고리별로 정렬
+      var semanticOrder = [
+        'semantic/text/', 
+        'semantic/fill/', 
+        'semantic/border/', 
+        'semantic/background/', 
+        'semantic/overlay/', 
+        'semantic/common/'
+      ];
+      
+      var aSemanticCat = semanticOrder.findIndex(function(cat) { return a.name.startsWith(cat); });
+      var bSemanticCat = semanticOrder.findIndex(function(cat) { return b.name.startsWith(cat); });
+      
+      if (aSemanticCat !== bSemanticCat && aSemanticCat !== -1 && bSemanticCat !== -1) {
+        return aSemanticCat - bSemanticCat;
+      }
+    }
+    
+    // 같은 하위 카테고리 내에서는 이름순 정렬
+    return a.name.localeCompare(b.name);
   });
   
-  console.log('Found', sourceScaleVariables.length, 'scale variables to copy');
+  console.log('Found', sourceScaleVariables.length, 'variables to copy (including semantic)');
   
   // Source collection의 모드들
   var sourceLightMode = sourceCollection.modes.find(function(m) { return m.name === 'Light'; });
@@ -740,33 +773,359 @@ async function copyScaleTokensFromCollection(sourceCollection, targetCollection)
     return;
   }
   
-  // Target collection에 Light/Dark 모드 생성
-  var targetLightModeId = findOrCreateMode(targetCollection, 'Light');
-  var targetDarkModeId = findOrCreateMode(targetCollection, 'Dark');
+  // Target collection의 기본 모드 이름 변경 및 Dark 모드 생성
+  var targetLightModeId;
+  var targetDarkModeId;
   
-  // Scale 변수들 복사
+  if (targetCollection.modes.length === 1 && targetCollection.modes[0].name === 'Mode 1') {
+    // 기본 모드 이름을 Light로 변경
+    targetCollection.renameMode(targetCollection.modes[0].modeId, 'Light');
+    targetLightModeId = targetCollection.modes[0].modeId;
+    
+    // Dark 모드 새로 생성
+    targetDarkModeId = targetCollection.addMode('Dark');
+  } else {
+    // 기존 Light/Dark 모드 찾기
+    targetLightModeId = findOrCreateMode(targetCollection, 'Light');
+    targetDarkModeId = findOrCreateMode(targetCollection, 'Dark');
+  }
+  
+  // 변수 ID 매핑 테이블 (Alias 참조용)
+  var variableIdMap = {};
+  
+  // 1단계: 모든 변수 생성
+  var newVariables = [];
   for (var i = 0; i < sourceScaleVariables.length; i++) {
     var sourceVar = sourceScaleVariables[i];
-    
-    // 새 변수 생성
     var newVariable = figma.variables.createVariable(sourceVar.name, targetCollection, 'COLOR');
+    variableIdMap[sourceVar.id] = newVariable.id;
+    newVariables.push({
+      source: sourceVar,
+      target: newVariable
+    });
+    console.log('Created variable:', sourceVar.name);
+  }
+  
+  // 2단계: 값 복사 (Alias 참조 해결)
+  for (var i = 0; i < newVariables.length; i++) {
+    var sourceVar = newVariables[i].source;
+    var newVariable = newVariables[i].target;
     
     // Light 모드 값 복사
     var sourceLightValue = sourceVar.valuesByMode[sourceLightMode.modeId];
     if (sourceLightValue) {
-      newVariable.setValueForMode(targetLightModeId, sourceLightValue);
+      if (sourceLightValue.type === 'VARIABLE_ALIAS') {
+        // Alias인 경우 새로운 변수 ID로 매핑
+        var targetId = variableIdMap[sourceLightValue.id];
+        if (targetId) {
+          newVariable.setValueForMode(targetLightModeId, {
+            type: 'VARIABLE_ALIAS',
+            id: targetId
+          });
+        }
+      } else {
+        // 직접 색상 값인 경우 그대로 복사
+        newVariable.setValueForMode(targetLightModeId, sourceLightValue);
+      }
     }
     
     // Dark 모드 값 복사
     var sourceDarkValue = sourceVar.valuesByMode[sourceDarkMode.modeId];
     if (sourceDarkValue) {
-      newVariable.setValueForMode(targetDarkModeId, sourceDarkValue);
+      if (sourceDarkValue.type === 'VARIABLE_ALIAS') {
+        // Alias인 경우 새로운 변수 ID로 매핑
+        var targetId = variableIdMap[sourceDarkValue.id];
+        if (targetId) {
+          newVariable.setValueForMode(targetDarkModeId, {
+            type: 'VARIABLE_ALIAS',
+            id: targetId
+          });
+        }
+      } else {
+        // 직접 색상 값인 경우 그대로 복사
+        newVariable.setValueForMode(targetDarkModeId, sourceDarkValue);
+      }
     }
     
-    console.log('Copied variable:', sourceVar.name);
+    console.log('Set values for variable:', sourceVar.name);
   }
   
   console.log('Scale token copying complete');
+}
+
+// =====================================
+// Frame 변수 교체 함수
+// =====================================
+async function replaceFrameVariablesWithCollection(selection, targetCollection, targetMode) {
+  var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+  var targetVariables = allVariables.filter(function(v) {
+    return v.variableCollectionId === targetCollection.id;
+  });
+  
+  console.log('Found', targetVariables.length, 'variables in target collection:', targetCollection.name);
+  console.log('Target variable names:', targetVariables.map(function(v) { return v.name; }).slice(0, 10));
+  
+  // 모든 타겟 변수 이름 출력 (디버깅용)
+  console.log('All target variables:', targetVariables.map(function(v) { return v.name; }));
+  
+  var replacedCount = 0;
+  
+  for (var i = 0; i < selection.length; i++) {
+    var node = selection[i];
+    console.log('Processing node:', node.name, 'type:', node.type);
+    replacedCount += await replaceNodeVariables(node, targetVariables);
+    
+    // Frame의 경우 모든 자식 노드도 처리
+    if (node.type === 'FRAME' || node.type === 'GROUP' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+      console.log('Processing all descendants of:', node.name);
+      replacedCount += await processAllDescendants(node, targetVariables);
+    }
+  }
+  
+  console.log('Replaced variables in', replacedCount, 'operations total');
+}
+
+async function processAllDescendants(parentNode, targetVariables) {
+  var totalReplaced = 0;
+  
+  function traverse(node) {
+    return new Promise(async function(resolve) {
+      var localReplaced = 0;
+      
+      // 현재 노드 처리 (이미 replaceNodeVariables에서 처리했으므로 자식만)
+      if ('children' in node) {
+        for (var i = 0; i < node.children.length; i++) {
+          var child = node.children[i];
+          localReplaced += await replaceNodeVariables(child, targetVariables);
+          
+          // 재귀적으로 자식의 자식들도 처리
+          if ('children' in child) {
+            localReplaced += await traverse(child);
+          }
+        }
+      }
+      
+      resolve(localReplaced);
+    });
+  }
+  
+  totalReplaced = await traverse(parentNode);
+  console.log('Processed', totalReplaced, 'variables in descendants of', parentNode.name);
+  return totalReplaced;
+}
+
+async function replaceNodeVariables(node, targetVariables) {
+  var replacedCount = 0;
+  
+  // 현재 노드의 바인딩된 변수들 확인 및 교체
+  if (node.boundVariables) {
+    console.log('Node has boundVariables:', node.name, Object.keys(node.boundVariables));
+    console.log('Node fills:', node.fills ? node.fills.length : 'none');
+    console.log('Node strokes:', node.strokes ? node.strokes.length : 'none');
+    if (node.fills && node.fills.length > 0) {
+      console.log('First fill:', node.fills[0]);
+    }
+    if (node.strokes && node.strokes.length > 0) {
+      console.log('First stroke:', node.strokes[0]);
+    }
+    for (var prop in node.boundVariables) {
+      var boundVar = node.boundVariables[prop];
+      console.log('Processing prop:', prop, 'boundVar:', boundVar);
+      
+      // fills는 배열일 수 있음
+      if (prop === 'fills' && Array.isArray(boundVar)) {
+        console.log('Processing fills array with', boundVar.length, 'items');
+        for (var i = 0; i < boundVar.length; i++) {
+          var fillBinding = boundVar[i];
+          console.log('Fill binding [' + i + ']:', fillBinding);
+          
+          // fillBinding 자체가 VARIABLE_ALIAS일 수 있음
+          if (fillBinding && fillBinding.type === 'VARIABLE_ALIAS' && fillBinding.id) {
+            var colorVar = await figma.variables.getVariableByIdAsync(fillBinding.id);
+            if (colorVar && colorVar.resolvedType === 'COLOR') {
+              console.log('Found color variable in fills[' + i + ']:', colorVar.name);
+              
+              var newColorVar = targetVariables.find(function(v) { 
+                return v.name === colorVar.name; 
+              });
+              
+              if (newColorVar) {
+                console.log('Replacing color variable in fills:', colorVar.name, 'with', newColorVar.name);
+                // fills 배열의 boundVariables 교체
+                var newFills = node.fills.slice();
+                if (newFills[i] && newFills[i].boundVariables && newFills[i].boundVariables.color) {
+                  var existingFill = newFills[i];
+                  var newBoundVars = {};
+                  
+                  // 기존 boundVariables의 다른 속성들 복사
+                  for (var key in existingFill.boundVariables) {
+                    if (key === 'color') {
+                      newBoundVars[key] = { type: 'VARIABLE_ALIAS', id: newColorVar.id };
+                    } else {
+                      newBoundVars[key] = existingFill.boundVariables[key];
+                    }
+                  }
+                  
+                  newFills[i] = {
+                    type: existingFill.type,
+                    visible: existingFill.visible,
+                    opacity: existingFill.opacity,
+                    blendMode: existingFill.blendMode,
+                    color: existingFill.color,
+                    boundVariables: newBoundVars
+                  };
+                  
+                  // 다른 속성들도 복사
+                  if (existingFill.gradientTransform) newFills[i].gradientTransform = existingFill.gradientTransform;
+                  if (existingFill.gradientStops) newFills[i].gradientStops = existingFill.gradientStops;
+                  if (existingFill.scaleMode) newFills[i].scaleMode = existingFill.scaleMode;
+                  node.fills = newFills;
+                  console.log('Successfully replaced fills color variable');
+                  replacedCount++;
+                } else {
+                  console.log('Fill does not have boundVariables.color, trying direct replacement');
+                  // boundVariables가 없으면 직접 setBoundVariable 사용
+                  try {
+                    node.setBoundVariable('fills', newColorVar);
+                    console.log('Direct setBoundVariable successful');
+                    replacedCount++;
+                  } catch (e) {
+                    console.log('Direct setBoundVariable failed:', e.message);
+                  }
+                }
+              } else {
+                console.log('No matching variable found for:', colorVar.name, 'in target collection');
+                console.log('Available target variables:', targetVariables.map(function(v) { return v.name; }).filter(function(name) { 
+                  return name.indexOf(colorVar.name.split('/').pop()) !== -1; 
+                }));
+                // 바인딩 해제
+                try {
+                  node.setBoundVariable('fills', null);
+                  console.log('Unbound fills variable');
+                  replacedCount++;
+                } catch (e) {
+                  console.log('Failed to unbind fills:', e.message);
+                }
+              }
+            }
+          }
+        }
+        continue;
+      }
+      
+      // strokes도 배열일 수 있음 (fills와 동일한 로직)
+      if (prop === 'strokes' && Array.isArray(boundVar)) {
+        console.log('Processing strokes array with', boundVar.length, 'items');
+        for (var i = 0; i < boundVar.length; i++) {
+          var strokeBinding = boundVar[i];
+          console.log('Stroke binding [' + i + ']:', strokeBinding);
+          
+          if (strokeBinding && strokeBinding.type === 'VARIABLE_ALIAS' && strokeBinding.id) {
+            var strokeVar = await figma.variables.getVariableByIdAsync(strokeBinding.id);
+            if (strokeVar && strokeVar.resolvedType === 'COLOR') {
+              console.log('Found stroke color variable:', strokeVar.name);
+              
+              var newStrokeVar = targetVariables.find(function(v) { 
+                return v.name === strokeVar.name; 
+              });
+              
+              if (newStrokeVar) {
+                console.log('Replacing stroke variable:', strokeVar.name, 'with', newStrokeVar.name);
+                try {
+                  node.setBoundVariable('strokes', newStrokeVar);
+                  console.log('Successfully replaced stroke variable');
+                  replacedCount++;
+                } catch (e) {
+                  console.log('Failed to replace stroke variable:', e.message);
+                }
+              } else {
+                console.log('No matching stroke variable found for:', strokeVar.name);
+                try {
+                  node.setBoundVariable('strokes', null);
+                  console.log('Unbound stroke variable');
+                  replacedCount++;
+                } catch (e) {
+                  console.log('Failed to unbind stroke:', e.message);
+                }
+              }
+            }
+          }
+        }
+        continue;
+      }
+      
+      if (boundVar && boundVar.id) {
+        var oldVariable = await figma.variables.getVariableByIdAsync(boundVar.id);
+        if (oldVariable) {
+          console.log('Old variable:', oldVariable.name, 'from collection:', oldVariable.variableCollectionId, 'prop:', prop);
+          
+          if (oldVariable.resolvedType === 'COLOR') {
+            // 색상 변수는 새 컬렉션에서 찾아서 교체
+            var newVariable = targetVariables.find(function(v) { 
+              return v.name === oldVariable.name; 
+            });
+            
+            if (newVariable) {
+              console.log('Found matching color variable:', newVariable.name, 'replacing for prop:', prop);
+              try {
+                node.setBoundVariable(prop, newVariable);
+                console.log('Successfully replaced color variable', oldVariable.name, 'with', newVariable.name, 'for', node.name, 'prop:', prop);
+                replacedCount++;
+              } catch (e) {
+                console.log('Failed to replace color variable:', e.message);
+                // strokes의 경우 다른 방식으로 시도
+                if (prop === 'strokes') {
+                  console.log('Trying alternative stroke replacement method');
+                  try {
+                    var newStrokes = node.strokes.slice();
+                    if (newStrokes.length > 0 && newStrokes[0].boundVariables) {
+                      newStrokes[0].boundVariables.color = { type: 'VARIABLE_ALIAS', id: newVariable.id };
+                      node.strokes = newStrokes;
+                      console.log('Alternative stroke replacement successful');
+                      replacedCount++;
+                    }
+                  } catch (e2) {
+                    console.log('Alternative stroke replacement also failed:', e2.message);
+                  }
+                }
+              }
+            } else {
+              console.log('No matching color variable found for:', oldVariable.name, 'unbinding...');
+              console.log('Searching in target variables:', targetVariables.map(function(v) { return v.name; }).filter(function(name) { 
+                return name.indexOf(oldVariable.name.split('/').pop()) !== -1; 
+              }));
+              try {
+                node.setBoundVariable(prop, null); // 바인딩 해제
+                console.log('Unbound color variable for prop:', prop);
+                replacedCount++;
+              } catch (e) {
+                console.log('Failed to unbind color variable:', e.message);
+              }
+            }
+          } else {
+            // 색상이 아닌 변수는 바인딩 해제 (고정값으로 변환)
+            console.log('Unbinding non-color variable:', oldVariable.name, 'type:', oldVariable.resolvedType);
+            try {
+              node.setBoundVariable(prop, null);
+              replacedCount++;
+            } catch (e) {
+              console.log('Failed to unbind non-color variable:', e.message);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // 자식 노드들도 재귀적으로 처리
+  if ('children' in node) {
+    for (var i = 0; i < node.children.length; i++) {
+      var child = node.children[i];
+      replacedCount += await replaceNodeVariables(child, targetVariables);
+    }
+  }
+  
+  return replacedCount;
 }
 
 // =====================================
@@ -988,34 +1347,14 @@ async function handleCreateCustomTheme(msg) {
   
   console.log('Creating theme with application mode:', applicationMode);
   
-  // 옵션 번호 매핑
-  var collectionName = 'ruler_v2';
-  
-  if (applicationMode === 'accent-on-bg-off') {
-    collectionName = 'rulerCustomOption1';
-  } else if (applicationMode === 'accent-on-bg-fixed') {
-    collectionName = 'rulerCustomOption2';
-  } else if (applicationMode === 'accent-off-bg-on') {
-    collectionName = 'rulerCustomOption3';
-  }
-
+  // ruler_v2 collection 사용 (mode만 추가)
   var collections = await figma.variables.getLocalVariableCollectionsAsync();
   var collection = collections.find(function(c) { 
-    return c.name === collectionName; 
+    return c.name === 'ruler_v2'; 
   });
   
   if (!collection) {
-    collection = figma.variables.createVariableCollection(collectionName);
-    
-    // 기존 ruler_v2 컬렉션에서 scale 토큰들 복사
-    var sourceCollection = collections.find(function(c) { 
-      return c.name === 'ruler_v2'; 
-    });
-    
-    if (sourceCollection) {
-      console.log('Copying scale tokens from ruler_v2 to', collectionName);
-      await copyScaleTokensFromCollection(sourceCollection, collection);
-    }
+    throw new Error('ruler_v2 collection not found');
   }
   
   // =====================================
@@ -1025,12 +1364,9 @@ async function handleCreateCustomTheme(msg) {
   var baseLightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
   var baseDarkMode = collection.modes.find(function(m) { return m.name === 'Dark'; });
   
-  if (!baseLightMode) {
-    findOrCreateMode(collection, 'Light');
+  // 복사된 컬렉션의 경우 이미 Light/Dark 모드가 있을 것임
+  if (!baseLightMode && !baseDarkMode && collection.modes.length >= 2) {
     baseLightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
-  }
-  if (!baseDarkMode) {
-    findOrCreateMode(collection, 'Dark');
     baseDarkMode = collection.modes.find(function(m) { return m.name === 'Dark'; });
   }
   
@@ -1225,7 +1561,7 @@ console.log('Total dynamic mappings:', Object.keys(dynamicMappings).length);
 
 console.log('=== Applying Semantic Mappings ===');
 
-// 보존해야 할 토큰 목록
+// 보존해야 할 토큰 목록 (Light/Dark 값을 그대로 복제)
 var preserveTokens = [
   'semantic/fill/surface-floating',
   'semantic/fill/surface-dialog', 
@@ -1238,22 +1574,63 @@ var preserveTokens = [
   'semantic/common/on-black',
   'semantic/common/on-black-hover',
   'semantic/common/on-black-pressed',
-  'semantic/overlay/dimmed'
+  'semantic/common/informative',
+  'semantic/common/informative-hover',
+  'semantic/common/informative-pressed',
+  'semantic/common/informative-low'
 ];
 
 // 모든 변수 다시 로드 (새로 생성된 것 포함)
 allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
 
-for (var i = 0; i < theme.semanticTokens.length; i++) {
-  var token = theme.semanticTokens[i];
-  var variable = await findOrCreateVariable(token.name, collection, 'COLOR');
+// preserve 토큰들의 원본 값을 미리 저장
+var preserveOriginalValues = {};
+for (var k = 0; k < preserveTokens.length; k++) {
+  var preserveTokenName = preserveTokens[k];
+  var preserveVar = allVariables.find(function(v) {
+    return v.name === preserveTokenName && v.variableCollectionId === collection.id;
+  });
   
-  // 동적 매핑 확인
-  var mappedValue = dynamicMappings[token.name];
+  if (preserveVar) {
+    preserveOriginalValues[preserveTokenName] = {
+      light: preserveVar.valuesByMode[baseLightMode.modeId],
+      dark: preserveVar.valuesByMode[baseDarkMode.modeId]
+    };
+    // console.log('[PRESERVE BACKUP]', preserveTokenName);
+  }
+}
+
+// 매핑된 토큰 + preserveTokens 모두 처리
+var mappingKeys = Object.keys(dynamicMappings);
+var allTokensToProcess = mappingKeys.slice(); // 매핑된 토큰들 복사
+
+// preserveTokens 중 매핑에 없는 것들 추가
+for (var j = 0; j < preserveTokens.length; j++) {
+  if (mappingKeys.indexOf(preserveTokens[j]) === -1) {
+    allTokensToProcess.push(preserveTokens[j]);
+  }
+}
+
+console.log('Processing', allTokensToProcess.length, 'tokens total');
+console.log('Mapped tokens:', mappingKeys.length);
+console.log('Preserve tokens:', preserveTokens.length);
+
+for (var i = 0; i < allTokensToProcess.length; i++) {
+  var tokenName = allTokensToProcess[i];
+  var mappedValue = dynamicMappings[tokenName]; // preserve 토큰은 undefined일 수 있음
   
-  if (token.name.includes('border/divider') || token.name.includes('border/line')) {
-    console.log('[BORDER DEBUG]', token.name, 'mappedValue.light:', mappedValue ? mappedValue.light : 'undefined');
-    console.log('[BORDER DEBUG]', token.name, 'mappedValue.dark:', mappedValue ? mappedValue.dark : 'undefined');
+  console.log('[MAPPING]', tokenName, '→', mappedValue);
+  
+  // 이미 복사된 변수가 있는지 확인
+  var existingVariable = allVariables.find(function(v) {
+    return v.name === tokenName && v.variableCollectionId === collection.id;
+  });
+  
+  var variable = existingVariable || await findOrCreateVariable(tokenName, collection, 'COLOR');
+  
+  if (tokenName.includes('border/divider') || tokenName.includes('border/line')) {
+    console.log('[BORDER DEBUG]', tokenName, 'mappedValue.light:', mappedValue ? mappedValue.light : 'undefined');
+    console.log('[BORDER DEBUG]', tokenName, 'mappedValue.dark:', mappedValue ? mappedValue.dark : 'undefined');
   }
   
   if (mappedValue) {
@@ -1272,7 +1649,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: grayVar.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-gray-variable', grayVariableName);
+        console.log('[SKIP]', tokenName, 'missing-gray-variable', grayVariableName);
         skippedCount++;
       }
     }
@@ -1292,7 +1669,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: grayAlphaVar.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-gray-alpha-variable', grayAlphaVariableName);
+        console.log('[SKIP]', tokenName, 'missing-gray-alpha-variable', grayAlphaVariableName);
         skippedCount++;
       }
     }
@@ -1311,7 +1688,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: grayVarDark.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-gray-variable-dark', grayVariableNameDark);
+        console.log('[SKIP]', tokenName, 'missing-gray-variable-dark', grayVariableNameDark);
         skippedCount++;
       }
     }
@@ -1331,7 +1708,34 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: grayAlphaVarDark.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-gray-alpha-variable-dark', grayAlphaVariableNameDark);
+        console.log('[SKIP]', tokenName, 'missing-gray-alpha-variable-dark', grayAlphaVariableNameDark);
+        skippedCount++;
+      }
+    }
+    
+    // STATIC: 프리픽스 처리
+    if (mappedValue.light && mappedValue.light.startsWith('STATIC:')) {
+      var staticName = mappedValue.light.replace('STATIC:', '');
+      var staticVariableName = 'static/' + staticName;
+      
+      var staticVar = allVariables.find(function(v) {
+        return v.name === staticVariableName && v.variableCollectionId === collection.id;
+      });
+      
+      if (staticVar) {
+        variable.setValueForMode(customLightModeId, {
+          type: 'VARIABLE_ALIAS',
+          id: staticVar.id
+        });
+        variable.setValueForMode(customDarkModeId, {
+          type: 'VARIABLE_ALIAS',
+          id: staticVar.id
+        });
+        console.log('[SEM]', tokenName, 'CustomLight/Dark', 'STATIC', staticName);
+        createdCount++;
+        continue; // 다음 토큰으로
+      } else {
+        console.log('[SKIP]', tokenName, 'missing-static-variable', staticVariableName);
         skippedCount++;
       }
     }
@@ -1353,7 +1757,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: lightScaleVar.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-scale-color-light', lightStep);
+        console.log('[SKIP]', tokenName, 'missing-scale-color-light', lightStep);
         skippedCount++;
       }
     }
@@ -1373,7 +1777,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           id: darkScaleVar.id
         });
       } else {
-        console.log('[SKIP]', token.name, 'missing-scale-color-dark', darkStep);
+        console.log('[SKIP]', tokenName, 'missing-scale-color-dark', darkStep);
         skippedCount++;
       }
     }
@@ -1383,7 +1787,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
       var alphaInfo = mappedValue.light.replace('ALPHA:', '');
       var step = parseInt(alphaInfo.match(/\d+$/)[0]);
       var alphaVariableName = 'scale/' + theme.themeName + '-alpha-' + step;
-      console.log('[ALPHA DEBUG Light]', token.name, 'wants step', step, 'looking for', alphaVariableName);
+      console.log('[ALPHA DEBUG Light]', tokenName, 'wants step', step, 'looking for', alphaVariableName);
       
       var alphaVar = allVariables.find(function(v) {
         return v.name === alphaVariableName && v.variableCollectionId === collection.id;
@@ -1398,11 +1802,11 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           type: 'VARIABLE_ALIAS',
           id: alphaVar.id
         });
-        console.log('[SEM]', token.name, 'CustomLight/Dark', 'ALPHA', step);
+        console.log('[SEM]', tokenName, 'CustomLight/Dark', 'ALPHA', step);
         createdCount++;
         continue; // 다음 토큰으로
       } else {
-        console.log('[SKIP]', token.name, 'missing-alpha-variable', alphaVariableName);
+        console.log('[SKIP]', tokenName, 'missing-alpha-variable', alphaVariableName);
         skippedCount++;
       }
     }
@@ -1412,7 +1816,7 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
       var alphaInfo = mappedValue.dark.replace('ALPHA:', '');
       var step = parseInt(alphaInfo.match(/\d+$/)[0]);
       var alphaVariableName = 'scale/' + theme.themeName + '-alpha-' + step;
-      console.log('[ALPHA DEBUG Dark]', token.name, 'wants step', step, 'looking for', alphaVariableName);
+      console.log('[ALPHA DEBUG Dark]', tokenName, 'wants step', step, 'looking for', alphaVariableName);
       
       var alphaVar = allVariables.find(function(v) {
         return v.name === alphaVariableName && v.variableCollectionId === collection.id;
@@ -1423,11 +1827,11 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           type: 'VARIABLE_ALIAS',
           id: alphaVar.id
         });
-        console.log('[SEM]', token.name, 'CustomDark', 'ALPHA', step);
+        console.log('[SEM]', tokenName, 'CustomDark', 'ALPHA', step);
         createdCount++;
         continue; // 다음 토큰으로
       } else {
-        console.log('[SKIP]', token.name, 'missing-alpha-variable-dark', alphaVariableName);
+        console.log('[SKIP]', tokenName, 'missing-alpha-variable-dark', alphaVariableName);
         skippedCount++;
       }
     }
@@ -1446,11 +1850,11 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           type: 'VARIABLE_ALIAS',
           id: onColorAlphaVar.id
         });
-        console.log('[SEM]', token.name, 'CustomLight', 'ON-COLOR-ALPHA', onColorAlphaStep);
+        console.log('[SEM]', tokenName, 'CustomLight', 'ON-COLOR-ALPHA', onColorAlphaStep);
         createdCount++;
         continue; // 다음 토큰으로
       } else {
-        console.log('[SKIP]', token.name, 'missing-on-color-alpha-variable', onColorAlphaVariableName);
+        console.log('[SKIP]', tokenName, 'missing-on-color-alpha-variable', onColorAlphaVariableName);
         skippedCount++;
       }
     }
@@ -1469,11 +1873,11 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
           type: 'VARIABLE_ALIAS',
           id: onColorAlphaVarDark.id
         });
-        console.log('[SEM]', token.name, 'CustomDark', 'ON-COLOR-ALPHA', onColorAlphaStepDark);
+        console.log('[SEM]', tokenName, 'CustomDark', 'ON-COLOR-ALPHA', onColorAlphaStepDark);
         createdCount++;
         continue; // 다음 토큰으로
       } else {
-        console.log('[SKIP]', token.name, 'missing-on-color-alpha-variable-dark', onColorAlphaVariableNameDark);
+        console.log('[SKIP]', tokenName, 'missing-on-color-alpha-variable-dark', onColorAlphaVariableNameDark);
         skippedCount++;
       }
     }
@@ -1482,92 +1886,42 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
     continue; // 다음 토큰으로
   }
   
-  // preserveTokens 처리
-  if (preserveTokens.indexOf(token.name) !== -1) {
-    // 보존 토큰 처리 - 기존 값도 alias로 연결
-    if (baseLightMode && variable.valuesByMode[baseLightMode.modeId]) {
-      var existingValue = variable.valuesByMode[baseLightMode.modeId];
-      if (existingValue && existingValue.type === 'VARIABLE_ALIAS') {
-        variable.setValueForMode(customLightModeId, existingValue);
-      } else {
-        variable.setValueForMode(customLightModeId, existingValue);
+  
+  // preserveTokens 처리 - 원본 백업 값을 CustomLight/CustomDark로 복제
+  if (preserveTokens.indexOf(tokenName) !== -1) {
+    // console.log('[PRESERVE]', tokenName, 'Using original backed up values');
+    
+    var originalValues = preserveOriginalValues[tokenName];
+    if (originalValues) {
+      // Light → CustomLight 복제 (백업된 원본 값 사용)
+      if (originalValues.light) {
+        variable.setValueForMode(customLightModeId, originalValues.light);
+      }
+      
+      // Dark → CustomDark 복제 (백업된 원본 값 사용)
+      if (originalValues.dark) {
+        variable.setValueForMode(customDarkModeId, originalValues.dark);
       }
     }
-    if (baseDarkMode && variable.valuesByMode[baseDarkMode.modeId]) {
-      var existingValue = variable.valuesByMode[baseDarkMode.modeId];
-      if (existingValue && existingValue.type === 'VARIABLE_ALIAS') {
-        variable.setValueForMode(customDarkModeId, existingValue);
-      } else {
-        variable.setValueForMode(customDarkModeId, existingValue);
-      }
-    }
-    console.log('[SEM]', token.name, 'CustomLight/Dark', 'PRESERVE', 'base-value');
+    
     createdCount++;
-    continue; // 다음 토큰으로
+    continue;
   }
   
-  // 일반 토큰 - UI에서 제공한 값에서 가장 가까운 scale 찾아 참조
-  var lightHex = token.light;
-  var darkHex = token.dark;
+  // 매핑이 없는 토큰은 기본적으로 Light→CustomLight, Dark→CustomDark 복사
+  console.log('[DEFAULT]', tokenName, 'No mapping found, copying Light→CustomLight, Dark→CustomDark');
   
-  console.log('[TOKEN]', token.name, 'Light:', lightHex, 'Dark:', darkHex);
-  
-  // Light 값에 대한 가장 가까운 scale step 찾기
-  var lightStep = null;
-  for (var j = 0; j < theme.scaleColors.light.length; j++) {
-    if (theme.scaleColors.light[j].hex === lightHex) {
-      lightStep = theme.scaleColors.light[j].step;
-      break;
-    }
+  // Light → CustomLight 복제
+  if (baseLightMode && variable.valuesByMode[baseLightMode.modeId]) {
+    var lightValue = variable.valuesByMode[baseLightMode.modeId];
+    variable.setValueForMode(customLightModeId, lightValue);
   }
   
-  // Dark 값에 대한 가장 가까운 scale step 찾기
-  var darkStep = null;
-  for (var j = 0; j < theme.scaleColors.dark.length; j++) {
-    if (theme.scaleColors.dark[j].hex === darkHex) {
-      darkStep = theme.scaleColors.dark[j].step;
-      break;
-    }
+  // Dark → CustomDark 복제
+  if (baseDarkMode && variable.valuesByMode[baseDarkMode.modeId]) {
+    var darkValue = variable.valuesByMode[baseDarkMode.modeId];
+    variable.setValueForMode(customDarkModeId, darkValue);
   }
-  
-  // scale 변수 참조 설정
-  if (lightStep !== null) {
-    var lightScaleVar = allVariables.find(function(v) {
-      return v.name === 'scale/' + theme.themeName + '-' + lightStep && v.variableCollectionId === collection.id;
-    });
-    
-    if (lightScaleVar) {
-      variable.setValueForMode(customLightModeId, {
-        type: 'VARIABLE_ALIAS',
-        id: lightScaleVar.id
-      });
-    } else {
-      variable.setValueForMode(customLightModeId, hexToFigmaRGB(lightHex));
-    }
-  } else {
-    variable.setValueForMode(customLightModeId, hexToFigmaRGB(lightHex));
-  }
-  
-  if (darkStep !== null) {
-    var darkScaleVar = allVariables.find(function(v) {
-      return v.name === 'scale/' + theme.themeName + '-' + darkStep && v.variableCollectionId === collection.id;
-    });
-    
-    if (darkScaleVar) {
-      variable.setValueForMode(customDarkModeId, {
-        type: 'VARIABLE_ALIAS',
-        id: darkScaleVar.id
-      });
-    } else {
-      variable.setValueForMode(customDarkModeId, hexToFigmaRGB(darkHex));
-    }
-  } else {
-    variable.setValueForMode(customDarkModeId, hexToFigmaRGB(darkHex));
-  }
-  
-  console.log('[SEM]', token.name, 'CustomLight/Dark', 'DEFAULT-ALIAS', 
-              lightStep !== null ? lightStep : 'direct', 
-              darkStep !== null ? darkStep : 'direct');
   
   createdCount++;
 }
@@ -1591,25 +1945,81 @@ for (var i = 0; i < theme.semanticTokens.length; i++) {
 
 // Custom Mode 적용 핸들러 - 최상위 프레임에만 적용, 자식은 상속
 async function handleApplyCustomModeToFrame(msg) {
-  var targetModeName = msg.modeName;
-  var selection = figma.currentPage.selection;
-  
-  if (selection.length === 0) {
-    figma.notify('Frame을 선택해주세요');
-    return;
-  }
+  try {
+    var targetModeName = msg.modeName;
+    var selection = figma.currentPage.selection;
+    
+    if (selection.length === 0) {
+      figma.notify('Frame을 선택해주세요');
+      return;
+    }
   
   var collections = await figma.variables.getLocalVariableCollectionsAsync();
-  var collection = collections.find(function(c) { return c.name === 'ruler_v2'; });
   
-  if (!collection) {
-    throw new Error('ruler_v2 컬렉션을 찾을 수 없습니다');
+  // Frame에 실제로 적용된 변수들이 사용하는 컬렉션 찾기
+  var usedCollections = new Set();
+  
+  // 선택된 노드들에서 사용된 변수들의 컬렉션 수집
+  for (var i = 0; i < selection.length; i++) {
+    var node = selection[i];
+    if (node.boundVariables) {
+      for (var prop in node.boundVariables) {
+        var boundVar = node.boundVariables[prop];
+        // boundVar가 배열인 경우와 단일 객체인 경우 모두 처리
+        var boundVars = Array.isArray(boundVar) ? boundVar : [boundVar];
+        
+        for (var j = 0; j < boundVars.length; j++) {
+          var singleBoundVar = boundVars[j];
+          if (singleBoundVar && singleBoundVar.id) {
+            try {
+              var variable = await figma.variables.getVariableByIdAsync(singleBoundVar.id);
+              if (variable) {
+                var collection = collections.find(function(c) { return c.id === variable.variableCollectionId; });
+                if (collection) {
+                  usedCollections.add(collection.name);
+                }
+              }
+            } catch (error) {
+              console.log('Error getting variable:', singleBoundVar.id, error);
+            }
+          }
+        }
+      }
+    }
   }
   
-  var customMode = collection.modes.find(function(m) { return m.name === targetModeName; });
+  console.log('Frame uses collections:', Array.from(usedCollections));
   
-  if (!customMode) {
-    throw new Error('필요한 모드를 찾을 수 없습니다');
+  // ruler_v2 collection에서 해당 모드 찾기
+  var collection = collections.find(function(c) { return c.name === 'ruler_v2'; });
+  var customMode = null;
+  
+  if (collection) {
+    customMode = collection.modes.find(function(m) { return m.name === targetModeName; });
+  }
+  
+  if (!collection || !customMode) {
+    throw new Error('필요한 모드 "' + targetModeName + '"를 찾을 수 없습니다');
+  }
+  
+  console.log('Using collection:', collection.name, 'for mode:', targetModeName);
+  
+  // Frame을 해당 모드로 전환
+  for (var i = 0; i < selection.length; i++) {
+    var node = selection[i];
+    if (node.type === 'FRAME' || node.type === 'GROUP' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+      try {
+        // Figma의 내장 기능으로 전체 Frame을 해당 모드로 전환
+        if (!node.explicitVariableModes) {
+          node.explicitVariableModes = {};
+        }
+        node.explicitVariableModes[collection.id] = customMode.modeId;
+        console.log('Switched', node.name, 'to mode:', targetModeName);
+      } catch (error) {
+        console.log('Error switching mode for node:', node.name, error);
+        figma.notify('모드 전환 중 오류: ' + node.name);
+      }
+    }
   }
   
   // 최상위 루트 노드만 추출 (다른 선택된 노드에 포함되지 않는 노드들)
@@ -1696,6 +2106,11 @@ async function handleApplyCustomModeToFrame(msg) {
   }
   
   figma.notify(message);
+  
+  } catch (error) {
+    console.log('Error in handleApplyCustomModeToFrame:', error);
+    figma.notify('모드 적용 중 오류가 발생했습니다: ' + error.message);
+  }
 }
 
 // 톤 매칭 핸들러

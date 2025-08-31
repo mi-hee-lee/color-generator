@@ -882,40 +882,85 @@
         }
 
         // 색상 생성기
-        class ColorGenerator {
-            constructor() {
-                this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+       
+class ColorGenerator {
+    constructor() {
+        this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+    }
+
+    generateColors(inputHex, mode) {
+        var [h, s, l] = ColorUtils.hexToHsl(inputHex);
+        var colors = [];
+        var backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
+
+        this.steps.forEach(step => {
+            let lightness;
+            
+            // 기존 방식: 각 step별로 명확한 lightness 값 지정
+            if (mode === 'light') {
+                // Light mode 명도 매핑
+                switch(step) {
+                    case 50:  lightness = 95; break;
+                    case 75:  lightness = 90; break;
+                    case 100: lightness = 85; break;
+                    case 150: lightness = 78; break;
+                    case 200: lightness = 70; break;
+                    case 300: lightness = 60; break;
+                    case 400: lightness = 50; break;
+                    case 500: lightness = 40; break;
+                    case 600: lightness = 32; break;
+                    case 700: lightness = 25; break;
+                    case 800: lightness = 18; break;
+                    case 900: lightness = 12; break;
+                    case 950: lightness = 8; break;
+                    default: lightness = 50;
+                }
+            } else {
+                // Dark mode 명도 매핑
+                switch(step) {
+                    case 50:  lightness = 5; break;
+                    case 75:  lightness = 10; break;
+                    case 100: lightness = 15; break;
+                    case 150: lightness = 22; break;
+                    case 200: lightness = 30; break;
+                    case 300: lightness = 40; break;
+                    case 400: lightness = 50; break;
+                    case 500: lightness = 60; break;
+                    case 600: lightness = 68; break;
+                    case 700: lightness = 75; break;
+                    case 800: lightness = 82; break;
+                    case 900: lightness = 88; break;
+                    case 950: lightness = 92; break;
+                    default: lightness = 50;
+                }
             }
 
-            generateColors(inputHex, mode) {
-                var [h, s, l] = ColorUtils.hexToHsl(inputHex);
-                var colors = [];
-                var backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
-
-                this.steps.forEach(step => {
-                    let lightness;
-                    if (mode === 'light') {
-                        lightness = 95 - ((step - 50) / 900 * 90);
-                    } else {
-                        lightness = 5 + ((step - 50) / 900 * 90);
-                    }
-
-                    var [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
-                    var hex = ColorUtils.rgbToHex(r, g, b);
-                    var rgb = ColorUtils.hexToRgb(hex);
-                    var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
-
-                    colors.push({
-                        step,
-                        hex,
-                        contrast,
-                        isClosest: Math.abs(lightness - l) < 5
-                    });
-                });
-
-                return colors;
+            // 채도 조정 - 밝은 색에서 채도를 줄여서 파스텔톤 생성
+            let adjustedSaturation = s;
+            if (step <= 100) {
+                adjustedSaturation = s * 0.3;  // 매우 밝은 색
+            } else if (step <= 200) {
+                adjustedSaturation = s * 0.6;  // 밝은 색
+            } else if (step >= 800) {
+                adjustedSaturation = Math.min(100, s * 1.2);  // 어두운 색
             }
-        }
+
+            var [r, g, b] = ColorUtils.hslToRgb(h, adjustedSaturation, lightness);
+            var hex = ColorUtils.rgbToHex(r, g, b);
+            var rgb = ColorUtils.hexToRgb(hex);
+            var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+
+            colors.push({
+                step,
+                hex,
+                contrast,
+                isClosest: Math.abs(lightness - l) < 5
+            });
+        });
+
+        return colors;
+    }
+}
 
         // Custom Theme 생성기 (수정된 버전)
         class CustomThemeGenerator {
