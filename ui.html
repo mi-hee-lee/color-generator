@@ -135,7 +135,7 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 8px;
+            margin-top: 2px;
         }
 
         .btn-primary {
@@ -158,12 +158,12 @@
         }
 
         .btn-success {
-            background: #28a745;
+            background: #667EEA;
             color: white;
         }
 
         .btn-success:hover {
-            background: #218838;
+            background: #768ae5;
         }
 
         .color-grid {
@@ -276,7 +276,7 @@
             padding: 12px;
             background: #f8f9fa;
             border-radius: 6px;
-            border: 2px dashed #000;
+            border: 1px solid #000;
             margin-bottom: 8px;
         }
 
@@ -332,22 +332,22 @@
         }
 
         .info-box {
-            background: #e8f5e8;
-            border: 1px solid #d4edda;
+            background: #f0f0f0;
+            border: 1px solid #c7c7c7;
             border-radius: 4px;
-            padding: 8px;
+            padding: 12px;
             margin-top: 8px;
         }
 
         .info-box h5 {
-            color: #28a745;
+            color: #000000;
             font-size: 10px;
             margin-bottom: 4px;
         }
 
         .info-box p {
             font-size: 9px;
-            color: #155724;
+            color: #888;
             margin: 0;
             line-height: 1.3;
         }
@@ -484,9 +484,9 @@
 
         .step-indicator {
             display: inline-block;
-            padding: 2px 6px;
+            padding: 4px 6px;
             border-radius: 3px;
-            font-size: 8px;
+            font-size: 10px;
             font-weight: 600;
             margin-left: 6px;
         }
@@ -503,11 +503,11 @@
 
         .classification-badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 9px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            font-size: 10px;
             font-weight: 600;
-            margin-left: 8px;
+            margin-left: 0px;
         }
 
         .classification-300 {
@@ -523,10 +523,10 @@
         }
 
         .warning-box {
-            background: #fff3cd;
+            background: #fff7dd;
             border: 1px solid #ffeaa7;
             border-radius: 4px;
-            padding: 8px;
+            padding: 8px 20px;
             margin-bottom: 8px;
         }
 
@@ -534,6 +534,59 @@
             font-size: 9px;
             color: #856404;
             margin: 0;
+        }
+
+        /* 아코디언 스타일 추가 */
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .accordion-header:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .accordion-header.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .accordion-icon {
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-content.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .accordion-body {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            background: white;
         }
     </style>
 </head>
@@ -565,8 +618,8 @@
             <div class="section">
                 <div class="section-title">Background Mode</div>
                 <div class="mode-buttons">
-                    <button class="mode-btn active" onclick="setMode('light')">☀️ Light</button>
-                    <button class="mode-btn" onclick="setMode('dark')">🌙 Dark</button>
+                    <button class="mode-btn active" onclick="setMode('light')">Light Mode</button>
+                    <button class="mode-btn" onclick="setMode('dark')">Dark Mode</button>
                 </div>
             </div>
 
@@ -586,25 +639,29 @@
             </div>
 
             <!-- 액션 버튼들 추가 -->
-            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px;">
+            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 2px; margin-top: 4px;">
                 <button class="action-btn btn-primary" onclick="createVariables()">
-                    🎨 Create Variables (현재 모드)
+                    Create Variables (현재 모드)
                 </button>
                 <button class="action-btn btn-success" onclick="createDualModeVariables()">
-                    🌓 Create Light + Dark Variables
+                    Create Light + Dark Variables
                 </button>
                 <button class="action-btn btn-secondary" onclick="createStyles()">
-                    🎯 Create Color Styles
+                    Create Color Styles
                 </button>
             </div>
         </div>
 
         <!-- Tone Matching 탭 -->
         <div id="toneMatchingContent" class="tab-content">
+            <div class="header">
+                <div class="section-title"> 어울리는 색상을 추천해요.</div>
+            </div>
+
             <!-- 기준 색상 설정 -->
             <div class="section">
-                <div class="section-title">Step 1: Set Reference Color</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">기준이 될 색상을 선택하세요:</p>
+                <div class="section-title">Step 1. 기준 색상 정하기</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">기준이 될 색상을 선택하세요</p>
                 
                 <div class="color-input-group">
                     <input type="color" id="referenceColorPicker" class="color-picker" value="#667eea">
@@ -612,7 +669,7 @@
                 </div>
                 
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">📌 Set Reference</button>
+                    <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">Set Reference</button>
                     <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1; min-width: 60px;">Clear</button>
                 </div>
                 
@@ -622,16 +679,16 @@
             
             <!-- 새 색상 입력 -->
             <div class="section">
-                <div class="section-title">Step 2: 새로운 컬러 입력하기</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">원하는 색상을 입력하면 톤 매칭이 제공됩니다:</p>
+                <div class="section-title">Step 2. 새로운 컬러 입력하기</div>
+                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">원하는 색상을 입력하면 톤 매칭이 제공됩니다</p>
                 
                 <div class="tone-input-area">
                     <div class="color-input-group">
                         <input type="color" id="newColorPicker" class="color-picker" value="#ff0000">
                         <input type="text" id="newColorHex" class="hex-input" value="#FF0000">
                     </div>
-                    <button id="getSuggestionsBtn" class="action-btn btn-success">✨ Get Suggestions</button>
-                    <p style="font-size: 8px; color: #666; margin-top: 4px;">This color will be adjusted to match your reference tone</p>
+                    <button id="getSuggestionsBtn" class="action-btn btn-success">추천받기</button>
+                    <p style="font-size: 10px; color: #666; margin-top: 4px;">이 색상은 기준 톤에 맞게 조정됩니다.</p>
                 </div>
                 
                 <div id="toneMatchingResults"></div>
@@ -666,7 +723,7 @@
                     <label class="radio-option selected">
                         <input type="radio" name="applicationMode" value="accent-on-bg-off" checked>
                         <div class="radio-content">
-                            <span class="radio-label">🎯 Mode 1: 강조 요소 ON / 배경 요소 OFF</span>
+                            <span class="radio-label">Mode 1. 컴포넌트 색상 적용 + 배경색 자동 적용</span>
                             <div class="radio-hint">
                                 입력 색상을 fill-primary, border 등 강조 요소에 적용<br>
                                 배경은 상태에 따라 자동 조정 (300이하→400, 400이상→50)
@@ -677,7 +734,7 @@
                     <label class="radio-option">
                         <input type="radio" name="applicationMode" value="accent-on-bg-fixed">
                         <div class="radio-content">
-                            <span class="radio-label">💡 Mode 2: 강조 요소 ON / 배경 Light 고정</span>
+                            <span class="radio-label">Mode 2. 컴포넌트 색상 적용 + 배경색 기본 고정</span>
                             <div class="radio-hint">
                                 입력 색상을 강조 요소에 적용<br>
                                 배경은 항상 gray50 (Light Mode 유지)
@@ -688,7 +745,7 @@
                     <label class="radio-option">
                         <input type="radio" name="applicationMode" value="accent-off-bg-on">
                         <div class="radio-content">
-                            <span class="radio-label">🎨 Mode 3: 강조 요소 OFF / 배경 요소 ON</span>
+                            <span class="radio-label">Mode 3. 배경색 적용 + 컴포넌트 자동 적용</span>
                             <div class="radio-hint">
                                 입력 색상을 배경에 적용<br>
                                 • 300이하→배경 50, 강조요소 300 고정<br>
@@ -731,7 +788,7 @@
         // 색상 유틸리티
         class ColorUtils {
             static hexToRgb(hex) {
-                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
                     r: parseInt(result[1], 16),
                     g: parseInt(result[2], 16),
@@ -744,19 +801,19 @@
             }
 
             static hexToHsl(hex) {
-                const rgb = this.hexToRgb(hex);
+                var rgb = this.hexToRgb(hex);
                 return this.rgbToHsl(rgb.r / 255, rgb.g / 255, rgb.b / 255);
             }
 
             static rgbToHsl(r, g, b) {
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
+                var max = Math.max(r, g, b);
+                var min = Math.min(r, g, b);
                 let h, s, l = (max + min) / 2;
 
                 if (max === min) {
                     h = s = 0;
                 } else {
-                    const d = max - min;
+                    var d = max - min;
                     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
                     switch (max) {
                         case r: h = (g - b) / d + (g < b ? 6 : 0); break;
@@ -771,9 +828,9 @@
 
             static hslToRgb(h, s, l) {
                 h /= 360; s /= 100; l /= 100;
-                const a = s * Math.min(l, 1 - l);
-                const f = n => {
-                    const k = (n + h * 12) % 12;
+                var a = s * Math.min(l, 1 - l);
+                var f = n => {
+                    var k = (n + h * 12) % 12;
                     return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
                 };
                 return [
@@ -784,7 +841,7 @@
             }
 
             static getLuminance(r, g, b) {
-                const [rs, gs, bs] = [r, g, b].map(c => {
+                var [rs, gs, bs] = [r, g, b].map(c => {
                     c = c / 255;
                     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
                 });
@@ -792,17 +849,17 @@
             }
 
             static getContrast(rgb1, rgb2) {
-                const l1 = this.getLuminance(rgb1.r, rgb1.g, rgb1.b);
-                const l2 = this.getLuminance(rgb2.r, rgb2.g, rgb2.b);
-                const lighter = Math.max(l1, l2);
-                const darker = Math.min(l1, l2);
+                var l1 = this.getLuminance(rgb1.r, rgb1.g, rgb1.b);
+                var l2 = this.getLuminance(rgb2.r, rgb2.g, rgb2.b);
+                var lighter = Math.max(l1, l2);
+                var darker = Math.min(l1, l2);
                 return (lighter + 0.05) / (darker + 0.05);
             }
 
             // 가장 가까운 스텝 찾기
             static findClosestStep(hex, mode = 'light') {
-                const [h, s, l] = this.hexToHsl(hex);
-                const steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+                var [h, s, l] = this.hexToHsl(hex);
+                var steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
                 let closestStep = 500;
                 let minDiff = Infinity;
                 
@@ -814,7 +871,7 @@
                         targetLightness = 5 + ((step - 50) / 900 * 90);
                     }
                     
-                    const diff = Math.abs(l - targetLightness);
+                    var diff = Math.abs(l - targetLightness);
                     if (diff < minDiff) {
                         minDiff = diff;
                         closestStep = step;
@@ -832,9 +889,9 @@
             }
 
             generateColors(inputHex, mode) {
-                const [h, s, l] = ColorUtils.hexToHsl(inputHex);
-                const colors = [];
-                const backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
+                var [h, s, l] = ColorUtils.hexToHsl(inputHex);
+                var colors = [];
+                var backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
 
                 this.steps.forEach(step => {
                     let lightness;
@@ -844,10 +901,10 @@
                         lightness = 5 + ((step - 50) / 900 * 90);
                     }
 
-                    const [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
-                    const hex = ColorUtils.rgbToHex(r, g, b);
-                    const rgb = ColorUtils.hexToRgb(hex);
-                    const contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+                    var [r, g, b] = ColorUtils.hslToRgb(h, s, lightness);
+                    var hex = ColorUtils.rgbToHex(r, g, b);
+                    var rgb = ColorUtils.hexToRgb(hex);
+                    var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
 
                     colors.push({
                         step,
@@ -908,20 +965,23 @@
                     'common/on-black': { light: 900, dark: 75 },
                     'common/on-black-hover': { light: 950, dark: 50 },
                     'common/on-black-pressed': { light: 950, dark: 50 },
-                    
+                    'common/attention': { light: 500, dark: 500 }, // 기본값
+                    'common/attention-pressed': { light: 600, dark: 600 }, // 기본값
+                    'common/attention-hover': { light: 600, dark: 600 }, // 기본값
+                   
                     // Overlay
                     'overlay/dimmed': { light: 700, dark: 700 }
                 };
             }
 
             generateTheme(baseHex, themeName, applicationMode) {
-                const colorGenerator = new ColorGenerator();
-                const lightColors = colorGenerator.generateColors(baseHex, 'light');
-                const darkColors = colorGenerator.generateColors(baseHex, 'dark');
+                var colorGenerator = new ColorGenerator();
+                var lightColors = colorGenerator.generateColors(baseHex, 'light');
+                var darkColors = colorGenerator.generateColors(baseHex, 'dark');
                 
                 // 색상 매핑 객체 생성
-                const lightColorMap = {};
-                const darkColorMap = {};
+                var lightColorMap = {};
+                var darkColorMap = {};
                 
                 lightColors.forEach(color => {
                     lightColorMap[color.step] = color.hex;
@@ -931,16 +991,33 @@
                     darkColorMap[color.step] = color.hex;
                 });
 
-                const themeTokens = [];
+                var themeTokens = [];
 
                 // Semantic 토큰 생성
-                for (const [tokenPath, mapping] of Object.entries(this.semanticMappings)) {
-                    const lightStep = mapping.light;
-                    const darkStep = mapping.dark;
+                for (var [tokenPath, mapping] of Object.entries(this.semanticMappings)) {
+                    var lightStep = mapping.light;
+                    var darkStep = mapping.dark;
                     
-                    const lightHex = lightColorMap[lightStep];
-                    const darkHex = darkColorMap[darkStep];
+                    var lightHex = lightColorMap[lightStep];
+                    var darkHex = darkColorMap[darkStep];
                     
+                // common-attention 특별 처리
+                    if (tokenPath === 'common/attention') {
+                        var [h, s, l] = ColorUtils.hexToHsl(baseHex);
+                        
+                        // Hue가 빨간색-주황색 범위에 있는지 확인
+                        if (h >= 340 || h <= 40) {
+                            // scale-orange-red-100 색상 사용
+                            // 주황-빨강 계열의 100 단계 색상 생성
+                            var orangeRedHue = 15; // 주황-빨강 중간 색조
+                            var [r, g, b] = ColorUtils.hslToRgb(orangeRedHue, 75, 90); // 100 단계에 해당하는 밝기
+                            var orangeRed100 = ColorUtils.rgbToHex(r, g, b);
+                            
+                            lightHex = orangeRed100;
+                            darkHex = orangeRed100;
+                        }
+                    }
+
                     if (lightHex && darkHex) {
                         themeTokens.push({
                             name: `semantic/${tokenPath}`,
@@ -963,8 +1040,8 @@
         }
 
         // 인스턴스 생성
-        const colorGenerator = new ColorGenerator();
-        const themeGenerator = new CustomThemeGenerator();
+        var colorGenerator = new ColorGenerator();
+        var themeGenerator = new CustomThemeGenerator();
 
         // 탭 전환 함수
         function switchTab(tabName) {
@@ -1008,10 +1085,10 @@
         // 디스플레이 업데이트
         function updateDisplay() {
             console.log('Updating display...');
-            const baseColor = document.getElementById('baseColor');
+            var baseColor = document.getElementById('baseColor');
             if (!baseColor) return;
 
-            const inputHex = baseColor.value;
+            var inputHex = baseColor.value;
             generatedColors = colorGenerator.generateColors(inputHex, currentMode);
             
             displayColors();
@@ -1019,24 +1096,24 @@
 
         // 색상 표시
         function displayColors() {
-            const container = document.getElementById('colorResults');
+            var container = document.getElementById('colorResults');
             if (!container) return;
 
             container.innerHTML = '';
             
             generatedColors.forEach(color => {
-                const row = createColorRow(color);
+                var row = createColorRow(color);
                 container.appendChild(row);
             });
         }
 
         // 색상 행 생성
         function createColorRow(color) {
-            const row = document.createElement('div');
+            var row = document.createElement('div');
             row.className = color.isClosest ? 'color-row closest' : 'color-row';
             
-            const rgb = ColorUtils.hexToRgb(color.hex);
-            const textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
+            var rgb = ColorUtils.hexToRgb(color.hex);
+            var textColor = ColorUtils.getLuminance(rgb.r, rgb.g, rgb.b) > 0.5 ? '#000' : '#fff';
             
             row.innerHTML = `
                 <div class="color-swatch" style="background: ${color.hex}; color: ${textColor}">
@@ -1053,12 +1130,12 @@
 
         // 스텝 분류 표시 업데이트
         function updateStepIndicator(hex) {
-            const stepIndicator = document.getElementById('stepIndicator');
-            const classificationBadge = document.getElementById('classificationBadge');
-            const classificationInfo = document.getElementById('stepClassificationInfo');
-            const classificationText = document.getElementById('stepClassificationText');
+            var stepIndicator = document.getElementById('stepIndicator');
+            var classificationBadge = document.getElementById('classificationBadge');
+            var classificationInfo = document.getElementById('stepClassificationInfo');
+            var classificationText = document.getElementById('stepClassificationText');
             
-            const closestStep = ColorUtils.findClosestStep(hex, 'light');
+            var closestStep = ColorUtils.findClosestStep(hex, 'light');
             
             stepIndicator.textContent = `Step: ${closestStep}`;
             
@@ -1080,9 +1157,9 @@
         }
 
         function generateCustomTheme() {
-            const baseColor = document.getElementById('themeBaseColor').value;
-            const themeName = document.getElementById('themeNameInput').value || 'brand-theme';
-            const applicationMode = document.querySelector('input[name="applicationMode"]:checked').value;
+            var baseColor = document.getElementById('themeBaseColor').value;
+            var themeName = document.getElementById('themeNameInput').value || 'brand-theme';
+            var applicationMode = document.querySelector('input[name="applicationMode"]:checked').value;
             
             console.log('Generating custom theme:', themeName, baseColor, 'Mode:', applicationMode);
             
@@ -1093,33 +1170,44 @@
         }
 
         function displayThemePreview(theme) {
-            const container = document.getElementById('themePreviewContainer');
-            
-            const groupedTokens = {};
-            theme.semanticTokens.forEach(token => {
-                if (!groupedTokens[token.category]) {
-                    groupedTokens[token.category] = [];
-                }
-                groupedTokens[token.category].push(token);
-            });
-            
-            // Application Mode에 따른 설명
-            let modeDescription = '';
-            if (theme.applicationMode === 'accent-on-bg-off') {
-                modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
-            } else if (theme.applicationMode === 'accent-on-bg-fixed') {
-                modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
-            } else if (theme.applicationMode === 'accent-off-bg-on') {
-                modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
-            }
-            
-            container.innerHTML = `
-                <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
-                    <p style="font-size: 10px; color: #155724; margin: 0;">
-                        <strong>적용된 Mode:</strong> ${modeDescription}
-                    </p>
-                </div>
-                
+    var container = document.getElementById('themePreviewContainer');
+    
+    var groupedTokens = {};
+    theme.semanticTokens.forEach(token => {
+        if (!groupedTokens[token.category]) {
+            groupedTokens[token.category] = [];
+        }
+        groupedTokens[token.category].push(token);
+    });
+    
+    // Application Mode에 따른 설명
+    let modeDescription = '';
+    if (theme.applicationMode === 'accent-on-bg-off') {
+        modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
+    } else if (theme.applicationMode === 'accent-on-bg-fixed') {
+        modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
+    } else if (theme.applicationMode === 'accent-off-bg-on') {
+        modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
+    }
+    
+    container.innerHTML = `
+        <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
+            <p style="font-size: 10px; color: #155724; margin: 0;">
+                <strong>적용된 Mode:</strong> ${modeDescription}
+            </p>
+        </div>
+        
+        <!-- 아코디언 헤더 -->
+        <div class="accordion-header" id="themePreviewAccordion" onclick="toggleThemePreview()">
+            <span style="font-size: 11px; font-weight: 600;">
+                📊 테마 프리뷰 (${theme.semanticTokens.length}개 토큰)
+            </span>
+            <span class="accordion-icon">▼</span>
+        </div>
+        
+        <!-- 아코디언 콘텐츠 -->
+        <div class="accordion-content" id="themePreviewContent">
+            <div class="accordion-body">
                 <div class="theme-preview">
                     <div class="theme-mode-preview">
                         <div class="theme-mode-title">CustomLight 모드</div>
@@ -1159,30 +1247,32 @@
                         </div>
                     </div>
                 </div>
-                
-                <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
-                    모든 테마 변수 생성
-                </button>
-                
-                <!-- Custom Mode 적용 섹션 -->
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
-                        CustomLight 적용
-                    </button>
-                    <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
-                        CustomDark 적용
-                    </button>
-                </div>
-                
-                <div class="info-box">
-                    <h5>생성된 테마 정보:</h5>
-                    <p>• ${theme.semanticTokens.length}개의 semantic 토큰<br>
-                    • 13단계 색상 스케일<br>
-                    • Application Mode: ${theme.applicationMode}<br>
-                    • Light/Dark 모드 지원</p>
-                </div>
-            `;
-        }
+            </div>
+        </div>
+        
+        <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
+            모든 테마 변수 생성
+        </button>
+        
+        <!-- Custom Mode 적용 섹션 -->
+        <div style="display: flex; gap: 6px; margin-top: 8px;">
+            <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
+                CustomLight 적용
+            </button>
+            <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
+                CustomDark 적용
+            </button>
+        </div>
+        
+        <div class="info-box">
+            <h5>생성된 테마 정보:</h5>
+            <p>• ${theme.semanticTokens.length}개의 semantic 토큰<br>
+            • 13단계 색상 스케일<br>
+            • Application Mode: ${theme.applicationMode}<br>
+            • Light/Dark 모드 지원</p>
+        </div>
+    `;
+}
 
         function createCustomThemeVariables() {
             if (!currentTheme) {
@@ -1215,7 +1305,14 @@
             
             showMessage(modeName + ' 모드 적용 중...');
         }
-
+        // 아코디언 토글 함수 추가
+        function toggleThemePreview() {
+        var header = document.getElementById('themePreviewAccordion');
+        var content = document.getElementById('themePreviewContent');
+        
+        header.classList.toggle('active');
+        content.classList.toggle('expanded');
+        }
         // 색상 복사
         function copyColor(hex) {
             navigator.clipboard.writeText(hex).then(() => {
@@ -1227,7 +1324,7 @@
 
         // 변수 생성 함수들
 function createVariables() {
-    const variableName = document.getElementById('variableName').value.trim();
+    var variableName = document.getElementById('variableName').value.trim();
     
     if (!variableName) {
         showMessage('변수 이름을 입력해주세요!');
@@ -1253,19 +1350,19 @@ function createVariables() {
 }
 
 function createDualModeVariables() {
-    const variableName = document.getElementById('variableName').value.trim();
+    var variableName = document.getElementById('variableName').value.trim();
     
     if (!variableName) {
         showMessage('변수 이름을 입력해주세요!');
         return;
     }
 
-    const baseColor = document.getElementById('baseColor').value;
+    var baseColor = document.getElementById('baseColor').value;
     
     // Light 모드 색상 생성
-    const lightColors = colorGenerator.generateColors(baseColor, 'light');
+    var lightColors = colorGenerator.generateColors(baseColor, 'light');
     // Dark 모드 색상 생성
-    const darkColors = colorGenerator.generateColors(baseColor, 'dark');
+    var darkColors = colorGenerator.generateColors(baseColor, 'dark');
     
     parent.postMessage({
         pluginMessage: {
@@ -1281,7 +1378,7 @@ function createDualModeVariables() {
 }
 
 function createStyles() {
-    const variableName = document.getElementById('variableName').value.trim() || 'color';
+    var variableName = document.getElementById('variableName').value.trim() || 'color';
     
     if (generatedColors.length === 0) {
         showMessage('먼저 색상을 생성해주세요!');
@@ -1302,7 +1399,7 @@ function createStyles() {
 
 // 메시지 수신 처리 수정
 window.addEventListener('message', (event) => {
-    const msg = event.data.pluginMessage;
+    var msg = event.data.pluginMessage;
     if (!msg) return;
 
     console.log('Received message:', msg);
@@ -1313,7 +1410,7 @@ window.addEventListener('message', (event) => {
             break;
         case 'variable-created':
             if (msg.success) {
-                const modeText = msg.dualMode ? 'Light + Dark' : currentMode;
+                var modeText = msg.dualMode ? 'Light + Dark' : currentMode;
                 showMessage(`✅ ${msg.count}개의 ${modeText} Variables 생성 완료!`);
             } else {
                 showMessage('에러: ' + msg.error);
@@ -1354,8 +1451,8 @@ window.addEventListener('message', (event) => {
 
         // 톤 매칭 관련 함수들
         function setReferenceColor() {
-            const picker = document.getElementById('referenceColorPicker');
-            const hex = document.getElementById('referenceColorHex');
+            var picker = document.getElementById('referenceColorPicker');
+            var hex = document.getElementById('referenceColorHex');
             
             referenceColor = {
                 hex: picker.value.toUpperCase(),
@@ -1374,8 +1471,8 @@ window.addEventListener('message', (event) => {
         }
 
         function updateReferenceDisplay() {
-            const statusElement = document.getElementById('referenceStatus');
-            const displayElement = document.getElementById('referenceDisplay');
+            var statusElement = document.getElementById('referenceStatus');
+            var displayElement = document.getElementById('referenceDisplay');
             
             if (!referenceColor) {
                 statusElement.textContent = '현재 설정된 기준 컬러가 없습니다.';
@@ -1387,7 +1484,7 @@ window.addEventListener('message', (event) => {
             statusElement.textContent = `✅ Reference Set: ${referenceColor.hex}`;
             statusElement.style.color = '#28a745';
             
-            const [h, s, l] = referenceColor.hsl;
+            var [h, s, l] = referenceColor.hsl;
             displayElement.innerHTML = `
                 <div class="reference-display">
                     <div class="reference-color" style="background: ${referenceColor.hex};"></div>
@@ -1406,7 +1503,7 @@ window.addEventListener('message', (event) => {
                 return;
             }
             
-            const newColorHex = document.getElementById('newColorPicker').value;
+            var newColorHex = document.getElementById('newColorPicker').value;
             
             // 백엔드에 톤 매칭 요청
             parent.postMessage({
@@ -1421,7 +1518,7 @@ window.addEventListener('message', (event) => {
         }
 
         function displayToneMatchingSuggestions(originalHex, suggestions) {
-            const container = document.getElementById('toneMatchingResults');
+            var container = document.getElementById('toneMatchingResults');
             
             container.innerHTML = `
                 <div style="background: white; border: 2px solid #17a2b8; border-radius: 6px; padding: 12px; margin: 8px 0;">
@@ -1461,13 +1558,13 @@ window.addEventListener('message', (event) => {
         }
 
         function clearToneMatchingResults() {
-            const container = document.getElementById('toneMatchingResults');
+            var container = document.getElementById('toneMatchingResults');
             if (container) container.innerHTML = '';
         }
 
         // 메시지 표시
         function showMessage(message) {
-            const el = document.getElementById('successMessage');
+            var el = document.getElementById('successMessage');
             if (el) {
                 el.textContent = message;
                 el.classList.add('show');
@@ -1485,8 +1582,8 @@ window.addEventListener('message', (event) => {
             document.getElementById('customThemeTab').addEventListener('click', () => switchTab('custom-theme'));
 
             // 색상 입력
-            const baseColor = document.getElementById('baseColor');
-            const hexInput = document.getElementById('hexInput');
+            var baseColor = document.getElementById('baseColor');
+            var hexInput = document.getElementById('hexInput');
 
             if (baseColor && hexInput) {
                 baseColor.addEventListener('input', () => {
@@ -1508,8 +1605,8 @@ window.addEventListener('message', (event) => {
             document.getElementById('getSuggestionsBtn').addEventListener('click', generateToneMatching);
 
             // Reference 색상 입력 동기화
-            const refPicker = document.getElementById('referenceColorPicker');
-            const refHex = document.getElementById('referenceColorHex');
+            var refPicker = document.getElementById('referenceColorPicker');
+            var refHex = document.getElementById('referenceColorHex');
             
             refPicker.addEventListener('input', () => {
                 refHex.value = refPicker.value.toUpperCase();
@@ -1522,8 +1619,8 @@ window.addEventListener('message', (event) => {
             });
 
             // New 색상 입력 동기화
-            const newPicker = document.getElementById('newColorPicker');
-            const newHex = document.getElementById('newColorHex');
+            var newPicker = document.getElementById('newColorPicker');
+            var newHex = document.getElementById('newColorHex');
             
             newPicker.addEventListener('input', () => {
                 newHex.value = newPicker.value.toUpperCase();
@@ -1536,8 +1633,8 @@ window.addEventListener('message', (event) => {
             });
 
             // Custom Theme 관련
-            const themeBaseColor = document.getElementById('themeBaseColor');
-            const themeBaseHex = document.getElementById('themeBaseHex');
+            var themeBaseColor = document.getElementById('themeBaseColor');
+            var themeBaseHex = document.getElementById('themeBaseHex');
             
             themeBaseColor.addEventListener('input', () => {
                 themeBaseHex.value = themeBaseColor.value.toUpperCase();
@@ -1571,7 +1668,7 @@ window.addEventListener('message', (event) => {
 
         // 플러그인 메시지 수신
         window.addEventListener('message', (event) => {
-            const msg = event.data.pluginMessage;
+            var msg = event.data.pluginMessage;
             if (!msg) return;
 
             console.log('Received message:', msg);
