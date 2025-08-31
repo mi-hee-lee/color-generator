@@ -77,7 +77,6 @@
 
         .color-input-group {
             display: flex;
-            gap: 8px;
             align-items: center;
             margin-bottom: 8px;
         }
@@ -92,7 +91,7 @@
         }
 
         .hex-input {
-            flex: 1;
+            flex: auto;
             padding: 4px 6px;
             border: 1px solid #e0e0e0;
             border-radius: 4px;
@@ -507,7 +506,7 @@
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
-            margin-left: 0px;
+            margin-left: 4px;
         }
 
         .classification-300 {
@@ -924,7 +923,7 @@
                 // ruler_v2.json 기반 semantic 토큰 매핑
                 this.semanticMappings = {
                     // Background colors
-                    'background/default': { light: 50, dark: 50 },
+                    'background/default': { light: 50, dark: 50 }, 
                     'background/black': { light: 950, dark: 50 },
                     'fill/surface-contents': { light: 75, dark: 100 },
                     'fill/surface-floating': { light: 900, dark: 900 },
