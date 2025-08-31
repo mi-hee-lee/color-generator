@@ -620,6 +620,23 @@
             background: #e8f5e8;
             color: #28a745;
         }
+
+        /* 색상 복사 애니메이션 */
+        @keyframes copyFlash {
+            0% { 
+                background: #4CAF50; 
+                color: white;
+                transform: scale(1.1);
+            }
+            100% { 
+                background: transparent; 
+                transform: scale(1);
+            }
+        }
+
+        .color-hex.copied {
+            animation: copyFlash 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -967,6 +984,40 @@
         class ColorGenerator {
     constructor() {
         this.steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+        
+        // Light Mode 회색 톤 (기존 규칙대로)
+        this.lightModeGrayTones = [
+            '#FFFFFF', // 50
+            '#F7F7F7', // 75
+            '#F0F0F0', // 100
+            '#E8E8E8', // 150
+            '#DDDDDD', // 200
+            '#CCCCCC', // 300
+            '#B4B4B4', // 400
+            '#9E9E9E', // 500
+            '#8A8A8A', // 600
+            '#6A6A6A', // 700
+            '#464646', // 800
+            '#1F1F1F', // 900
+            '#000000'  // 950
+        ];
+        
+        // Dark Mode 회색 톤
+        this.darkModeGrayTones = [
+            '#0C0C0C', // 50
+            '#141414', // 75
+            '#1C1C1C', // 100
+            '#242424', // 150
+            '#313131', // 200
+            '#414141', // 300
+            '#525252', // 400
+            '#626262', // 500
+            '#808080', // 600
+            '#ADADAD', // 700
+            '#E3E3E3', // 800
+            '#F4F4F4', // 900
+            '#FCFCFC'  // 950
+        ];
     }
 
     getAutoTuningValue(hex) {
@@ -991,75 +1042,88 @@
         var colors = [];
         var backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
 
-        this.steps.forEach(function(step) {
-            let lightness;
+        // 무채색 판별 조건 완화
+        var isGrayscale = s < 5;  // 채도 5% 미만이면 무채색으로 처리
+
+        this.steps.forEach((step, index) => {
+            let finalHex;
             
-            // 기존 방식: 각 step별로 명확한 lightness 값 지정 + tuningValue 적용
-            if (mode === 'light') {
-                // Light mode 명도 매핑
-                switch(step) {
-                    case 50:  lightness = 95 + tuningValue; break;
-                    case 75:  lightness = 90 + tuningValue; break;
-                    case 100: lightness = 85 + tuningValue; break;
-                    case 150: lightness = 78 + tuningValue; break;
-                    case 200: lightness = 70 + tuningValue; break;
-                    case 300: lightness = 60 + tuningValue; break;
-                    case 400: lightness = 50 + tuningValue; break;
-                    case 500: lightness = 40 + tuningValue; break;
-                    case 600: lightness = 32 + tuningValue; break;
-                    case 700: lightness = 25 + tuningValue; break;
-                    case 800: lightness = 18 + tuningValue; break;
-                    case 900: lightness = 12 + tuningValue; break;
-                    case 950: lightness = 8 + tuningValue; break;
-                    default: lightness = 50 + tuningValue;
-                }
+            if (isGrayscale) {
+                // 미리 정의된 회색 톤 사용
+                var grayTones = mode === 'light' ? this.lightModeGrayTones : this.darkModeGrayTones;
+                finalHex = grayTones[index];
             } else {
-                // Dark mode 명도 매핑
-                switch(step) {
-                    case 50:  lightness = 5 + tuningValue; break;
-                    case 75:  lightness = 10 + tuningValue; break;
-                    case 100: lightness = 15 + tuningValue; break;
-                    case 150: lightness = 22 + tuningValue; break;
-                    case 200: lightness = 30 + tuningValue; break;
-                    case 300: lightness = 40 + tuningValue; break;
-                    case 400: lightness = 50 + tuningValue; break;
-                    case 500: lightness = 60 + tuningValue; break;
-                    case 600: lightness = 68 + tuningValue; break;
-                    case 700: lightness = 75 + tuningValue; break;
-                    case 800: lightness = 82 + tuningValue; break;
-                    case 900: lightness = 88 + tuningValue; break;
-                    case 950: lightness = 92 + tuningValue; break;
-                    default: lightness = 50 + tuningValue;
+                // 기존 색상 생성 로직
+                let lightness;
+            
+                // lightness 계산
+                if (mode === 'light') {
+                    switch(step) {
+                        case 50:  lightness = 95 + tuningValue; break;
+                        case 75:  lightness = 90 + tuningValue; break;
+                        case 100: lightness = 85 + tuningValue; break;
+                        case 150: lightness = 78 + tuningValue; break;
+                        case 200: lightness = 70 + tuningValue; break;
+                        case 300: lightness = 60 + tuningValue; break;
+                        case 400: lightness = 50 + tuningValue; break;
+                        case 500: lightness = 40 + tuningValue; break;
+                        case 600: lightness = 32 + tuningValue; break;
+                        case 700: lightness = 25 + tuningValue; break;
+                        case 800: lightness = 18 + tuningValue; break;
+                        case 900: lightness = 12 + tuningValue; break;
+                        case 950: lightness = 8 + tuningValue; break;
+                        default: lightness = 50 + tuningValue;
+                    }
+                } else {
+                    switch(step) {
+                        case 50:  lightness = 5 + tuningValue; break;
+                        case 75:  lightness = 10 + tuningValue; break;
+                        case 100: lightness = 15 + tuningValue; break;
+                        case 150: lightness = 22 + tuningValue; break;
+                        case 200: lightness = 30 + tuningValue; break;
+                        case 300: lightness = 40 + tuningValue; break;
+                        case 400: lightness = 50 + tuningValue; break;
+                        case 500: lightness = 60 + tuningValue; break;
+                        case 600: lightness = 68 + tuningValue; break;
+                        case 700: lightness = 75 + tuningValue; break;
+                        case 800: lightness = 82 + tuningValue; break;
+                        case 900: lightness = 88 + tuningValue; break;
+                        case 950: lightness = 92 + tuningValue; break;
+                        default: lightness = 50 + tuningValue;
+                    }
                 }
+                
+                lightness = Math.max(5, Math.min(95, lightness));
+                
+                // 채도 조정 시 무채색 체크
+                let adjustedSaturation = s;
+                if (s > 5) {  // 채도가 있는 경우에만 최소값 적용
+                    if (step <= 50) {
+                        adjustedSaturation = Math.max(s * 0.85, 40);
+                    } else if (step <= 100) {
+                        adjustedSaturation = Math.max(s * 0.9, 45);
+                    } else if (step <= 200) {
+                        adjustedSaturation = Math.max(s * 0.95, 50);
+                    } else if (step <= 300) {
+                        adjustedSaturation = s;
+                    } else if (step >= 800) {
+                        adjustedSaturation = Math.min(100, s * 1.1);
+                    }
+                }
+                // s <= 5인 경우는 adjustedSaturation = s 유지 (거의 0)
+                
+                var [r, g, b] = ColorUtils.hslToRgb(h, adjustedSaturation, lightness);
+                finalHex = ColorUtils.rgbToHex(r, g, b);
             }
-
-            // lightness 범위 제한 (5~95)
-            lightness = Math.max(5, Math.min(95, lightness));
-            // 채도 조정 - 생동감 있게 유지
-            let adjustedSaturation = s;
-            if (step <= 50) {
-                adjustedSaturation = Math.max(s * 0.85, 40);  // 85% 유지, 최소 40%
-            } else if (step <= 100) {
-                adjustedSaturation = Math.max(s * 0.9, 45);   // 90% 유지, 최소 45%
-            } else if (step <= 200) {
-                adjustedSaturation = Math.max(s * 0.95, 50);  // 95% 유지, 최소 50%
-            } else if (step <= 300) {
-                adjustedSaturation = s;  // 300은 원본 그대로
-            } else if (step >= 800) {
-                adjustedSaturation = Math.min(100, s * 1.1);
-            }
-
-
-            var [r, g, b] = ColorUtils.hslToRgb(h, adjustedSaturation, lightness);
-            var hex = ColorUtils.rgbToHex(r, g, b);
-            var rgb = ColorUtils.hexToRgb(hex);
+            
+            var rgb = ColorUtils.hexToRgb(finalHex);
             var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
-
+            
             colors.push({
                 step,
-                hex,
+                hex: finalHex,
                 contrast,
-                isClosest: Math.abs(lightness - l) < 5
+                isClosest: Math.abs(ColorUtils.hexToHsl(finalHex)[2] - l) < 5
             });
         });
 
@@ -1067,124 +1131,67 @@
     }
 }
 
-        // Custom Theme 생성기 (수정된 버전)
+        // Custom Theme 생성기 
         class CustomThemeGenerator {
             constructor() {
-                // ruler_v2.json 기반 semantic 토큰 매핑
-                this.semanticMappings = {
-                    // Background colors
-                    'background/default': { light: 50, dark: 50 }, 
-                    'background/black': { light: 950, dark: 50 },
-                    'fill/surface-contents': { light: 75, dark: 100 },
+                // 고정 매핑만 남기기 (preserve tokens)
+                this.fixedMappings = {
                     'fill/surface-floating': { light: 900, dark: 900 },
                     'fill/surface-dialog': { light: 50, dark: 75 },
                     'fill/surface-sheet': { light: 50, dark: 75 },
                     'fill/surface-black': { light: 950, dark: 50 },
-                    
-                    // Text colors
-                    'text/primary': { light: 900, dark: 900 },
-                    'text/secondary': { light: 700, dark: 700 },
-                    'text/tertiary': { light: 600, dark: 600 },
-                    'text/disabled': { light: 400, dark: 400 },
-                    'text/on-color': { light: 50, dark: 50 },
-                    
-                    // Fill colors
-                    'fill/primary': { light: 900, dark: 950 },
-                    'fill/tertiary': { light: 75, dark: 100 },
-                    'fill/disabled': { light: 150, dark: 150 },
-                    'fill/silent': { light: 50, dark: 75 },
-                    'fill/primary-hover': { light: 950, dark: 900 },
-                    'fill/primary-pressed': { light: 950, dark: 900 },
-                    'fill/silent-hover': { light: 100, dark: 100 },
-                    'fill/silent-pressed': { light: 100, dark: 100 },
-                    'fill/tertiary-hover': { light: 100, dark: 150 },
-                    'fill/tertiary-pressed': { light: 100, dark: 150 },
-                    
-                    // Border colors
-                    'border/divider': { light: 100, dark: 150 },
-                    'border/divider-strong': { light: 950, dark: 950 },
-                    'border/line': { light: 200, dark: 200 },
-                    'border/line-disabled': { light: 200, dark: 100 },
-                    'border/line-selected': { light: 950, dark: 950 },
-                    
-                    // Interactive states
+                    'background/black': { light: 950, dark: 50 },
                     'common/on-white': { light: 50, dark: 950 },
                     'common/on-white-hover': { light: 75, dark: 900 },
                     'common/on-white-pressed': { light: 75, dark: 900 },
                     'common/on-black': { light: 900, dark: 75 },
                     'common/on-black-hover': { light: 950, dark: 50 },
                     'common/on-black-pressed': { light: 950, dark: 50 },
-                    'common/attention': { light: 500, dark: 500 }, // 기본값
-                    'common/attention-pressed': { light: 600, dark: 600 }, // 기본값
-                    'common/attention-hover': { light: 600, dark: 600 }, // 기본값
-                   
-                    // Overlay
                     'overlay/dimmed': { light: 700, dark: 700 }
                 };
             }
 
-            generateTheme(baseHex, themeName, applicationMode) {
+            generateTheme(baseHex, themeName, applicationMode, tuningValue = 0) {
                 var colorGenerator = new ColorGenerator();
-                var lightColors = colorGenerator.generateColors(baseHex, 'light');
-                var darkColors = colorGenerator.generateColors(baseHex, 'dark');
+                var lightColors = colorGenerator.generateColors(baseHex, 'light', tuningValue);
+                var darkColors = colorGenerator.generateColors(baseHex, 'dark', tuningValue);
                 
-                // 색상 매핑 객체 생성
-                var lightColorMap = {};
-                var darkColorMap = {};
+                // 입력 색상의 명도로 closest step 찾기
+                var inputHsl = ColorUtils.hexToHsl(baseHex);
+                var inputLightness = inputHsl[2];
+                var closestStepLight = this.findClosestStep(lightColors, inputLightness);
+                var closestStepDark = this.findClosestStep(darkColors, inputLightness);
                 
-                lightColors.forEach(color => {
-                    lightColorMap[color.step] = color.hex;
-                });
-                
-                darkColors.forEach(color => {
-                    darkColorMap[color.step] = color.hex;
-                });
-
-                var themeTokens = [];
-
-                // Semantic 토큰 생성
-                for (var [tokenPath, mapping] of Object.entries(this.semanticMappings)) {
-                    var lightStep = mapping.light;
-                    var darkStep = mapping.dark;
-                    
-                    var lightHex = lightColorMap[lightStep];
-                    var darkHex = darkColorMap[darkStep];
-                    
-                // common-attention 특별 처리
-                    if (tokenPath === 'common/attention') {
-                        var [h, s, l] = ColorUtils.hexToHsl(baseHex);
-                        
-                        // Hue가 빨간색-주황색 범위에 있는지 확인
-                        if (h >= 340 || h <= 40) {
-                            // scale-orange-red-100 색상 사용
-                            // 주황-빨강 계열의 100 단계 색상 생성
-                            var orangeRedHue = 15; // 주황-빨강 중간 색조
-                            var [r, g, b] = ColorUtils.hslToRgb(orangeRedHue, 75, 90); // 100 단계에 해당하는 밝기
-                            var orangeRed100 = ColorUtils.rgbToHex(r, g, b);
-                            
-                            lightHex = orangeRed100;
-                            darkHex = orangeRed100;
-                        }
-                    }
-
-                    if (lightHex && darkHex) {
-                        themeTokens.push({
-                            name: `semantic/${tokenPath}`,
-                            light: lightHex,
-                            dark: darkHex,
-                            category: tokenPath.split('/')[0],
-                            subcategory: tokenPath.split('/')[1] || ''
-                        });
-                    }
-                }
-
+                // 테마 객체 생성 (백엔드 형식과 일치)
                 return {
                     themeName,
                     baseColor: baseHex,
                     applicationMode,
-                    scaleColors: { light: lightColors, dark: darkColors },
-                    semanticTokens: themeTokens
+                    selectedStep: closestStepLight,
+                    scaleColors: { 
+                        light: lightColors, 
+                        dark: darkColors 
+                    },
+                    // semanticTokens는 백엔드에서 처리하므로 빈 배열
+                    semanticTokens: []
                 };
+            }
+            
+            findClosestStep(colors, inputLightness) {
+                var closestStep = 500;
+                var minDifference = Infinity;
+                
+                colors.forEach(color => {
+                    var colorLightness = ColorUtils.hexToHsl(color.hex)[2];
+                    var diff = Math.abs(inputLightness - colorLightness);
+                    
+                    if (diff < minDifference) {
+                        minDifference = diff;
+                        closestStep = color.step;
+                    }
+                });
+                
+                return closestStep;
             }
         }
 
@@ -1331,118 +1338,54 @@
             var themeName = document.getElementById('themeNameInput').value || 'brand-theme';
             var applicationMode = document.querySelector('input[name="applicationMode"]:checked').value;
             
-            console.log('Generating custom theme:', themeName, baseColor, 'Mode:', applicationMode);
+            // Fine Tuning 값 가져오기
+            var tuningValue = document.getElementById('autoTuning').checked ? 
+                colorGenerator.getAutoTuningValue(baseColor) :
+                parseInt(document.getElementById('tuningSlider').value) || 0;
             
-            currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode);
+            console.log('Generating custom theme with tuning:', tuningValue);
+            
+            // themeGenerator에 tuning 값 전달
+            currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode, tuningValue);
             displayThemePreview(currentTheme);
             
             showMessage(`${themeName} 테마가 생성되었습니다!`);
         }
 
-        function displayThemePreview(theme) {
-    var container = document.getElementById('themePreviewContainer');
-    
-    var groupedTokens = {};
-    theme.semanticTokens.forEach(token => {
-        if (!groupedTokens[token.category]) {
-            groupedTokens[token.category] = [];
-        }
-        groupedTokens[token.category].push(token);
-    });
-    
-    // Application Mode에 따른 설명
-    let modeDescription = '';
-    if (theme.applicationMode === 'accent-on-bg-off') {
-        modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
-    } else if (theme.applicationMode === 'accent-on-bg-fixed') {
-        modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
-    } else if (theme.applicationMode === 'accent-off-bg-on') {
-        modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
-    }
-    
-    container.innerHTML = `
-        <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
-            <p style="font-size: 10px; color: #155724; margin: 0;">
-                <strong>적용된 Mode:</strong> ${modeDescription}
-            </p>
-        </div>
-        
-        <!-- 아코디언 헤더 -->
-        <div class="accordion-header" id="themePreviewAccordion" onclick="toggleThemePreview()">
-            <span style="font-size: 11px; font-weight: 600;">
-                📊 테마 프리뷰 (${theme.semanticTokens.length}개 토큰)
-            </span>
-            <span class="accordion-icon">▼</span>
-        </div>
-        
-        <!-- 아코디언 콘텐츠 -->
-        <div class="accordion-content" id="themePreviewContent">
-            <div class="accordion-body">
-                <div class="theme-preview">
-                    <div class="theme-mode-preview">
-                        <div class="theme-mode-title">CustomLight 모드</div>
-                        <div class="theme-semantic-list">
-                            ${Object.entries(groupedTokens).map(([category, tokens]) => `
-                                <div style="margin-bottom: 8px;">
-                                    <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
-                                    ${tokens.slice(0, 5).map(token => `
-                                        <div class="semantic-item">
-                                            <div class="semantic-color" style="background: ${token.light};"></div>
-                                            <span class="semantic-name">${token.subcategory}</span>
-                                            <span style="font-size: 7px; color: #999;">${token.light}</span>
-                                        </div>
-                                    `).join('')}
-                                    ${tokens.length > 5 ? `<div style="font-size: 7px; color: #999; text-align: center;">... +${tokens.length - 5} more</div>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
+            function displayThemePreview(theme) {
+                var container = document.getElementById('themePreviewContainer');
+                
+                let modeDescription = '';
+                if (theme.applicationMode === 'accent-on-bg-off') {
+                    modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
+                } else if (theme.applicationMode === 'accent-on-bg-fixed') {
+                    modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
+                } else if (theme.applicationMode === 'accent-off-bg-on') {
+                    modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
+                }
+                
+                container.innerHTML = `
+                    <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
+                        <p style="font-size: 10px; color: #155724; margin: 0;">
+                            <strong>적용된 Mode:</strong> ${modeDescription}<br>
+                            <strong>Closest Step:</strong> Light: ${theme.selectedStep || 'N/A'}, Dark: ${theme.selectedStep || 'N/A'}
+                        </p>
                     </div>
                     
-                    <div class="theme-mode-preview">
-                        <div class="theme-mode-title">CustomDark 모드</div>
-                        <div class="theme-semantic-list">
-                            ${Object.entries(groupedTokens).map(([category, tokens]) => `
-                                <div style="margin-bottom: 8px;">
-                                    <div style="font-size: 8px; font-weight: 600; color: #333; margin-bottom: 3px;">${category.toUpperCase()}</div>
-                                    ${tokens.slice(0, 5).map(token => `
-                                        <div class="semantic-item">
-                                            <div class="semantic-color" style="background: ${token.dark};"></div>
-                                            <span class="semantic-name">${token.subcategory}</span>
-                                            <span style="font-size: 7px; color: #999;">${token.dark}</span>
-                                        </div>
-                                    `).join('')}
-                                    ${tokens.length > 5 ? `<div style="font-size: 7px; color: #999; text-align: center;">... +${tokens.length - 5} more</div>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
+                    <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
+                        모든 테마 변수 생성
+                    </button>
+                    
+                    <div style="display: flex; gap: 6px; margin-top: 8px;">
+                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
+                            CustomLight 적용
+                        </button>
+                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
+                            CustomDark 적용
+                        </button>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
-            모든 테마 변수 생성
-        </button>
-        
-        <!-- Custom Mode 적용 섹션 -->
-        <div style="display: flex; gap: 6px; margin-top: 8px;">
-            <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
-                CustomLight 적용
-            </button>
-            <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
-                CustomDark 적용
-            </button>
-        </div>
-        
-        <div class="info-box">
-            <h5>생성된 테마 정보:</h5>
-            <p>• ${theme.semanticTokens.length}개의 semantic 토큰<br>
-            • 13단계 색상 스케일<br>
-            • Application Mode: ${theme.applicationMode}<br>
-            • Light/Dark 모드 지원</p>
-        </div>
-    `;
-}
+                `;
+            }
 
         function createCustomThemeVariables() {
             if (!currentTheme) {
@@ -1485,9 +1428,20 @@
         }
         // 색상 복사
         function copyColor(hex) {
-            navigator.clipboard.writeText(hex).then(() => {
+            // 클릭된 요소 찾기
+            var elements = document.querySelectorAll('.color-hex');
+            elements.forEach(function(el) {
+                if (el.textContent === hex.toUpperCase()) {
+                    el.classList.add('copied');
+                    setTimeout(function() {
+                        el.classList.remove('copied');
+                    }, 500);
+                }
+            });
+            
+            navigator.clipboard.writeText(hex).then(function() {
                 showMessage(`📋 ${hex} 복사됨!`);
-            }).catch(() => {
+            }).catch(function() {
                 showMessage('복사 실패');
             });
         }
@@ -1506,13 +1460,19 @@ function createVariables() {
         return;
     }
 
+    // Fine Tuning 값 포함
+    var tuningValue = document.getElementById('autoTuning').checked ? 
+        colorGenerator.getAutoTuningValue(document.getElementById('baseColor').value) :
+        parseInt(document.getElementById('tuningSlider').value) || 0;
+
     parent.postMessage({
         pluginMessage: {
             type: 'create-variables',
             colors: generatedColors,
             variableName: variableName,
             mode: currentMode,
-            dualMode: false
+            dualMode: false,
+            tuningValue: tuningValue  // 추가
         }
     }, '*');
     
@@ -1529,10 +1489,15 @@ function createDualModeVariables() {
 
     var baseColor = document.getElementById('baseColor').value;
     
-    // Light 모드 색상 생성
-    var lightColors = colorGenerator.generateColors(baseColor, 'light');
-    // Dark 모드 색상 생성
-    var darkColors = colorGenerator.generateColors(baseColor, 'dark');
+    // Fine Tuning 값 포함
+    var tuningValue = document.getElementById('autoTuning').checked ? 
+        colorGenerator.getAutoTuningValue(baseColor) :
+        parseInt(document.getElementById('tuningSlider').value) || 0;
+    
+    // Light 모드 색상 생성 (tuning 값 포함)
+    var lightColors = colorGenerator.generateColors(baseColor, 'light', tuningValue);
+    // Dark 모드 색상 생성 (tuning 값 포함)
+    var darkColors = colorGenerator.generateColors(baseColor, 'dark', tuningValue);
     
     parent.postMessage({
         pluginMessage: {
@@ -1540,7 +1505,8 @@ function createDualModeVariables() {
             lightColors: lightColors,
             darkColors: darkColors,
             variableName: variableName,
-            dualMode: true
+            dualMode: true,
+            tuningValue: tuningValue  // 추가
         }
     }, '*');
     
