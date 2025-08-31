@@ -552,7 +552,7 @@
             </button>
         </div>
 
-        <!-- Scale Generator 탭 -->
+        <!-- Scale Generator 탭 부분 수정 -->
         <div id="generatorContent" class="tab-content active">
             <div class="section">
                 <div class="section-title">Base Color Input</div>
@@ -571,15 +571,32 @@
             </div>
 
             <div class="section">
+                <div class="section-title">Variable Name</div>
+                <input type="text" id="variableName" class="hex-input" placeholder="예: primary, brand, blue" style="width: 100%;">
+                <p style="font-size: 9px; color: #666; margin-top: 4px;">
+                    변수 이름 형식: {name}-50, {name}-100, {name}-200...
+                </p>
+            </div>
+
+            <div class="section">
                 <div class="section-title">Generated Color Palette</div>
                 <div class="color-grid" id="colorResults">
                     <!-- 색상들이 여기에 표시됩니다 -->
                 </div>
             </div>
 
-            <button class="action-btn btn-primary" onclick="createVariables()">
-                🎨 Create Variables
-            </button>
+            <!-- 액션 버튼들 추가 -->
+            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px;">
+                <button class="action-btn btn-primary" onclick="createVariables()">
+                    🎨 Create Variables (현재 모드)
+                </button>
+                <button class="action-btn btn-success" onclick="createDualModeVariables()">
+                    🌓 Create Light + Dark Variables
+                </button>
+                <button class="action-btn btn-secondary" onclick="createStyles()">
+                    🎯 Create Color Styles
+                </button>
+            </div>
         </div>
 
         <!-- Tone Matching 탭 -->
@@ -689,11 +706,12 @@
             <div class="info-box" style="margin-top: 12px;">
                 <h5>커스텀 테마 기능:</h5>
                 <p>• 13단계 스케일(50~950) 자동 생성<br>
-                • closestStep ≤ 300 → "300 이하" 분류<br>
-                • closestStep ≥ 400 → "400 이상" 분류<br>
+                • closestStep ≤ 200 → "200 이하" 분류<br>
+                • closestStep ≥ 300 → "300 이상" 분류<br>
                 • 3가지 Application Mode 지원<br>
                 • Light/Dark 모드 동시 생성<br>
-                • WCAG 대비율 자동 확보</p>
+                • WCAG 대비율 자동 확보<br>
+                • gray-alpha 토큰 지원</p>
             </div>
         </div>
 
@@ -1044,20 +1062,20 @@
             
             stepIndicator.textContent = `Step: ${closestStep}`;
             
-            if (closestStep <= 300) {
+            if (closestStep <= 200) {
                 stepIndicator.className = 'step-indicator step-light';
-                classificationBadge.textContent = '300 이하';
+                classificationBadge.textContent = '200 이하';
                 classificationBadge.className = 'classification-badge classification-300';
                 
                 classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(300 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
-            } else if (closestStep >= 400) {
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(200 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else if (closestStep >= 300) {
                 stepIndicator.className = 'step-indicator step-dark';
-                classificationBadge.textContent = '400 이상';
+                classificationBadge.textContent = '300 이상';
                 classificationBadge.className = 'classification-badge classification-400';
                 
                 classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 어두운 색상(400 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간~어두운 색상(300 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
             }
         }
 
@@ -1207,29 +1225,132 @@
             });
         }
 
-        // 변수 생성
-        function createVariables() {
-            console.log('Creating variables...');
-            
-            if (generatedColors.length === 0) {
-                showMessage('먼저 색상을 생성해주세요!');
-                return;
-            }
+        // 변수 생성 함수들
+function createVariables() {
+    const variableName = document.getElementById('variableName').value.trim();
+    
+    if (!variableName) {
+        showMessage('변수 이름을 입력해주세요!');
+        return;
+    }
+    
+    if (generatedColors.length === 0) {
+        showMessage('먼저 색상을 생성해주세요!');
+        return;
+    }
 
-            const variableName = 'test-color';
-            
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'create-variables',
-                    colors: generatedColors,
-                    variableName: variableName,
-                    mode: currentMode,
-                    dualMode: false
-                }
-            }, '*');
-            
-            showMessage('Variables 생성 중...');
+    parent.postMessage({
+        pluginMessage: {
+            type: 'create-variables',
+            colors: generatedColors,
+            variableName: variableName,
+            mode: currentMode,
+            dualMode: false
         }
+    }, '*');
+    
+    showMessage('Variables 생성 중...');
+}
+
+function createDualModeVariables() {
+    const variableName = document.getElementById('variableName').value.trim();
+    
+    if (!variableName) {
+        showMessage('변수 이름을 입력해주세요!');
+        return;
+    }
+
+    const baseColor = document.getElementById('baseColor').value;
+    
+    // Light 모드 색상 생성
+    const lightColors = colorGenerator.generateColors(baseColor, 'light');
+    // Dark 모드 색상 생성
+    const darkColors = colorGenerator.generateColors(baseColor, 'dark');
+    
+    parent.postMessage({
+        pluginMessage: {
+            type: 'create-variables',
+            lightColors: lightColors,
+            darkColors: darkColors,
+            variableName: variableName,
+            dualMode: true
+        }
+    }, '*');
+    
+    showMessage('Light + Dark Variables 생성 중...');
+}
+
+function createStyles() {
+    const variableName = document.getElementById('variableName').value.trim() || 'color';
+    
+    if (generatedColors.length === 0) {
+        showMessage('먼저 색상을 생성해주세요!');
+        return;
+    }
+
+    parent.postMessage({
+        pluginMessage: {
+            type: 'create-styles',
+            colors: generatedColors,
+            styleName: variableName,
+            mode: currentMode
+        }
+    }, '*');
+    
+    showMessage('Color Styles 생성 중...');
+}
+
+// 메시지 수신 처리 수정
+window.addEventListener('message', (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+
+    console.log('Received message:', msg);
+    
+    switch(msg.type) {
+        case 'plugin-ready':
+            console.log('Plugin ready:', msg.message);
+            break;
+        case 'variable-created':
+            if (msg.success) {
+                const modeText = msg.dualMode ? 'Light + Dark' : currentMode;
+                showMessage(`✅ ${msg.count}개의 ${modeText} Variables 생성 완료!`);
+            } else {
+                showMessage('에러: ' + msg.error);
+            }
+            break;
+        case 'style-created':
+            if (msg.success) {
+                showMessage(`✅ ${msg.count}개의 Color Styles 생성 완료!`);
+            } else {
+                showMessage('에러: ' + msg.error);
+            }
+            break;
+        case 'custom-theme-created':
+            if (msg.success) {
+                showMessage(`${msg.themeName} 테마 생성 완료! (${msg.count || 0}개 변수)`);
+            } else {
+                showMessage('테마 생성 에러: ' + msg.error);
+            }
+            break;
+        case 'custom-mode-applied':
+            if (msg.success) {
+                var message = msg.modeName + ' 모드 적용 완료!';
+                if (msg.cleared && msg.cleared > 0) {
+                    message += ' (' + msg.count + '개 적용, ' + msg.cleared + '개 자식 상속)';
+                } else {
+                    message += ' (' + msg.count + '개 적용)';
+                }
+                showMessage(message);
+            } else {
+                showMessage('모드 적용 에러: ' + msg.error);
+            }
+            break;
+        case 'error':
+            showMessage('에러: ' + msg.message);
+            break;
+    }
+});
 
         // 톤 매칭 관련 함수들
         function setReferenceColor() {
