@@ -731,6 +731,66 @@
             line-height: 1.2;
         }
 
+        /* 색상 분류 정보 스타일 */
+        .color-classification-info {
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .classification-badge {
+            margin-bottom: 4px;
+        }
+
+        .classification-result {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .classification-result.light {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .classification-result.dark {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .classification-details {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .classification-reasons {
+            font-size: 9px;
+            color: #888;
+            font-style: italic;
+            line-height: 1.2;
+        }
+
+        .color-classification-info.light {
+            border-left-color: #ffc107;
+            background: #fff9e6;
+        }
+
+        .color-classification-info.dark {
+            border-left-color: #17a2b8;
+            background: #e6f7ff;
+        }
+
         .step-actions {
             display: flex;
             justify-content: space-between;
@@ -1052,8 +1112,8 @@
             <!-- Step 1: Key Color 선택 -->
             <div id="wizardStep1" class="wizard-step active">
                 <div class="step-header">
-                    <h2>Key Color 선택</h2>
-                    <p>간편한 Key Color를 기반으로 완전한 semantic 토큰 시스템을 생성합니다</p>
+                    <h2>Step 1. Key Color 선택</h2>
+                    <p>선택한 Key Color를 기반으로 완전한 semantic 토큰 시스템을 생성합니다.</p>
                 </div>
                 
                 <div class="step-content">
@@ -1069,6 +1129,17 @@
                             <input type="color" id="wizardThemeBaseColor" class="color-picker" value="#667eea">
                             <input type="text" id="wizardThemeBaseHex" class="hex-input" value="#667EEA">
                         </div>
+                        
+                        <!-- 색상 분류 정보 표시 -->
+                        <div id="colorClassificationInfo" class="color-classification-info">
+                            <div class="classification-badge">
+                                <span id="classificationResult" class="classification-result">어두운 범위</span>
+                            </div>
+                            <div id="classificationDetails" class="classification-details">
+                                밝기: <span id="lightnessValue">50</span>% | 색조: <span id="hueValue">240</span>°
+                            </div>
+                            <div id="classificationReasons" class="classification-reasons"></div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1081,8 +1152,8 @@
             <!-- Step 3: Mode 선택 및 적용 -->
             <div id="wizardStep3" class="wizard-step">
                 <div class="step-header">
-                    <h2>Mode 선택</h2>
-                    <p>선택한 Frame에 색상 적용하기</p>
+                    <h2>Step 2. Mode 선택</h2>
+                    <p>선택한 Frame에 Theme을 적용합니다.</p>
                 </div>
                 
                 <div class="step-content">
@@ -1927,8 +1998,8 @@
             if (currentTheme.baseColor) {
                 const hsl = ColorUtils.hexToHsl(currentTheme.baseColor);
                 const lightness = hsl[2];
-                // 밝기가 70% 이상이면 bright color로 분류
-                if (lightness >= 70) {
+                // 밝기가 80% 이상이면 bright color로 분류
+                if (lightness >= 80) {
                     isBrightColor = true;
                 }
             }
@@ -2075,8 +2146,8 @@
             const lightness = hsl[2];
             const hue = hsl[0];
             
-            // 밝은 색상 판단: 1) 밝기 70% 이상 또는 2) BornBright 색상 (Hue 40°-190°)
-            const isLightColor = lightness >= 70 || (hue >= 40 && hue <= 190);
+            // 밝은 색상 판단: 1) 밝기 80% 이상 또는 2) BornBright 색상 (Hue 40°-190°)
+            const isLightColor = lightness >= 80 || (hue >= 40 && hue <= 190);
             
             let tokens = {
                 background: '#ffffff',
@@ -2142,6 +2213,78 @@
             const lighterLightness = Math.min(hsl[2] + 30, 90);
             const reducedSaturation = Math.max(hsl[1] - 20, 30);
             return ColorUtils.hslToHex ? ColorUtils.hslToHex(hsl[0], reducedSaturation, lighterLightness) : hslToHex(hsl[0], reducedSaturation, lighterLightness);
+        }
+
+        // 밝은 색상 판단 함수 (코드베이스의 isLightRange와 동일한 로직)
+        function isLightColor(hex) {
+            if (!hex || !hex.startsWith('#')) return false;
+            
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
+            const lightness = hsl[2];
+            const hue = hsl[0];
+            
+            // 1) HSL 밝기 기준: 80% 이상
+            if (lightness >= 80) return true;
+            
+            // 2) BornBright 색상: Hue 40°-190° (노랑~청록 계열)
+            if (hue >= 40 && hue <= 190) return true;
+            
+            return false;
+        }
+
+        // 색상 분류 정보를 반환하는 함수
+        function getColorClassification(hex) {
+            if (!hex || !hex.startsWith('#')) return null;
+            
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
+            const lightness = hsl[2];
+            const hue = hsl[0];
+            const isLight = isLightColor(hex);
+            
+            let reasons = [];
+            if (lightness >= 80) reasons.push(`밝기 ${Math.round(lightness)}%`);
+            if (hue >= 40 && hue <= 190) reasons.push('본질적 밝은 색상 (노랑~청록 계열)');
+            
+            return {
+                isLight: isLight,
+                lightness: Math.round(lightness),
+                hue: Math.round(hue),
+                reasons: reasons,
+                classification: isLight ? '밝은 범위' : '어두운 범위'
+            };
+        }
+
+        // 색상 분류 정보 표시 업데이트 함수
+        function updateColorClassificationDisplay(hex) {
+            const classificationInfo = getColorClassification(hex);
+            if (!classificationInfo) return;
+            
+            const classificationResult = document.getElementById('classificationResult');
+            const lightnessValue = document.getElementById('lightnessValue');
+            const hueValue = document.getElementById('hueValue');
+            const classificationReasons = document.getElementById('classificationReasons');
+            
+            if (classificationResult) {
+                classificationResult.textContent = classificationInfo.classification;
+                classificationResult.className = `classification-result ${classificationInfo.isLight ? 'bright' : 'dark'}`;
+            }
+            
+            if (lightnessValue) {
+                lightnessValue.textContent = classificationInfo.lightness;
+            }
+            
+            if (hueValue) {
+                hueValue.textContent = classificationInfo.hue;
+            }
+            
+            if (classificationReasons) {
+                if (classificationInfo.reasons.length > 0) {
+                    classificationReasons.textContent = '분류 근거: ' + classificationInfo.reasons.join(', ');
+                    classificationReasons.style.display = 'block';
+                } else {
+                    classificationReasons.style.display = 'none';
+                }
+            }
         }
 
         // HSL 변환 함수들 (ColorUtils가 없는 경우 대비)
@@ -2385,6 +2528,12 @@
                     console.log('🔄 Color picker CHANGE event:', wizardBaseColor.value);
                 });
                 
+                // 초기 색상에 대한 분류 정보 표시
+                const initialColor = wizardBaseColor.value || wizardBaseHex.value;
+                if (initialColor) {
+                    updateColorClassificationDisplay(initialColor);
+                }
+                
                 console.log('✅ Wizard color sync listeners set up successfully');
                 console.log('Current values:', {
                     color: wizardBaseColor.value,
@@ -2418,6 +2567,9 @@
                 // 모드 카드 미리보기 업데이트
                 updateAllModePreviewsWithColor(newColorValue);
                 
+                // 색상 분류 정보 업데이트
+                updateColorClassificationDisplay(newColorValue);
+                
                 console.log('✅ Hex input updated successfully');
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
@@ -2439,6 +2591,9 @@
                     
                     // 모드 카드 미리보기 업데이트
                     updateAllModePreviewsWithColor(hexValue);
+                    
+                    // 색상 분류 정보 업데이트
+                    updateColorClassificationDisplay(hexValue);
                     
                     console.log('✅ Color picker updated:', {
                         from: oldColorValue,

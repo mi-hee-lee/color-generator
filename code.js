@@ -305,15 +305,15 @@ function adjustStep(currentStep, adjustment) {
 function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) {
   var mappings = {};
   
-  // 200 기준으로 분류하되, baseColor가 밝은 색상이면 light range에 포함
-  var isLightRange = closestStep < 200;
+  // 200 이하 기준으로 분류하되, baseColor가 밝은 색상이면 light range에 포함
+  var isLightRange = closestStep <= 200;
   if (baseColor) {
     var hsl = hexToHsl(baseColor);
     var lightness = hsl[2];
     var hue = hsl[0];
     
-    // 밝기가 70% 이상이면 light range로 분류
-    if (lightness >= 70) {
+    // 밝기가 80% 이상이면 light range로 분류
+    if (lightness >= 80) {
       isLightRange = true;
     }
     
@@ -326,21 +326,21 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   console.log('[MAPPING] closestStep:', closestStep);
   console.log('[MAPPING] baseColor lightness:', baseColor ? hexToHsl(baseColor)[2] : 'N/A');
   console.log('[MAPPING] baseColor hue:', baseColor ? hexToHsl(baseColor)[0] : 'N/A');
-  console.log('[MAPPING] Range:', isLightRange ? '밝은 범위 (200 미만 또는 밝은 색상 또는 BornBright)' : '어두운 범위');
+  console.log('[MAPPING] Range:', isLightRange ? '밝은 범위 (200 이하 또는 80% 이상 밝은 색상 또는 BornBright)' : '어두운 범위');
 
   // =====================================
   // 옵션 1: forground 중심
   // =====================================
   if (applicationMode === 'accent-on-bg-off') {
     if (isLightRange) {
-      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
+      // 밝은 범위 (Step≤200 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'GRAY:100';
       mappings['semantic/text/tertiary'] = 'GRAY:200';
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + '700';
+      mappings['semantic/background/default'] = 'REF:' + themeName + '800';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -361,7 +361,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
+      // 어두운 범위 (Step>200 AND L<80% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -390,13 +390,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
     
   // =====================================
-  // 옵션 2: forground 중심 white bg
+  // 옵션 3: forground 중심 white bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-fixed') {
     mappings['semantic/background/default'] = 'GRAY:50';
     
     if (isLightRange) {
-      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
+      // 밝은 범위 (Step≤200 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -422,7 +422,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
       
     } else {
-      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
+      // 어두운 범위 (Step>200 AND L<80% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -449,11 +449,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
     
   // =====================================
-  // 옵션 3: background 중심
+  // 옵션 2: background 중심
   // =====================================
   } else if (applicationMode === 'accent-off-bg-on') {
     if (isLightRange) {
-      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
+      // 밝은 범위 (Step≤200 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -462,9 +462,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + '400';
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '500';
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + '500';
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
       
       mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '400';
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + '400';
@@ -481,7 +481,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
+      // 어두운 범위 (Step>200 AND L<80% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'ON-COLOR-ALPHA:800';
       mappings['semantic/text/tertiary'] = 'ON-COLOR-ALPHA:700';
