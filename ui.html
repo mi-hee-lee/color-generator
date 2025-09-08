@@ -21,7 +21,7 @@
         }
 
         .container {
-            padding: 12px;
+            padding: 16px;
             max-width: 100%;
         }
 
@@ -351,13 +351,398 @@
             line-height: 1.3;
         }
 
-        /* Custom Theme 스타일 */
-        .theme-input-section {
-            background: linear-gradient(145deg, #f0f4ff, #e6f0ff);
-            border: 2px solid #667eea;
-            border-radius: 8px;
+        /* Custom Theme Wizard 스타일 */
+        .wizard-progress {
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .simple-progress-bar {
+            display: flex;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-segment {
+            flex: 1;
+            background: #e0e0e0;
+            margin-right: 2px;
+            border-radius: 2px;
+        }
+
+        .progress-segment:last-child {
+            margin-right: 0;
+        }
+
+        .progress-segment.active {
+            background: #667eea;
+        }
+
+        .progress-segment.completed {
+            background: #667eea;
+        }
+
+        .wizard-step {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .step-header h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .step-header p {
+            font-size: 11px;
+            color: #888;
+            margin: 0;
+        }
+
+        .step-content {
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .color-preview {
+            margin-top: 6px;
+        }
+
+        .preview-swatch {
+            width: 40px;
+            height: 20px;
+            border-radius: 3px;
+            background: #667eea;
+            border: 1px solid #ccc;
+        }
+
+        .token-preview {
+            background: #f5f5f5;
+            border-radius: 4px;
             padding: 12px;
-            margin-bottom: 12px;
+        }
+
+        .token-item {
+            display: block;
+            margin-bottom: 8px;
+            padding: 0;
+            border: none;
+        }
+
+        .token-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .token-label {
+            font-size: 11px;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .token-value {
+            font-size: 11px;
+            font-family: 'Monaco', monospace;
+            color: #667eea;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            display: block;
+        }
+
+        .mode-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+            width: 100%;
+            justify-content: center;
+        }
+
+
+        .mode-card {
+            background: #ffffff;
+            
+            border-radius: 6px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .mode-card.selected {
+            border: 2px solid #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-checkbox {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            background: #f7f7f7;
+            border: 2px solid #ddd;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .mode-card.selected .card-checkbox {
+            background: #1f1f1f;
+            border: 2px solid #000;
+        }
+
+        .checkbox-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-icon.unselected {
+            opacity: 0.0;
+        }
+
+        .mode-card.selected .checkbox-icon.unselected {
+            display: none;
+        }
+        
+        /* 새로운 아이콘 구조 CSS */
+        .mode-card .selected-icon {
+            display: none !important;
+        }
+        .mode-card .unselected-icon {
+            display: none !important;
+        }
+        .mode-card.selected .selected-icon {
+            display: block !important;
+        }
+        .mode-card.selected .unselected-icon {
+            display: none !important;
+        }
+        
+        /* accent-on-bg-off 모드 배경색 적용 */
+        .mode-card[data-mode="accent-on-bg-off"] {
+            background: #e8edff;
+        }
+        
+        /* accent-off-bg-on 모드 배경색 적용 */
+        .mode-card[data-mode="accent-off-bg-on"] {
+            background: #667eea;
+        }
+        .mode-card[data-mode="accent-off-bg-on"] .preview-frame {
+            
+        }
+        .mode-card[data-mode="accent-off-bg-on"] .card-label {
+            color: white;
+        }
+        
+        /* accent-on-bg-black 모드 배경색 적용 */
+        .mode-card[data-mode="accent-on-bg-black"] {
+            background: #1f1f1f;
+        }
+        .mode-card[data-mode="accent-on-bg-black"] .preview-frame {
+            background: none !important;
+        }
+        .mode-card[data-mode="accent-on-bg-black"] .card-label,
+        .mode-card[data-mode="accent-on-bg-black"] .card-sub-label {
+            color: white;
+        }
+
+        .card-preview {
+            
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        
+        .preview-frame.white-bg {
+            
+        
+        }
+        
+        .preview-frame.black-bg {
+            /* background removed */
+        }
+
+        .frame-header {
+            font-size: 8px;
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+            padding: 6px 8px;
+            width : 100%;
+            
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .frame-header svg path {
+            fill: #000000;
+            transition: fill 0.3s ease;
+        }
+
+        .frame-header.white {
+            color: white;
+        }
+
+
+        .preview-frame.black-bg .frame-header {
+            color: white;
+            background: transparent;
+            border-bottom-color: rgba(255,255,255,0.2);
+        }
+
+        .frame-content-area {
+            padding: 4px;
+            display: flex;
+            gap: 2px;
+            flex: 1;
+            align-items: stretch;
+        }
+
+        .content-block {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 2px;
+        }
+
+        .content-block.light {
+            background: #f8f9fa;
+        }
+
+        .content-block.white {
+            background: rgba(255,255,255,0.8);
+        }
+
+
+        .preview-frame.black-bg .content-block.white {
+            background: rgba(255,255,255,0.8);
+        }
+
+        .frame-button {
+            background: #bcc8ff;
+            border-radius: 3px;
+            width: 100%;
+            height: 20px;
+            margin: 2px 4px 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .frame-button.accent {
+            background: #667eea;
+        }
+
+        .frame-button.dark {
+            background: #333;
+        }
+
+        .card-footer {
+            text-align: center;
+        }
+
+        .card-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+            transition: color 0.3s ease;
+        }
+
+        .card-sub-label {
+            font-size: 9px;
+            color: #777;
+            line-height: 1.2;
+            transition: color 0.3s ease;
+        }
+
+        .card-description {
+            font-size: 9px;
+            color: #777;
+            line-height: 1.2;
+        }
+
+        .step-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .step-actions button {
+            flex: 1;
+            height: 32px;
+            font-size: 11px;
         }
 
         .theme-preview {
@@ -412,17 +797,17 @@
         .theme-name-input {
             width: 100%;
             padding: 6px 8px;
-            border: 1px solid #667eea;
+            border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 11px;
             margin-bottom: 8px;
-            background: rgba(255,255,255,0.9);
+            background: white;
         }
 
         .theme-name-input:focus {
             outline: none;
-            border-color: #4c63d2;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
 
         /* Radio Button 스타일 */
@@ -643,19 +1028,226 @@
     <div class="container">
         <!-- 탭 네비게이션 -->
         <div class="tab-navigation">
-            <button class="tab-btn active" id="generatorTab">
+            <button class="tab-btn active" id="customThemeTab">
+                Custom Theme
+            </button>
+            <button class="tab-btn" id="generatorTab">
                 Scale Generator
             </button>
             <button class="tab-btn" id="toneMatchingTab">
                 Tone Matching
             </button>
-            <button class="tab-btn" id="customThemeTab">
-                Custom Theme
-            </button>
+        </div>
+
+        <!-- Custom Theme 탭 -->
+        <div id="customThemeContent" class="tab-content active">
+            <!-- 프로그레스 바 -->
+            <div class="wizard-progress">
+                <div class="simple-progress-bar">
+                    <div class="progress-segment active" data-step="1"></div>
+                    <div class="progress-segment" data-step="3"></div>
+                </div>
+            </div>
+
+            <!-- Step 1: Key Color 선택 -->
+            <div id="wizardStep1" class="wizard-step active">
+                <div class="step-header">
+                    <h2>Key Color 선택</h2>
+                    <p>간편한 Key Color를 기반으로 완전한 semantic 토큰 시스템을 생성합니다</p>
+                </div>
+                
+                <div class="step-content">
+                    <div class="input-group">
+                        <label>테마 이름</label>
+                        <input type="text" id="wizardThemeNameInput" class="theme-name-input" 
+                               placeholder="예: custom-theme" value="custom-theme">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Key Color</label>
+                        <div class="color-input-group">
+                            <input type="color" id="wizardThemeBaseColor" class="color-picker" value="#667eea">
+                            <input type="text" id="wizardThemeBaseHex" class="hex-input" value="#667EEA">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="action-btn btn-primary" onclick="goToStep(3)">다음</button>
+                </div>
+            </div>
+
+
+            <!-- Step 3: Mode 선택 및 적용 -->
+            <div id="wizardStep3" class="wizard-step">
+                <div class="step-header">
+                    <h2>Mode 선택</h2>
+                    <p>선택한 Frame에 색상 적용하기</p>
+                </div>
+                
+                <div class="step-content">
+                    <div class="mode-selection">
+                        <div class="mode-cards">
+                            <!-- Mode 1: forground 중심 -->
+                            <div class="mode-card selected" data-mode="accent-on-bg-off">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame">
+                                        <div class="frame-header">
+                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block light"></div>
+                                            <div class="content-block light"></div>
+                                        </div>
+                                        <div class="frame-button accent"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">forground 중심</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mode 3: background 중심 -->
+                            <div class="mode-card" data-mode="accent-off-bg-on">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame">
+                                        <div class="frame-header">
+                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block white"></div>
+                                            <div class="content-block white"></div>
+                                        </div>
+                                        <div class="frame-button dark"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">background 중심</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mode 2: forground 중심 white bg -->
+                            <div class="mode-card" data-mode="accent-on-bg-fixed">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame white-bg">
+                                        <div class="frame-header">
+                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block light"></div>
+                                            <div class="content-block light"></div>
+                                        </div>
+                                        <div class="frame-button accent"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">forground 중심</div>
+                                    <div class="card-sub-label">white bg</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mode 4: forground 중심 black bg -->
+                            <div class="mode-card" data-mode="accent-on-bg-black">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame black-bg">
+                                        <div class="frame-header">
+                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block white"></div>
+                                            <div class="content-block white"></div>
+                                        </div>
+                                        <div class="frame-button accent"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">forground 중심</div>
+                                    <div class="card-sub-label">black bg</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Annotation 컨트롤 -->
+                <div class="annotation-controls" style="margin: 20px 0; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f8f9fa;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600;">Color Annotation</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" id="annotationToggle" onchange="toggleAnnotation()" style="margin: 0;" disabled>
+                            <span style="font-size: 13px; color: #999;">선택된 요소의 색상 매핑 표시 (Apply 후 활성화됨)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" id="annotationPin" onchange="toggleAnnotationPin()" style="margin: 0;" disabled>
+                            <span style="font-size: 13px; color: #666;">위치 고정</span>
+                        </label>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                        💡 요소를 선택하면 우측에 semantic→scale 토큰 매핑 정보가 표시됩니다
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
+                    <button class="action-btn btn-primary" onclick="applyCustomTheme()">custom theme 적용하기</button>
+                </div>
+            </div>
         </div>
 
         <!-- Scale Generator 탭 부분 수정 -->
-        <div id="generatorContent" class="tab-content active">
+        <div id="generatorContent" class="tab-content">
             <div class="section">
                 <div class="section-title">Base Color Input</div>
                 <div class="color-input-group">
@@ -760,83 +1352,6 @@
             </div>
         </div>
 
-        <!-- Custom Theme 탭 -->
-        <div id="customThemeContent" class="tab-content">
-            <div class="theme-input-section">
-                <div class="section-title">테마 생성기</div>
-                <p style="color: #667eea; margin-bottom: 8px; font-size: 10px;">
-                    베이스 색상을 기반으로 완전한 semantic 토큰 시스템을 생성합니다
-                </p>
-                
-                <input type="text" id="themeNameInput" class="theme-name-input" 
-                       placeholder="테마 이름 (예: brand-blue)" value="custom-theme">
-                
-                <div class="color-input-group">
-                    <input type="color" id="themeBaseColor" class="color-picker" value="#667eea">
-                    <input type="text" id="themeBaseHex" class="hex-input" value="#667EEA">
-                    <span id="stepIndicator" class="step-indicator">분석 중...</span>
-                    <span id="classificationBadge" class="classification-badge">분류 중...</span>
-                </div>
-                
-                <!-- 스텝 분류 설명 -->
-                <div class="warning-box" id="stepClassificationInfo" style="display: none;">
-                    <p id="stepClassificationText"></p>
-                </div>
-                
-                <!-- Application Mode Radio Buttons (3가지 옵션) -->
-                <div class="radio-group">
-                    <label class="radio-option selected">
-                        <input type="radio" name="applicationMode" value="accent-on-bg-off" checked>
-                        <div class="radio-content">
-                            <span class="radio-label">Mode 1. 컴포넌트 색상 적용 + 배경색 자동 적용</span>
-                            <div class="radio-hint">
-                                입력 색상을 fill-primary, border 등 강조 요소에 적용<br>
-                                배경은 상태에 따라 자동 조정 (300이하→400, 400이상→50)
-                            </div>
-                        </div>
-                    </label>
-                    
-                    <label class="radio-option">
-                        <input type="radio" name="applicationMode" value="accent-on-bg-fixed">
-                        <div class="radio-content">
-                            <span class="radio-label">Mode 2. 컴포넌트 색상 적용 + 배경색 기본 고정</span>
-                            <div class="radio-hint">
-                                입력 색상을 강조 요소에 적용<br>
-                                배경은 항상 gray50 (Light Mode 유지)
-                            </div>
-                        </div>
-                    </label>
-                    
-                    <label class="radio-option">
-                        <input type="radio" name="applicationMode" value="accent-off-bg-on">
-                        <div class="radio-content">
-                            <span class="radio-label">Mode 3. 배경색 적용 + 컴포넌트 자동 적용</span>
-                            <div class="radio-hint">
-                                입력 색상을 배경에 적용<br>
-                                • 300이하→배경 50, 강조요소 300 고정<br>
-                                • 400이상→배경 400, 강조요소는 입력색과 유사
-                            </div>
-                        </div>
-                    </label>
-                </div>
-                
-                <button id="generateThemeBtn" class="action-btn btn-primary">완전한 테마 생성</button>
-                
-                <div id="themePreviewContainer"></div>
-            </div>
-            
-            <div class="info-box" style="margin-top: 12px;">
-                <h5>커스텀 테마 기능:</h5>
-                <p>• 13단계 스케일(50~950) 자동 생성<br>
-                • closestStep ≤ 200 → "200 이하" 분류<br>
-                • closestStep ≥ 300 → "300 이상" 분류<br>
-                • 3가지 Application Mode 지원<br>
-                • Light/Dark 모드 동시 생성<br>
-                • WCAG 대비율 자동 확보<br>
-                • gray-alpha 토큰 지원</p>
-            </div>
-        </div>
-
         <!-- 성공 메시지 -->
         <div class="success-message" id="successMessage"></div>
     </div>
@@ -903,6 +1418,92 @@
                     Math.round(f(8) * 255),
                     Math.round(f(4) * 255)
                 ];
+            }
+
+            static hslToHex(h, s, l) {
+                var [r, g, b] = this.hslToRgb(h, s, l);
+                return this.rgbToHex(r, g, b);
+            }
+
+            // === Contrast <-> Luminance 도우미 (white/dark 배경) ===
+            static luminanceFromContrastVsWhite(contrast) {
+                // contrast = (1.0 + 0.05) / (Y + 0.05)  →  Y = (1.05 / C) - 0.05
+                return (1.05 / contrast) - 0.05;
+            }
+
+            static luminanceFromContrastVsBlack(contrast) {
+                // contrast = (Y + 0.05) / 0.05  →  Y = 0.05 * contrast - 0.05
+                return 0.05 * contrast - 0.05;
+            }
+
+            static luminanceFromContrastVsDarkBg(contrast) {
+                // #0c0c0c의 luminance 계산
+                const darkBgLuminance = this.getLuminance(12, 12, 12);
+                // contrast = (Y + 0.05) / (darkBgLuminance + 0.05)  →  Y = contrast * (darkBgLuminance + 0.05) - 0.05
+                return contrast * (darkBgLuminance + 0.05) - 0.05;
+            }
+
+            // HSL(h,s,L)에서 L을 이진탐색해서 목표 Y에 최대근접
+            static solveLForY(h, s, targetY) {
+                let lo = 0, hi = 100, bestL = 50, bestErr = 1e9;
+                for (let i = 0; i < 24; i++) {
+                    const mid = (lo + hi) / 2;
+                    const [r, g, b] = this.hslToRgb(h, s, mid);
+                    const Y = this.getLuminance(r, g, b);
+                    const err = Math.abs(Y - targetY);
+                    if (err < bestErr) { bestErr = err; bestL = mid; }
+                    // white 기준: Y가 높으면 더 어둡게(hi 내림)
+                    if (Y > targetY) hi = mid; else lo = mid;
+                }
+                return { L: bestL, err: bestErr };
+            }
+
+            // (가능하면 채도 보존) 목표 대비를 만족하는 HSL 찾기
+            static solveHSLForContrast(h, sInput, contrastTarget, background = 'light') {
+                const bgRgb = background === 'light' 
+                    ? { r: 255, g: 255, b: 255 }
+                    : { r: 12, g: 12, b: 12 };
+
+                // 채도는 입력값 우선, 불가시 극소폭 보정
+                const SAT_CAND = [1.0, 0.95, 0.9, 0.85].map(f => Math.max(5, Math.min(100, sInput * f)));
+                let best = null;
+
+                for (const s of SAT_CAND) {
+                    // L값을 이진탐색으로 목표 대비에 맞춤
+                    let lo = 0, hi = 100, bestL = 50, bestErr = 1e9;
+                    
+                    for (let i = 0; i < 24; i++) {
+                        const mid = (lo + hi) / 2;
+                        const [r, g, b] = this.hslToRgb(h, s, mid);
+                        const actualContrast = this.getContrast({ r, g, b }, bgRgb);
+                        const err = Math.abs(actualContrast - contrastTarget);
+                        
+                        if (err < bestErr) { 
+                            bestErr = err; 
+                            bestL = mid; 
+                        }
+                        
+                        if (actualContrast > contrastTarget) {
+                            if (background === 'light') {
+                                lo = mid; // Light: 대비가 높으면 L을 높여서 대비를 줄임 (밝게)
+                            } else {
+                                hi = mid; // Dark: 대비가 높으면 L을 낮춰서 대비를 줄임 (어둡게)
+                            }
+                        } else {
+                            if (background === 'light') {
+                                hi = mid; // Light: 대비가 낮으면 L을 낮춰서 대비를 높임 (어둡게)
+                            } else {
+                                lo = mid; // Dark: 대비가 낮으면 L을 높여서 대비를 높임 (밝게)
+                            }
+                        }
+                    }
+                    
+                    if (!best || bestErr < best.err) {
+                        best = { h, s, l: bestL, err: bestErr };
+                    }
+                    if (bestErr < 0.01) break; // 충분히 근접하면 조기 종료
+                }
+                return best; // {h,s,l,err}
             }
 
             static getLuminance(r, g, b) {
@@ -1018,6 +1619,23 @@
             '#F4F4F4', // 900
             '#FCFCFC'  // 950
         ];
+
+        // Dark Mode 대비값 (#0c0c0c 배경 기준)
+        this.darkModeContrastRatios = [
+            1.00, // 50
+            1.06, // 75
+            1.15, // 100
+            1.26, // 150
+            1.50, // 200
+            1.92, // 300
+            2.50, // 400
+            3.21, // 500
+            4.95, // 600
+            8.72, // 700
+            15.24, // 800
+            17.79, // 900
+            20.0   // 950
+        ];
     }
 
     getAutoTuningValue(hex) {
@@ -1038,98 +1656,605 @@
     }
 
     generateColors(inputHex, mode, tuningValue = 0) {
-        var [h, s, l] = ColorUtils.hexToHsl(inputHex);
-        var colors = [];
-        var backgroundRgb = mode === 'light' ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
+        const [hInput, sInput, lInput] = ColorUtils.hexToHsl(inputHex);
+        const backgroundRgb = (mode === 'light') ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
 
-        // 무채색 판별 조건 완화
-        var isGrayscale = s < 5;  // 채도 5% 미만이면 무채색으로 처리
-
-        this.steps.forEach((step, index) => {
-            let finalHex;
-            
-            if (isGrayscale) {
-                // 미리 정의된 회색 톤 사용
-                var grayTones = mode === 'light' ? this.lightModeGrayTones : this.darkModeGrayTones;
-                finalHex = grayTones[index];
-            } else {
-                // 기존 색상 생성 로직
-                let lightness;
-            
-                // lightness 계산
-                if (mode === 'light') {
-                    switch(step) {
-                        case 50:  lightness = 95 + tuningValue; break;
-                        case 75:  lightness = 90 + tuningValue; break;
-                        case 100: lightness = 85 + tuningValue; break;
-                        case 150: lightness = 78 + tuningValue; break;
-                        case 200: lightness = 70 + tuningValue; break;
-                        case 300: lightness = 60 + tuningValue; break;
-                        case 400: lightness = 50 + tuningValue; break;
-                        case 500: lightness = 40 + tuningValue; break;
-                        case 600: lightness = 32 + tuningValue; break;
-                        case 700: lightness = 25 + tuningValue; break;
-                        case 800: lightness = 18 + tuningValue; break;
-                        case 900: lightness = 12 + tuningValue; break;
-                        case 950: lightness = 8 + tuningValue; break;
-                        default: lightness = 50 + tuningValue;
-                    }
-                } else {
-                    switch(step) {
-                        case 50:  lightness = 5 + tuningValue; break;
-                        case 75:  lightness = 10 + tuningValue; break;
-                        case 100: lightness = 15 + tuningValue; break;
-                        case 150: lightness = 22 + tuningValue; break;
-                        case 200: lightness = 30 + tuningValue; break;
-                        case 300: lightness = 40 + tuningValue; break;
-                        case 400: lightness = 50 + tuningValue; break;
-                        case 500: lightness = 60 + tuningValue; break;
-                        case 600: lightness = 68 + tuningValue; break;
-                        case 700: lightness = 75 + tuningValue; break;
-                        case 800: lightness = 82 + tuningValue; break;
-                        case 900: lightness = 88 + tuningValue; break;
-                        case 950: lightness = 92 + tuningValue; break;
-                        default: lightness = 50 + tuningValue;
-                    }
-                }
-                
-                lightness = Math.max(5, Math.min(95, lightness));
-                
-                // 채도 조정 시 무채색 체크
-                let adjustedSaturation = s;
-                if (s > 5) {  // 채도가 있는 경우에만 최소값 적용
-                    if (step <= 50) {
-                        adjustedSaturation = Math.max(s * 0.85, 40);
-                    } else if (step <= 100) {
-                        adjustedSaturation = Math.max(s * 0.9, 45);
-                    } else if (step <= 200) {
-                        adjustedSaturation = Math.max(s * 0.95, 50);
-                    } else if (step <= 300) {
-                        adjustedSaturation = s;
-                    } else if (step >= 800) {
-                        adjustedSaturation = Math.min(100, s * 1.1);
-                    }
-                }
-                // s <= 5인 경우는 adjustedSaturation = s 유지 (거의 0)
-                
-                var [r, g, b] = ColorUtils.hslToRgb(h, adjustedSaturation, lightness);
-                finalHex = ColorUtils.rgbToHex(r, g, b);
-            }
-            
-            var rgb = ColorUtils.hexToRgb(finalHex);
-            var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
-            
-            colors.push({
-                step,
-                hex: finalHex,
-                contrast,
-                isClosest: Math.abs(ColorUtils.hexToHsl(finalHex)[2] - l) < 5
+        // 무채색은 기존 회색 톤 그대로 (UI 의도 유지)
+        if (sInput < 5) {
+            const toneSet = (mode === 'light') ? this.lightModeGrayTones : this.darkModeGrayTones;
+            return this.steps.map((step, i) => {
+                const hex = toneSet[i];
+                const rgb = ColorUtils.hexToRgb(hex);
+                const contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+                return { step, hex, contrast, isClosest: false };
             });
+        }
+
+        // 1) grayscale 분포를 기반으로 현재 모드의 "목표 대비" 산출
+        const targets = this.buildTargetContrasts(mode, hInput);
+
+        // 2) 각 스텝에서 목표 대비를 만족하도록 HSL 계산 (hue 고정, 채도 보존)
+        const colors = this.steps.map((step, i) => {
+            const targetContrast = targets[i];
+            const solved = ColorUtils.solveHSLForContrast(hInput, sInput, targetContrast, mode);
+
+            // 튜닝: 최종 L에 소폭 가감
+            let L = Math.max(0, Math.min(100, solved.l + (tuningValue || 0)));
+            const [r, g, b] = ColorUtils.hslToRgb(solved.h, solved.s, L);
+            const hex = ColorUtils.rgbToHex(r, g, b);
+            const contrast = ColorUtils.getContrast({ r, g, b }, backgroundRgb);
+
+            return { step, hex, contrast, isClosest: false };
         });
+
+        // 3) 입력색과 가장 가까운 L(또는 필요시 ΔE)로 ★ 표시
+        let best = { i: 0, d: 1e9 };
+        colors.forEach((c, i) => {
+            const L = ColorUtils.hexToHsl(c.hex)[2];
+            const d = Math.abs(L - lInput);
+            if (d < best.d) best = { i, d };
+        });
+        colors[best.i].isClosest = true;
 
         return colors;
     }
+
+    // 목표 대비 빌더 - 각 스텝의 목표 대비비율 계산
+    buildTargetContrasts(mode, inputHue) {
+        const steps = this.steps;
+        const bg = (mode === 'light') ? { r: 255, g: 255, b: 255 } : { r: 12, g: 12, b: 12 };
+
+        // 1) Grayscale 대비율 분포 계산
+        const grayContrast = (mode === 'light') ? 
+            steps.map((_, i) => {
+                const hex = this.lightModeGrayTones[i];
+                const rgb = ColorUtils.hexToRgb(hex);
+                return ColorUtils.getContrast(rgb, { r: 255, g: 255, b: 255 });
+            }) :
+            this.darkModeContrastRatios;
+
+        // 2) 입력 hue의 anchor 대비 계산 (Step50/Step950)
+        let hueMinContrast, hueMaxContrast;
+        
+        if (mode === 'light') {
+            // Light: Step50=1.03 고정, Step950=20.0 고정
+            hueMinContrast = 1.03; // Step50 anchor
+            hueMaxContrast = 20.0; // Step950 anchor
+        } else {
+            // Dark: Step50=가장어둠(L=0), Step950=최대 19.0으로 제한 (완전 흰색 방지)
+            const darkestRgb = ColorUtils.hexToRgb(ColorUtils.hslToHex(inputHue, 100, 0));
+            const brightestRgb = ColorUtils.hexToRgb(ColorUtils.hslToHex(inputHue, 100, 100));
+            hueMinContrast = ColorUtils.getContrast(darkestRgb, bg);   // Step50 anchor
+            const theoreticalMax = ColorUtils.getContrast(brightestRgb, bg);
+            hueMaxContrast = Math.min(19.0, theoreticalMax); // Step950을 19.0으로 제한
+        }
+
+        // 3) Grayscale 분포의 비율로 hue 범위에 보간
+        const grayMinContrast = grayContrast[0];
+        const grayMaxContrast = grayContrast[grayContrast.length - 1];
+        
+        return grayContrast.map(grayC => {
+            const ratio = (grayC - grayMinContrast) / (grayMaxContrast - grayMinContrast);
+            return hueMinContrast + ratio * (hueMaxContrast - hueMinContrast);
+        });
+    }
 }
+
+        // Wizard 관련 함수들
+        let currentWizardStep = 1;
+        let wizardThemeData = null;
+
+        function goToStep(stepNumber) {
+            console.log('goToStep called:', stepNumber, 'current step:', currentWizardStep);
+            
+            // 현재 스텝에서 데이터 수집 및 처리
+            if (stepNumber === 3 && currentWizardStep === 1) {
+                // Step 1에서 Step 3로: 테마 변수를 먼저 생성하고 테마 데이터 생성
+                console.log('Creating theme variables and moving to mode selection...');
+                createCustomThemeVariablesAndProceed();
+                return; // 비동기 처리를 위해 여기서 리턴
+            }
+
+            // 프로그레스 업데이트
+            updateProgressBar(stepNumber);
+
+            // 스텝 콘텐츠 업데이트
+            updateStepContent(stepNumber);
+
+            currentWizardStep = stepNumber;
+            console.log('Current wizard step updated to:', currentWizardStep);
+        }
+        
+        function updateProgressBar(stepNumber) {
+            document.querySelectorAll('.progress-segment').forEach(segment => {
+                const step = parseInt(segment.dataset.step);
+                segment.classList.remove('active', 'completed');
+                
+                if (step < stepNumber) {
+                    segment.classList.add('completed');
+                } else if (step === stepNumber) {
+                    segment.classList.add('active');
+                }
+            });
+        }
+        
+        function updateStepContent(stepNumber) {
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            const targetStep = document.getElementById('wizardStep' + stepNumber);
+            if (targetStep) {
+                targetStep.classList.add('active');
+                console.log('Step', stepNumber, 'activated');
+                
+                // Step 3에서 모드 미리보기 업데이트
+                if (stepNumber === 3) {
+                    setTimeout(() => {
+                        const baseColorInput = document.getElementById('wizardThemeBaseHex');
+                        if (baseColorInput && baseColorInput.value) {
+                            console.log('🎨 Initializing mode previews with color:', baseColorInput.value);
+                            updateAllModePreviewsWithColor(baseColorInput.value);
+                        }
+                    }, 100);
+                }
+            } else {
+                console.error('Step element not found:', 'wizardStep' + stepNumber);
+            }
+        }
+        
+        function createCustomThemeVariablesAndProceed() {
+            const themeName = document.getElementById('wizardThemeNameInput').value;
+            const baseColor = document.getElementById('wizardThemeBaseHex').value;
+            
+            if (!themeName || !baseColor) {
+                showMessage('테마 이름과 색상을 입력해주세요!');
+                return;
+            }
+            
+            // 테마 생성
+            const tuningValue = 0; // 기본값
+            currentTheme = themeGenerator.generateTheme(baseColor, themeName, 'accent-on-bg-off', tuningValue);
+            
+            // 모드 카드 미리보기 업데이트
+            updateModeCardPreviews();
+            
+            // 백엔드에 테마 변수 생성 요청
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'create-custom-theme',
+                    theme: currentTheme
+                }
+            }, '*');
+            
+            showMessage('테마 변수 생성 중...');
+            
+            // 잠시 후 Step 3로 바로 진행
+            setTimeout(() => {
+                generateWizardTheme(); // 토큰 미리보기 생성
+                updateProgressBar(3);
+                updateStepContent(3);
+                currentWizardStep = 3;
+                showMessage('테마 변수가 생성되었습니다!');
+            }, 1000);
+        }
+
+        function generateWizardTheme() {
+            console.log('generateWizardTheme called');
+            
+            // currentTheme가 이미 생성되어 있다면 그것을 사용
+            if (currentTheme) {
+                const themeName = currentTheme.themeName;
+                const closestStep = currentTheme.selectedStep || 200;
+                
+                console.log('Using existing theme:', themeName, 'Closest step:', closestStep);
+                
+                // Step 2가 제거되었으므로 토큰 미리보기 업데이트 생략
+                console.log('Token preview skipped (Step 2 removed)');
+
+                // wizardThemeData와 동기화
+                wizardThemeData = {
+                    themeName: themeName,
+                    baseColor: currentTheme.baseColor,
+                    closestStep: closestStep,
+                    applicationMode: currentTheme.applicationMode || 'accent-on-bg-off'
+                };
+            } else {
+                // 기존 로직 (fallback)
+                const themeName = document.getElementById('wizardThemeNameInput').value;
+                const baseColor = document.getElementById('wizardThemeBaseHex').value;
+                
+                // Scale Generator와 동일한 로직 사용
+                const closestStep = ColorUtils.findClosestStep(baseColor, 'light');
+                
+                // Step 2가 제거되었으므로 토큰 미리보기 업데이트 생략 (fallback)
+                console.log('Token preview skipped in fallback (Step 2 removed)');
+
+                wizardThemeData = {
+                    themeName: themeName,
+                    baseColor: baseColor,
+                    closestStep: closestStep,
+                    applicationMode: 'accent-on-bg-off'
+                };
+            }
+            
+            console.log('wizardThemeData saved:', wizardThemeData);
+        }
+
+        function selectModeCard(card, mode) {
+            console.log('selectModeCard called:', card, mode);
+            
+            // 모든 카드에서 selected 클래스 제거
+            document.querySelectorAll('.mode-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            // 클릭된 카드에 selected 클래스 추가
+            card.classList.add('selected');
+            
+            // 테마 데이터 업데이트
+            if (wizardThemeData) {
+                wizardThemeData.applicationMode = mode;
+                console.log('Application mode updated to:', mode);
+            }
+        }
+
+        // 모드별 토큰 미리보기 업데이트
+        function updateModeCardPreviews() {
+            if (!currentTheme) return;
+            
+            console.log('🎨 Updating mode card previews with current theme:', currentTheme);
+            
+            const modes = ['accent-on-bg-off', 'accent-off-bg-on', 'accent-on-bg-fixed', 'accent-on-bg-black'];
+            
+            modes.forEach(mode => {
+                const tokens = getTokensForMode(mode);
+                console.log(`🎨 Updating ${mode} with tokens:`, tokens);
+                updateModeCardPreview(mode, tokens);
+            });
+        }
+        
+        // 특정 모드의 토큰값 계산 (밝기 기준에 따른 매핑 규칙 적용)
+        function getTokensForMode(mode) {
+            if (!currentTheme || !currentTheme.scaleColors) return null;
+            
+            const lightColors = currentTheme.scaleColors.light;
+            const darkColors = currentTheme.scaleColors.dark;
+            const selectedStep = currentTheme.selectedStep || 500;
+            
+            // 밝기 기준 (백엔드 getDynamicMappings와 동일한 로직)
+            let isBrightColor = selectedStep < 200; // 200 미만
+            if (currentTheme.baseColor) {
+                const hsl = ColorUtils.hexToHsl(currentTheme.baseColor);
+                const lightness = hsl[2];
+                // 밝기가 70% 이상이면 bright color로 분류
+                if (lightness >= 70) {
+                    isBrightColor = true;
+                }
+            }
+            console.log(`🎨 [${mode}] selectedStep: ${selectedStep}, baseColor lightness: ${currentTheme.baseColor ? ColorUtils.hexToHsl(currentTheme.baseColor)[2] : 'N/A'}, isBrightColor: ${isBrightColor}`);
+            
+            let backgroundLight, textPrimaryLight, fillPrimaryLight;
+            
+            switch(mode) {
+                case 'accent-on-bg-off':
+                    // forground 중심: 배경 고정, 텍스트와 fill이 accent
+                    backgroundLight = '#FFFFFF';
+                    if (isBrightColor) {
+                        textPrimaryLight = lightColors.find(c => c.step === 900)?.hex || '#000000';
+                        fillPrimaryLight = lightColors.find(c => c.step === 600)?.hex;
+                    } else {
+                        textPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                        fillPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                    }
+                    break;
+                    
+                case 'accent-off-bg-on':
+                    // background 중심: 배경이 accent, 텍스트와 fill은 contrasting
+                    backgroundLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                    if (isBrightColor) {
+                        textPrimaryLight = lightColors.find(c => c.step === 900)?.hex || '#000000';
+                        fillPrimaryLight = lightColors.find(c => c.step === 800)?.hex;
+                    } else {
+                        textPrimaryLight = '#FFFFFF';
+                        fillPrimaryLight = lightColors.find(c => c.step === 50)?.hex;
+                    }
+                    break;
+                    
+                case 'accent-on-bg-fixed':
+                    // forground 중심, white bg 고정
+                    backgroundLight = '#FFFFFF';
+                    if (isBrightColor) {
+                        textPrimaryLight = lightColors.find(c => c.step === 900)?.hex || '#000000';
+                        fillPrimaryLight = lightColors.find(c => c.step === 600)?.hex;
+                    } else {
+                        textPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                        fillPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                    }
+                    break;
+                    
+                case 'accent-on-bg-black':
+                    // forground 중심, black bg 고정 (백엔드와 동일한 로직)
+                    backgroundLight = '#1f1f1f';
+                    // 실제 GRAY:50 색상 사용 (Light Mode gray scale의 50번째)
+                    const colorGenerator = new ColorGenerator();
+                    textPrimaryLight = colorGenerator.lightModeGrayTones[0]; // 50번째 = index 0 = '#FFFFFF'
+                    console.log(`🎨 [${mode}] Using GRAY:50 color:`, textPrimaryLight);
+                    if (isBrightColor) {
+                        fillPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                    } else {
+                        fillPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
+                    }
+                    break;
+            }
+            
+            console.log(`${mode} mode mapping:`, {
+                selectedStep,
+                isBrightColor,
+                background: backgroundLight,
+                textPrimary: textPrimaryLight,
+                fillPrimary: fillPrimaryLight
+            });
+            
+            return {
+                background: backgroundLight,
+                textPrimary: textPrimaryLight,
+                fillPrimary: fillPrimaryLight
+            };
+        }
+        
+        // 모드 카드 미리보기 업데이트
+        function updateModeCardPreview(mode, tokens) {
+            if (!tokens) return;
+            
+            const card = document.querySelector(`[data-mode="${mode}"]`);
+            if (!card) return;
+            
+            const previewFrame = card.querySelector('.preview-frame');
+            const frameHeader = card.querySelector('.frame-header');
+            const frameButton = card.querySelector('.frame-button');
+            
+            // 모든 모드의 mode-card 자체에 배경색 적용
+            card.style.backgroundColor = tokens.background;
+            
+            // 텍스트 색상 적용 (로고)
+            if (frameHeader) {
+                const svgPaths = frameHeader.querySelectorAll('svg path');
+                console.log(`🎨 [${mode}] Setting text color ${tokens.textPrimary} to ${svgPaths.length} SVG paths`);
+                svgPaths.forEach(path => {
+                    path.setAttribute('fill', tokens.textPrimary);
+                    path.style.setProperty('fill', tokens.textPrimary, 'important');
+                    console.log(`🎨 [${mode}] Applied fill to path:`, path.getAttribute('fill'));
+                });
+            }
+            
+            // 버튼 색상 적용
+            if (frameButton) {
+                frameButton.style.backgroundColor = tokens.fillPrimary;
+            }
+            
+            // 카드 라벨 텍스트 색상 적용
+            const cardLabel = card.querySelector('.card-label');
+            const cardSubLabel = card.querySelector('.card-sub-label');
+            if (cardLabel) {
+                cardLabel.style.setProperty('color', tokens.textPrimary, 'important');
+                console.log(`🎨 [${mode}] Applied text color ${tokens.textPrimary} to card label`);
+            }
+            if (cardSubLabel) {
+                cardSubLabel.style.setProperty('color', tokens.textPrimary, 'important');
+                console.log(`🎨 [${mode}] Applied text color ${tokens.textPrimary} to card sub-label`);
+            }
+        }
+
+        // 현재 입력된 색상을 기반으로 모든 모드 카드의 미리보기를 실시간 업데이트하는 함수
+        function updateAllModePreviewsWithColor(baseColor) {
+            if (!baseColor || !baseColor.startsWith('#')) {
+                console.log('Invalid base color for mode preview update:', baseColor);
+                return;
+            }
+            
+            console.log('🎨 Updating all mode previews with color:', baseColor);
+            
+            // 각 모드에 대해 색상 토큰 계산 및 미리보기 업데이트
+            const modes = ['accent-on-bg-off', 'accent-on-bg-fixed', 'accent-off-bg-on', 'accent-on-bg-black'];
+            
+            modes.forEach(mode => {
+                const tokens = calculatePreviewTokensForMode(baseColor, mode);
+                if (tokens) {
+                    updateModeCardPreview(mode, tokens);
+                }
+            });
+        }
+
+        // 각 모드별로 미리보기용 색상 토큰을 계산하는 함수
+        function calculatePreviewTokensForMode(baseColor, mode) {
+            if (!baseColor) return null;
+            
+            // HSL 변환 함수들이 없다면 간단한 구현
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(baseColor) : hexToHsl(baseColor);
+            const lightness = hsl[2];
+            const hue = hsl[0];
+            
+            // 밝은 색상 판단: 1) 밝기 70% 이상 또는 2) BornBright 색상 (Hue 40°-190°)
+            const isLightColor = lightness >= 70 || (hue >= 40 && hue <= 190);
+            
+            let tokens = {
+                background: '#ffffff',
+                textPrimary: '#000000',
+                fillPrimary: baseColor
+            };
+            
+            switch (mode) {
+                case 'accent-on-bg-off':
+                    if (isLightColor) {
+                        // 밝은 색상일 때: 색상 기반의 어두운 배경에 밝은 텍스트
+                        tokens.background = adjustColorLightness(baseColor, 20);
+                        tokens.textPrimary = '#ffffff';
+                        tokens.fillPrimary = baseColor;
+                    } else {
+                        // 어두운 색상일 때: 색상 기반의 밝은 배경에 어두운 텍스트
+                        tokens.background = adjustColorLightness(baseColor, 95);
+                        tokens.textPrimary = '#000000';
+                        tokens.fillPrimary = baseColor;
+                    }
+                    break;
+                    
+                case 'accent-on-bg-fixed':
+                    // 항상 흰 배경
+                    tokens.background = '#ffffff';
+                    tokens.textPrimary = '#000000';
+                    tokens.fillPrimary = baseColor;
+                    break;
+                    
+                case 'accent-off-bg-on':
+                    // 배경에 메인 색상 사용
+                    tokens.background = baseColor;
+                    tokens.textPrimary = getContrastTextColor(baseColor);
+                    tokens.fillPrimary = getLighterShade(baseColor);
+                    break;
+                    
+                case 'accent-on-bg-black':
+                    // 항상 검은 배경
+                    tokens.background = '#1f1f1f';
+                    tokens.textPrimary = '#ffffff';
+                    tokens.fillPrimary = baseColor;
+                    break;
+            }
+            
+            return tokens;
+        }
+
+        // 색상의 명도를 조정하는 헬퍼 함수
+        function adjustColorLightness(hex, targetLightness) {
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
+            return ColorUtils.hslToHex ? ColorUtils.hslToHex(hsl[0], hsl[1], targetLightness) : hslToHex(hsl[0], hsl[1], targetLightness);
+        }
+
+        // 배경 색상에 대한 적절한 텍스트 색상을 반환하는 함수
+        function getContrastTextColor(backgroundColor) {
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(backgroundColor) : hexToHsl(backgroundColor);
+            return hsl[2] > 50 ? '#000000' : '#ffffff';
+        }
+
+        // 더 밝은 색조를 생성하는 함수
+        function getLighterShade(baseColor) {
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(baseColor) : hexToHsl(baseColor);
+            const lighterLightness = Math.min(hsl[2] + 30, 90);
+            const reducedSaturation = Math.max(hsl[1] - 20, 30);
+            return ColorUtils.hslToHex ? ColorUtils.hslToHex(hsl[0], reducedSaturation, lighterLightness) : hslToHex(hsl[0], reducedSaturation, lighterLightness);
+        }
+
+        // HSL 변환 함수들 (ColorUtils가 없는 경우 대비)
+        function hexToHsl(hex) {
+            const r = parseInt(hex.slice(1, 3), 16) / 255;
+            const g = parseInt(hex.slice(3, 5), 16) / 255;
+            const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return [h * 360, s * 100, l * 100];
+        }
+
+        function hslToHex(h, s, l) {
+            h = h % 360;
+            if (h < 0) h += 360;
+            s = Math.max(0, Math.min(100, s));
+            l = Math.max(0, Math.min(100, l));
+            
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            
+            const a = s * Math.min(l, 1 - l);
+            const f = n => {
+                const k = (n + h * 12) % 12;
+                return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            };
+            
+            const r = Math.round(f(0) * 255);
+            const g = Math.round(f(8) * 255);
+            const b = Math.round(f(4) * 255);
+            
+            return "#" + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? "0" + hex : hex;
+            }).join("");
+        }
+
+        function applyCustomTheme() {
+            if (!currentTheme && !wizardThemeData) {
+                showMessage('먼저 테마를 생성해주세요!');
+                return;
+            }
+
+            // 현재 선택된 모드로 테마 업데이트
+            const selectedMode = document.querySelector('.mode-card.selected')?.dataset.mode || 'accent-on-bg-off';
+            
+            let themeToApply;
+            if (currentTheme) {
+                // currentTheme 사용 (이미 변수가 생성된 경우)
+                themeToApply = {
+                    ...currentTheme,
+                    applicationMode: selectedMode
+                };
+            } else {
+                // wizardThemeData 사용 (fallback)
+                themeToApply = {
+                    themeName: wizardThemeData.themeName,
+                    baseColor: wizardThemeData.baseColor,
+                    applicationMode: selectedMode,
+                    scaleColors: { light: generateScaleColors(wizardThemeData.baseColor) }
+                };
+            }
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'apply-theme-colors-to-frame',
+                    theme: themeToApply
+                }
+            }, '*');
+            
+            // 적용하기 후 annotation 자동 활성화
+            const annotationCheckbox = document.getElementById('annotationToggle');
+            if (annotationCheckbox) {
+                // 체크박스 활성화 및 체크
+                annotationCheckbox.disabled = false;
+                annotationCheckbox.checked = true;
+                
+                // 라벨 텍스트 업데이트
+                const labelSpan = annotationCheckbox.parentElement.querySelector('span');
+                if (labelSpan) {
+                    labelSpan.textContent = '선택된 요소의 색상 매핑 표시';
+                    labelSpan.style.color = '#333';
+                }
+                
+                toggleAnnotation(); // annotation 활성화 함수 호출
+            }
+            
+            showMessage('Custom Theme 적용 중...');
+        }
+
+        function generateScaleColors(baseColor) {
+            // 기존 ScaleColorGenerator 로직 사용
+            const generator = new ScaleColorGenerator();
+            return generator.generate(baseColor, 'light');
+        }
+
 
         // Custom Theme 생성기 
         class CustomThemeGenerator {
@@ -1222,6 +2347,108 @@
             } else if (tabName === 'custom-theme') {
                 document.getElementById('customThemeTab').classList.add('active');
                 document.getElementById('customThemeContent').classList.add('active');
+                
+                // Custom Theme 탭 전환 시 색상 동기화 리스너 다시 설정
+                setTimeout(() => {
+                    setupWizardColorSync();
+                }, 100);
+            }
+        }
+
+        // Wizard 색상 동기화 설정 함수
+        function setupWizardColorSync() {
+            console.log('=== Setting up wizard color sync ===');
+            
+            const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
+            const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
+            
+            console.log('Elements found:', {
+                wizardBaseColor: wizardBaseColor,
+                wizardBaseHex: wizardBaseHex,
+                wizardBaseColorType: wizardBaseColor ? wizardBaseColor.type : 'not found',
+                wizardBaseHexType: wizardBaseHex ? wizardBaseHex.type : 'not found'
+            });
+            
+            if (wizardBaseColor && wizardBaseHex) {
+                console.log('✅ Found wizard color elements, setting up listeners');
+                
+                // 기존 리스너 제거 (중복 방지)
+                wizardBaseColor.removeEventListener('input', handleColorPickerChange);
+                wizardBaseHex.removeEventListener('input', handleHexInputChange);
+                
+                // 새 리스너 추가
+                wizardBaseColor.addEventListener('input', handleColorPickerChange);
+                wizardBaseHex.addEventListener('input', handleHexInputChange);
+                
+                // 테스트용 클릭 리스너도 추가
+                wizardBaseColor.addEventListener('change', () => {
+                    console.log('🔄 Color picker CHANGE event:', wizardBaseColor.value);
+                });
+                
+                console.log('✅ Wizard color sync listeners set up successfully');
+                console.log('Current values:', {
+                    color: wizardBaseColor.value,
+                    hex: wizardBaseHex.value
+                });
+            } else {
+                console.error('❌ Wizard color elements not found!');
+                console.log('Available elements with "wizard" in id:');
+                document.querySelectorAll('[id*="wizard"]').forEach(el => {
+                    console.log('  -', el.id, el.tagName, el.type || 'no type');
+                });
+            }
+        }
+
+        function handleColorPickerChange() {
+            console.log('🎨 handleColorPickerChange called');
+            const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
+            const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
+            
+            if (wizardBaseColor && wizardBaseHex) {
+                const oldHexValue = wizardBaseHex.value;
+                const newColorValue = wizardBaseColor.value.toUpperCase();
+                
+                console.log('Color picker changed:', {
+                    from: oldHexValue,
+                    to: newColorValue
+                });
+                
+                wizardBaseHex.value = newColorValue;
+                
+                // 모드 카드 미리보기 업데이트
+                updateAllModePreviewsWithColor(newColorValue);
+                
+                console.log('✅ Hex input updated successfully');
+            } else {
+                console.error('❌ Elements not found in handleColorPickerChange');
+            }
+        }
+
+        function handleHexInputChange() {
+            console.log('✏️ handleHexInputChange called');
+            const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
+            const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
+            
+            if (wizardBaseColor && wizardBaseHex) {
+                const hexValue = wizardBaseHex.value;
+                console.log('Hex input changed to:', hexValue);
+                
+                if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
+                    const oldColorValue = wizardBaseColor.value;
+                    wizardBaseColor.value = hexValue;
+                    
+                    // 모드 카드 미리보기 업데이트
+                    updateAllModePreviewsWithColor(hexValue);
+                    
+                    console.log('✅ Color picker updated:', {
+                        from: oldColorValue,
+                        to: hexValue
+                    });
+                } else {
+                    console.warn('⚠️ Invalid hex format:', hexValue);
+                }
+            } else {
+                console.error('❌ Elements not found in handleHexInputChange');
             }
         }
 
@@ -1316,20 +2543,20 @@
             
             stepIndicator.textContent = `Step: ${closestStep}`;
             
-            if (closestStep <= 200) {
+            if (closestStep <= 300) {
                 stepIndicator.className = 'step-indicator step-light';
-                classificationBadge.textContent = '200 이하';
+                classificationBadge.textContent = '300 이하';
                 classificationBadge.className = 'classification-badge classification-300';
                 
                 classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(200 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
-            } else if (closestStep >= 300) {
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(300 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else if (closestStep >= 400) {
                 stepIndicator.className = 'step-indicator step-dark';
-                classificationBadge.textContent = '300 이상';
+                classificationBadge.textContent = '400 이상';
                 classificationBadge.className = 'classification-badge classification-400';
                 
                 classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간~어두운 색상(300 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간~어두운 색상(400 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
             }
         }
 
@@ -1347,6 +2574,10 @@
             
             // themeGenerator에 tuning 값 전달
             currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode, tuningValue);
+            
+            // 모드 카드 미리보기 업데이트
+            updateModeCardPreviews();
+            
             displayThemePreview(currentTheme);
             
             showMessage(`${themeName} 테마가 생성되었습니다!`);
@@ -1362,6 +2593,8 @@
                     modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
                 } else if (theme.applicationMode === 'accent-off-bg-on') {
                     modeDescription = 'Mode 3: 강조 요소 OFF / 배경 요소 ON';
+                } else if (theme.applicationMode === 'accent-on-bg-black') {
+                    modeDescription = 'Mode 4: 강조 요소 ON / 배경 Dark 고정';
                 }
                 
                 container.innerHTML = `
@@ -1376,12 +2609,9 @@
                         모든 테마 변수 생성
                     </button>
                     
-                    <div style="display: flex; gap: 6px; margin-top: 8px;">
-                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="flex: 1;">
-                            CustomLight 적용
-                        </button>
-                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomDark')" style="flex: 1;">
-                            CustomDark 적용
+                    <div style="margin-top: 8px;">
+                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="width: 100%;">
+                            Custom Theme 적용하기
                         </button>
                     </div>
                 `;
@@ -1407,16 +2637,21 @@
 
         // Custom Mode 적용 함수
         function applyCustomMode(modeName) {
-            console.log('Applying custom mode:', modeName);
+            console.log('Applying custom theme colors:', modeName);
+            
+            if (!currentTheme) {
+                showMessage('먼저 테마를 생성해주세요!');
+                return;
+            }
             
             parent.postMessage({
                 pluginMessage: {
-                    type: 'apply-custom-mode-to-frame',
-                    modeName: modeName
+                    type: 'apply-theme-colors-to-frame',
+                    theme: currentTheme
                 }
             }, '*');
             
-            showMessage(modeName + ' 모드 적용 중...');
+            showMessage('테마 토큰을 Frame에 적용 중...');
         }
         // 아코디언 토글 함수 추가
         function toggleThemePreview() {
@@ -1710,12 +2945,30 @@ window.addEventListener('message', (event) => {
 
         // 이벤트 리스너 설정
         function setupEventListeners() {
-            console.log('Setting up event listeners...');
+            console.log('🎯 Setting up event listeners...');
 
             // 탭 버튼들
-            document.getElementById('generatorTab').addEventListener('click', () => switchTab('generator'));
-            document.getElementById('toneMatchingTab').addEventListener('click', () => switchTab('tone-matching'));
-            document.getElementById('customThemeTab').addEventListener('click', () => switchTab('custom-theme'));
+            const generatorTab = document.getElementById('generatorTab');
+            const toneMatchingTab = document.getElementById('toneMatchingTab');
+            const customThemeTab = document.getElementById('customThemeTab');
+            
+            if (generatorTab) {
+                generatorTab.addEventListener('click', () => switchTab('generator'));
+            } else {
+                console.warn('generatorTab not found');
+            }
+            
+            if (toneMatchingTab) {
+                toneMatchingTab.addEventListener('click', () => switchTab('tone-matching'));
+            } else {
+                console.warn('toneMatchingTab not found');
+            }
+            
+            if (customThemeTab) {
+                customThemeTab.addEventListener('click', () => switchTab('custom-theme'));
+            } else {
+                console.warn('customThemeTab not found');
+            }
 
             // 색상 입력
             var baseColor = document.getElementById('baseColor');
@@ -1725,12 +2978,20 @@ window.addEventListener('message', (event) => {
                 baseColor.addEventListener('input', () => {
                     hexInput.value = baseColor.value.toUpperCase();
                     updateDisplay();
+                    // 모드 미리보기도 업데이트
+                    if (document.getElementById('wizardStep3').classList.contains('active')) {
+                        updateAllModePreviewsWithColor(baseColor.value);
+                    }
                 });
 
                 hexInput.addEventListener('input', () => {
                     if (/^#[0-9A-F]{6}$/i.test(hexInput.value)) {
                         baseColor.value = hexInput.value;
                         updateDisplay();
+                        // 모드 미리보기도 업데이트
+                        if (document.getElementById('wizardStep3').classList.contains('active')) {
+                            updateAllModePreviewsWithColor(hexInput.value);
+                        }
                     }
                 });
             }
@@ -1741,7 +3002,8 @@ window.addEventListener('message', (event) => {
             var tuningValue = document.getElementById('tuningValue');
             var tuningStatus = document.getElementById('tuningStatus');
 
-            autoTuning.addEventListener('change', function() {
+            if (autoTuning && tuningSlider && tuningValue && tuningStatus) {
+                autoTuning.addEventListener('change', function() {
                 if (this.checked) {
                     // Auto 모드
                     var baseColor = document.getElementById('baseColor').value;
@@ -1760,62 +3022,95 @@ window.addEventListener('message', (event) => {
                 updateDisplay();
             });
 
-            tuningSlider.addEventListener('input', function() {
-                if (!autoTuning.checked) {
-                    tuningValue.textContent = this.value;
-                    tuningStatus.textContent = 'Manual: ' + this.value;
-                    updateDisplay();
-                }
-            });
+                tuningSlider.addEventListener('input', function() {
+                    if (!autoTuning.checked) {
+                        tuningValue.textContent = this.value;
+                        tuningStatus.textContent = 'Manual: ' + this.value;
+                        updateDisplay();
+                    }
+                });
+            } else {
+                console.warn('Fine Tuning elements not found');
+            }
 
             // 톤 매칭 관련
-            document.getElementById('setRefBtn').addEventListener('click', setReferenceColor);
-            document.getElementById('clearRefBtn').addEventListener('click', clearReference);
-            document.getElementById('getSuggestionsBtn').addEventListener('click', generateToneMatching);
+            const setRefBtn = document.getElementById('setRefBtn');
+            const clearRefBtn = document.getElementById('clearRefBtn');
+            const getSuggestionsBtn = document.getElementById('getSuggestionsBtn');
+            
+            if (setRefBtn) {
+                setRefBtn.addEventListener('click', setReferenceColor);
+            } else {
+                console.warn('setRefBtn not found');
+            }
+            
+            if (clearRefBtn) {
+                clearRefBtn.addEventListener('click', clearReference);
+            } else {
+                console.warn('clearRefBtn not found');
+            }
+            
+            if (getSuggestionsBtn) {
+                getSuggestionsBtn.addEventListener('click', generateToneMatching);
+            } else {
+                console.warn('getSuggestionsBtn not found');
+            }
 
             // Reference 색상 입력 동기화
             var refPicker = document.getElementById('referenceColorPicker');
             var refHex = document.getElementById('referenceColorHex');
             
-            refPicker.addEventListener('input', () => {
-                refHex.value = refPicker.value.toUpperCase();
-            });
-            
-            refHex.addEventListener('input', () => {
-                if (/^#[0-9A-F]{6}$/i.test(refHex.value)) {
-                    refPicker.value = refHex.value;
-                }
-            });
+            if (refPicker && refHex) {
+                refPicker.addEventListener('input', () => {
+                    refHex.value = refPicker.value.toUpperCase();
+                });
+                
+                refHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(refHex.value)) {
+                        refPicker.value = refHex.value;
+                    }
+                });
+            } else {
+                console.warn('Reference color elements not found');
+            }
 
             // New 색상 입력 동기화
             var newPicker = document.getElementById('newColorPicker');
             var newHex = document.getElementById('newColorHex');
             
-            newPicker.addEventListener('input', () => {
-                newHex.value = newPicker.value.toUpperCase();
-            });
-            
-            newHex.addEventListener('input', () => {
-                if (/^#[0-9A-F]{6}$/i.test(newHex.value)) {
-                    newPicker.value = newHex.value;
-                }
-            });
+            if (newPicker && newHex) {
+                newPicker.addEventListener('input', () => {
+                    newHex.value = newPicker.value.toUpperCase();
+                });
+                
+                newHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(newHex.value)) {
+                        newPicker.value = newHex.value;
+                    }
+                });
+            } else {
+                console.warn('New color elements not found');
+            }
 
-            // Custom Theme 관련
+            // Custom Theme 관련 (구버전)
             var themeBaseColor = document.getElementById('themeBaseColor');
             var themeBaseHex = document.getElementById('themeBaseHex');
             
-            themeBaseColor.addEventListener('input', () => {
-                themeBaseHex.value = themeBaseColor.value.toUpperCase();
-                updateStepIndicator(themeBaseColor.value);
-            });
-            
-            themeBaseHex.addEventListener('input', () => {
-                if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
-                    themeBaseColor.value = themeBaseHex.value;
-                    updateStepIndicator(themeBaseHex.value);
-                }
-            });
+            if (themeBaseColor && themeBaseHex) {
+                themeBaseColor.addEventListener('input', () => {
+                    themeBaseHex.value = themeBaseColor.value.toUpperCase();
+                    updateStepIndicator(themeBaseColor.value);
+                });
+                
+                themeBaseHex.addEventListener('input', () => {
+                    if (/^#[0-9A-F]{6}$/i.test(themeBaseHex.value)) {
+                        themeBaseColor.value = themeBaseHex.value;
+                        updateStepIndicator(themeBaseHex.value);
+                    }
+                });
+            } else {
+                console.warn('Custom Theme (old version) elements not found');
+            }
 
             // Radio button 스타일 업데이트
             document.querySelectorAll('input[name="applicationMode"]').forEach(radio => {
@@ -1827,12 +3122,22 @@ window.addEventListener('message', (event) => {
                 });
             });
 
-            document.getElementById('generateThemeBtn').addEventListener('click', generateCustomTheme);
+            // Wizard 이벤트 리스너
+            
+            // Step 1 색상 입력 동기화
+            console.log('📱 Calling setupWizardColorSync from setupEventListeners...');
+            setupWizardColorSync();
+            
+            // Mode 카드 클릭 이벤트
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const mode = card.dataset.mode;
+                    selectModeCard(card, mode);
+                });
+            });
 
-            // 초기 스텝 표시
-            updateStepIndicator(themeBaseColor.value);
-
-            console.log('Event listeners set up successfully');
+            // 초기화 완료
+            console.log('🎯✅ Event listeners set up successfully');
         }
 
         // 플러그인 메시지 수신
@@ -1888,10 +3193,73 @@ window.addEventListener('message', (event) => {
 
         // 초기화
         function init() {
-            console.log('Initializing UI...');
+            console.log('🚀 Initializing UI...');
+            console.log('🔧 Calling setupEventListeners...');
             setupEventListeners();
+            console.log('📊 Calling updateDisplay...');
             updateDisplay();
-            console.log('UI initialized successfully');
+            
+            console.log('⏰ Setting up wizard color sync in 200ms...');
+            // Custom Theme 탭이 기본이므로 초기화 시에도 wizard 색상 동기화 설정
+            setTimeout(() => {
+                console.log('⏰ Timeout reached, calling setupWizardColorSync...');
+                setupWizardColorSync();
+            }, 200);
+            
+            console.log('✅ UI initialized successfully');
+        }
+        
+        // =====================================
+        // Annotation 제어 함수들
+        // =====================================
+        
+        function toggleAnnotation() {
+            const checkbox = document.getElementById('annotationToggle');
+            const pinCheckbox = document.getElementById('annotationPin');
+            
+            if (checkbox.checked) {
+                // Annotation 활성화
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'annotation-control',
+                        action: 'enable'
+                    }
+                }, '*');
+                
+                pinCheckbox.disabled = false;
+                console.log('🎯 Annotation system enabled');
+                showMessage('Color Annotation이 활성화되었습니다. 요소를 선택해보세요!');
+            } else {
+                // Annotation 비활성화
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'annotation-control',
+                        action: 'disable'
+                    }
+                }, '*');
+                
+                pinCheckbox.disabled = true;
+                pinCheckbox.checked = false;
+                console.log('🎯 Annotation system disabled');
+                showMessage('Color Annotation이 비활성화되었습니다.');
+            }
+        }
+        
+        function toggleAnnotationPin() {
+            const checkbox = document.getElementById('annotationPin');
+            
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'annotation-control',
+                    action: 'toggle-pin'
+                }
+            }, '*');
+            
+            if (checkbox.checked) {
+                showMessage('Annotation 위치가 고정되었습니다.');
+            } else {
+                showMessage('Annotation이 선택된 요소를 따라 이동합니다.');
+            }
         }
 
         // DOM 로드 완료 후 초기화

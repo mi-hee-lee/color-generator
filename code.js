@@ -301,23 +301,39 @@ function adjustStep(currentStep, adjustment) {
 // 동적 매핑 함수들
 // =====================================
 
-// Light 모드 동적 매핑 (300 기준으로 수정)
-function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
+// 통합 동적 매핑 함수
+function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) {
   var mappings = {};
   
-  // 200 기준으로 분류
-  var isLightRange = closestStepLight < 200;  // 200 미만
-  var isMidRange = closestStepLight >= 200;   // 200 이상
-
-  console.log('[LIGHT CLASSIFICATION] closestStep:', closestStepLight);
-  console.log('[LIGHT CLASSIFICATION] Range:', isLightRange ? '200 미만' : '200 이상');
+  // 200 기준으로 분류하되, baseColor가 밝은 색상이면 light range에 포함
+  var isLightRange = closestStep < 200;
+  if (baseColor) {
+    var hsl = hexToHsl(baseColor);
+    var lightness = hsl[2];
+    var hue = hsl[0];
+    
+    // 밝기가 70% 이상이면 light range로 분류
+    if (lightness >= 70) {
+      isLightRange = true;
+    }
+    
+    // BornBright 색상 (Hue 40°-190°, 대비비 < 2.0인 본질적으로 밝은 색상)도 light range로 분류
+    if (hue >= 40 && hue <= 190) {
+      isLightRange = true;
+    }
+  }
+  
+  console.log('[MAPPING] closestStep:', closestStep);
+  console.log('[MAPPING] baseColor lightness:', baseColor ? hexToHsl(baseColor)[2] : 'N/A');
+  console.log('[MAPPING] baseColor hue:', baseColor ? hexToHsl(baseColor)[0] : 'N/A');
+  console.log('[MAPPING] Range:', isLightRange ? '밝은 범위 (200 미만 또는 밝은 색상 또는 BornBright)' : '어두운 범위');
 
   // =====================================
-  // 옵션 1: 강조 요소 ON / 배경 요소 OFF
+  // 옵션 1: forground 중심
   // =====================================
   if (applicationMode === 'accent-on-bg-off') {
     if (isLightRange) {
-      // 200 미만
+      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'GRAY:100';
       mappings['semantic/text/tertiary'] = 'GRAY:200';
@@ -326,12 +342,12 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '700';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:100';
       mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:200';
       mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:100';
@@ -345,21 +361,21 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 200 이상
+      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + '50';
+      mappings['semantic/background/default'] = 'REF:' + themeName + '100';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/divider'] = 'REF:' + themeName + '100';
       mappings['semantic/border/line'] = 'REF:' + themeName + '200';
       mappings['semantic/border/line-disabled'] = 'REF:' + themeName + '100';
@@ -368,31 +384,31 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '100';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '100';
       
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepLight, 2);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
+      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
     }
     
   // =====================================
-  // 옵션 2: 강조 요소 ON / 배경 고정 (gray50)
+  // 옵션 3: forground 중심 white bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-fixed') {
     mappings['semantic/background/default'] = 'GRAY:50';
     
     if (isLightRange) {
-      // 200 미만
+      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/divider'] = 'REF:' + themeName + '100';
       mappings['semantic/border/line'] = 'REF:' + themeName + '200';
       mappings['semantic/border/line-disabled'] = 'REF:' + themeName + '100';
@@ -401,24 +417,24 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/fill/silent-hover'] = 'GRAY:100';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:100';
       
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepLight, 4);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, 3);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 3);
+      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
       
     } else {
-      // 200 이상
+      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -427,24 +443,24 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/fill/silent-hover'] = 'GRAY:100';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:100';
       
-      mappings['semantic/common/attention'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
+      mappings['semantic/common/attention'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
     }
     
   // =====================================
-  // 옵션 3: 강조 요소 OFF / 배경 요소 ON
+  // 옵션 2: background 중심
   // =====================================
   } else if (applicationMode === 'accent-off-bg-on') {
     if (isLightRange) {
-      // 200 미만
+      // 밝은 범위 (Step<200 OR L≥70% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '400';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '500';
@@ -456,23 +472,23 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, 1);
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/common/attention'] = 'REF:' + themeName + '500';
       mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '600';
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
       
     } else {
-      // 200 이상
+      // 어두운 범위 (Step≥200 AND L<70% AND NOT BornBright)
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'ON-COLOR-ALPHA:800';
       mappings['semantic/text/tertiary'] = 'ON-COLOR-ALPHA:700';
-      mappings['semantic/text/disabled'] ='ON-COLOR-ALPHA:500';
+      mappings['semantic/text/disabled'] = 'ON-COLOR-ALPHA:500';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + closestStepLight;
+      mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
@@ -484,13 +500,73 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
       mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStepLight;
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStepLight, -1);
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
       mappings['semantic/common/attention'] = 'REF:' + themeName + '100';
       mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '200';
       mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '200';
+    }
+  
+  // =====================================
+  // 옵션 4: forground 중심 black bg
+  // =====================================
+  } else if (applicationMode === 'accent-on-bg-black') {
+    // 배경은 항상 black으로 고정
+    mappings['semantic/background/default'] = 'GRAY:950';
+    
+    if (isLightRange) {
+      // 밝은 범위 - 어두운 배경에 맞는 텍스트 색상
+      mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/secondary'] = 'GRAY:100';
+      mappings['semantic/text/tertiary'] = 'GRAY:200';
+      mappings['semantic/text/disabled'] = 'GRAY:600';
+      mappings['semantic/text/on-color'] = 'GRAY:900';
+      
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:100';
+      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:200';
+      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:100';
+      
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + '300';
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '200';
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '200';
+      
+      mappings['semantic/common/attention'] = 'REF:' + themeName + '700';
+      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
+      
+    } else {
+      // 어두운 범위 - 어두운 배경이지만 밝은 텍스트 사용 (흰 배경 대비)
+      mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/secondary'] = 'GRAY:100';
+      mappings['semantic/text/tertiary'] = 'GRAY:200';
+      mappings['semantic/text/disabled'] = 'GRAY:600';
+      mappings['semantic/text/on-color'] = 'GRAY:900';
+      
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:100';
+      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:200';
+      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:100';
+      
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + '300';
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '200';
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '200';
+      
+      mappings['semantic/common/attention'] = 'REF:' + themeName + '700';
+      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '600';
     }
   }
   
@@ -504,221 +580,6 @@ function getDynamicMappingsLight(closestStepLight, themeName, applicationMode) {
   return mappings;
 }
 
-// Dark 모드 동적 매핑
-function getDynamicMappingsDark(closestStepDark, themeName, applicationMode) {
-  var mappings = {};
-  
-  var isLightRange = closestStepDark >= 400;    // 400 이상
-  var isMidRange = closestStepDark < 400;   // 400 미만
-  
-  console.log('[DARK CLASSIFICATION] closestStep:', closestStepDark);
-  console.log('[DARK CLASSIFICATION] Range:', isLightRange ? '400 미만' : '400 이상');
-  console.log('[DARK CLASSIFICATION] isLightRange:', isLightRange, 'applicationMode:', applicationMode);
-  
-  // =====================================
-  // 옵션 1: 강조 요소 ON / 배경 요소 OFF
-  // =====================================
-  if (applicationMode === 'accent-on-bg-off') {
-    mappings['semantic/background/default'] = 'REF:' + themeName + '50';
-    
-    if (isLightRange) {
-      // 400 미만
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
-      
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/fill/tertiary-pressed'] = 'REF:' + themeName + closestStepDark;
-
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-      
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + '50';
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '100';
-      
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      
-    } else {
-      // 400 이상
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
-      
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
-
-      mappings['semantic/border/divider-strong'] ='REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-      
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + '50';
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '100';
-      
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepDark, 4);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-    }
-    
-  // =====================================
-  // 옵션 2: 강조 요소 ON / 배경 고정 (gray50)
-  // =====================================
-  } else if (applicationMode === 'accent-on-bg-fixed') {
-    mappings['semantic/background/default'] = 'GRAY:50';
-    mappings['semantic/fill/silent'] = 'GRAY:50';
-    mappings['semantic/fill/silent-hover'] = 'GRAY:100';
-    mappings['semantic/fill/silent-pressed'] = 'GRAY:100';
-    
-    if (isLightRange) {
-      // 400 미만
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
-
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      
-      mappings['semantic/fill/tertiary'] = 'ALPHA:' + themeName + '100';
-      mappings['semantic/fill/tertiary-hover'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
-
-      mappings['semantic/common/attention'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-      
-    } else {
-      // 400 이상
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
-
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStepDark;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, -1);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, -1);
-      
-      mappings['semantic/fill/tertiary'] = 'ALPHA:' + themeName + '100';
-      mappings['semantic/fill/tertiary-hover'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
-
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepDark, 4);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 3);
-      
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-
-      mappings['semantic/border/divider-strong'] = 'GRAY-ALPHA:900';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStepDark, 4);
-    }
-    
-  // =====================================
-  // 옵션 3: 강조 요소 OFF / 배경 요소 ON
-  // =====================================
-  } else if (applicationMode === 'accent-off-bg-on') {
-    if (isLightRange) {
-      // 400 미만
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
-      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
-      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
-      
-      mappings['semantic/background/default'] = 'REF:' + themeName + adjustStep(closestStepDark, -4);
-      
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      
-      mappings['semantic/fill/tertiary'] = 'ALPHA:' + themeName + '100';
-      mappings['semantic/fill/tertiary-hover'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
-      
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '50';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-      
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + adjustStep(closestStepDark, 4);
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, -1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, -1);
-      
-      mappings['semantic/common/attention'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      
-    } else {
-      // 400 이상
-      mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
-      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
-      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
-      
-      mappings['semantic/background/default'] = 'REF:' + themeName + adjustStep(closestStepDark, -2);
-      
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + '100';
-      
-      mappings['semantic/fill/tertiary'] = 'ALPHA:' + themeName + '100';
-      mappings['semantic/fill/tertiary-hover'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
-      
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '50';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + '50';
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:100';
-      
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + adjustStep(closestStepDark, 2);
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStepDark, 1);
-      
-      mappings['semantic/common/attention'] = 'REF:' + themeName + '400';
-      mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '300';
-      mappings['semantic/common/attention-hover'] = 'REF:' + themeName + '300';
-    }
-  }
-  
-  // 공통 알파 매핑
-  mappings['semantic/fill/disabled'] = 'ALPHA:' + themeName + '100';
-  mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
-  
-  return mappings;
-}
 
 // =====================================
 // 톤 매칭 함수
@@ -899,8 +760,6 @@ async function handleCreateCustomTheme(msg) {
   var theme = msg.theme;
   var applicationMode = theme.applicationMode || 'accent-on-bg-off';
   
-  console.log('Creating theme with application mode:', applicationMode);
-  
   var collections = await figma.variables.getLocalVariableCollectionsAsync();
   var collection = collections.find(function(c) { 
     return c.name === 'ruler_v2'; 
@@ -910,111 +769,81 @@ async function handleCreateCustomTheme(msg) {
     collection = figma.variables.createVariableCollection('ruler_v2');
   }
   
-  // =====================================
-  // STEP 1: 모드 확인 및 생성
-  // =====================================
+  // Light/Dark 모드 확인 및 생성 (Scale Generator와 동일한 방식)
+  var lightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
+  var darkMode = collection.modes.find(function(m) { return m.name === 'Dark'; });
   
-  var baseLightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
-  var baseDarkMode = collection.modes.find(function(m) { return m.name === 'Dark'; });
-  
-  if (!baseLightMode) {
-    findOrCreateMode(collection, 'Light');
-    baseLightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
-  }
-  if (!baseDarkMode) {
-    findOrCreateMode(collection, 'Dark');
-    baseDarkMode = collection.modes.find(function(m) { return m.name === 'Dark'; });
+  if (!lightMode) {
+    if (collection.modes.length === 1 && collection.modes[0].name === 'Mode 1') {
+      // 기본 모드 이름 변경
+      collection.renameMode(collection.modes[0].modeId, 'Light');
+      lightMode = collection.modes[0];
+    } else {
+      lightMode = { modeId: collection.addMode('Light') };
+    }
   }
   
-  var customLightModeId = findOrCreateMode(collection, 'CustomLight');
-  var customDarkModeId = findOrCreateMode(collection, 'CustomDark');
+  if (!darkMode) {
+    darkMode = { modeId: collection.addMode('Dark') };
+  }
   
   var createdCount = 0;
-  var skippedCount = 0;
   
-  // =====================================
-  // STEP 2: Scale 색상 생성
-  // =====================================
-  
-  console.log('=== Creating Scale Variables ===');
-  
+  // Scale 색상 생성 (Light/Dark 모드 모두)
   for (var i = 0; i < theme.scaleColors.light.length; i++) {
     var lightColor = theme.scaleColors.light[i];
     var darkColor = theme.scaleColors.dark[i];
     var variableName = 'scale/' + theme.themeName + '-' + lightColor.step;
     
-    console.log('[SCALE] Creating:', variableName);
-    
     var variable = await findOrCreateVariable(variableName, collection, 'COLOR');
     
-    // 모든 4개 모드에 값 설정
-    variable.setValueForMode(baseLightMode.modeId, hexToFigmaRGB(lightColor.hex));
-    variable.setValueForMode(baseDarkMode.modeId, hexToFigmaRGB(darkColor.hex));
-    variable.setValueForMode(customLightModeId, hexToFigmaRGB(lightColor.hex));
-    variable.setValueForMode(customDarkModeId, hexToFigmaRGB(darkColor.hex));
+    // Light 모드 값 설정
+    variable.setValueForMode(lightMode.modeId, hexToFigmaRGB(lightColor.hex));
+    // Dark 모드 값 설정
+    variable.setValueForMode(darkMode.modeId, hexToFigmaRGB(darkColor.hex));
     
     createdCount++;
   }
   
-  // =====================================
-  // STEP 3: Alpha 색상 생성
-  // =====================================
-
-  console.log('=== Creating Alpha Variables ===');
-
-  // 입력 색상과 가장 가까운 step 찾기
-  var closestStepForAlpha = findClosestStep(theme.scaleColors.light, theme.baseColor);
-  console.log('[ALPHA BASE] Using closest step for alpha:', closestStepForAlpha);
-
-  // 가장 가까운 step의 색상을 base RGB로 사용
+  // Alpha 토큰 생성 (Light/Dark 모드 모두)
+  var closestStepForAlphaLight = findClosestStep(theme.scaleColors.light, theme.baseColor);
+  var closestStepForAlphaDark = findClosestStep(theme.scaleColors.dark, theme.baseColor);
+  
   var baseColorLight = theme.scaleColors.light.find(function(c) { 
-    return c.step === closestStepForAlpha; 
+    return c.step === closestStepForAlphaLight; 
   });
   var baseColorDark = theme.scaleColors.dark.find(function(c) { 
-    return c.step === closestStepForAlpha; 
+    return c.step === closestStepForAlphaDark; 
   });
-
-  if (!baseColorLight || !baseColorDark) {
-    // Fallback: 입력 색상 직접 사용
-    console.log('[ALPHA BASE] Using input color as fallback');
+  
+  if (!baseColorLight) {
     baseColorLight = { hex: theme.baseColor };
+  }
+  if (!baseColorDark) {
     baseColorDark = { hex: theme.baseColor };
   }
-
-  console.log('[ALPHA BASE] Light base:', baseColorLight.hex);
-  console.log('[ALPHA BASE] Dark base:', baseColorDark.hex);
-
+  
   var baseRgbLight = hexToFigmaRGB(baseColorLight.hex);
   var baseRgbDark = hexToFigmaRGB(baseColorDark.hex);
-
+  
   // 고정된 알파 매핑 테이블
   var alphaMapping = {
     0: 0.00, 50: 0.05, 75: 0.08, 100: 0.10, 150: 0.15,
     200: 0.20, 300: 0.30, 400: 0.40, 500: 0.50,
     600: 0.60, 700: 0.70, 800: 0.80, 900: 0.90, 950: 0.95
   };
-
+  
   // alpha-00 먼저 생성
   var transparentVariableName = 'scale/' + theme.themeName + '-alpha-00';
-  console.log('[ALPHA] Creating:', transparentVariableName, 'with base step:', closestStepForAlpha);
-
   var transparentVariable = await findOrCreateVariable(transparentVariableName, collection, 'COLOR');
-
-  transparentVariable.setValueForMode(baseLightMode.modeId, { 
+  transparentVariable.setValueForMode(lightMode.modeId, { 
     r: baseRgbLight.r, g: baseRgbLight.g, b: baseRgbLight.b, a: 0 
   });
-  transparentVariable.setValueForMode(baseDarkMode.modeId, { 
+  transparentVariable.setValueForMode(darkMode.modeId, { 
     r: baseRgbDark.r, g: baseRgbDark.g, b: baseRgbDark.b, a: 0 
   });
-  transparentVariable.setValueForMode(customLightModeId, { 
-    r: baseRgbLight.r, g: baseRgbLight.g, b: baseRgbLight.b, a: 0 
-  });
-  transparentVariable.setValueForMode(customDarkModeId, { 
-    r: baseRgbDark.r, g: baseRgbDark.g, b: baseRgbDark.b, a: 0 
-  });
-
   createdCount++;
-
+  
   // 각 단계별 alpha 토큰 생성 (50, 75, 150 제외)
   for (var i = 0; i < theme.scaleColors.light.length; i++) {
     var step = theme.scaleColors.light[i].step;
@@ -1023,410 +852,367 @@ async function handleCreateCustomTheme(msg) {
     if (step === 50 || step === 75 || step === 150) continue;
     
     var alphaValue = alphaMapping[step];
-    
     if (alphaValue === undefined) continue;
     
     var alphaVariableName = 'scale/' + theme.themeName + '-alpha-' + step;
-    console.log('[ALPHA] Creating:', alphaVariableName, 'alpha:', alphaValue, 'base from step:', closestStepForAlpha);
-    
     var alphaVariable = await findOrCreateVariable(alphaVariableName, collection, 'COLOR');
     
-    // 모든 4개 모드에 값 설정 - 가장 가까운 step 색상 기준
-    alphaVariable.setValueForMode(baseLightMode.modeId, { 
+    // Light/Dark 모드 모두에 alpha 값 설정
+    alphaVariable.setValueForMode(lightMode.modeId, { 
       r: baseRgbLight.r, g: baseRgbLight.g, b: baseRgbLight.b, a: alphaValue 
     });
-    alphaVariable.setValueForMode(baseDarkMode.modeId, { 
+    alphaVariable.setValueForMode(darkMode.modeId, { 
       r: baseRgbDark.r, g: baseRgbDark.g, b: baseRgbDark.b, a: alphaValue 
     });
-    alphaVariable.setValueForMode(customLightModeId, { 
-      r: baseRgbLight.r, g: baseRgbLight.g, b: baseRgbLight.b, a: alphaValue 
-    });
-    alphaVariable.setValueForMode(customDarkModeId, { 
-      r: baseRgbDark.r, g: baseRgbDark.g, b: baseRgbDark.b, a: alphaValue 
-    });
-    
     createdCount++;
   }
-
-  // on-color-alpha 시리즈 생성
-  console.log('=== Creating On-Color Alpha Variables ===');
-
-  // on-color는 일반적으로 대비가 높은 색 (흰색 또는 검은색)
-  var onColorLight = { r: 1, g: 1, b: 1 };  // 흰색
-  var onColorDark = { r: 0, g: 0, b: 0 };   // 검은색
-
-  // on-color-alpha-00 생성 (완전 투명)
-  var onColorAlpha00Name = 'scale/on-color-alpha-00';
-  var onColorAlpha00 = await findOrCreateVariable(onColorAlpha00Name, collection, 'COLOR');
-
-  onColorAlpha00.setValueForMode(baseLightMode.modeId, { r: onColorLight.r, g: onColorLight.g, b: onColorLight.b, a: 0 });
-  onColorAlpha00.setValueForMode(baseDarkMode.modeId, { r: onColorDark.r, g: onColorDark.g, b: onColorDark.b, a: 0 });
-  onColorAlpha00.setValueForMode(customLightModeId, { r: onColorLight.r, g: onColorLight.g, b: onColorLight.b, a: 0 });
-  onColorAlpha00.setValueForMode(customDarkModeId, { r: onColorDark.r, g: onColorDark.g, b: onColorDark.b, a: 0 });
-
-  createdCount++;
-
-  // 각 단계별 on-color-alpha 토큰 생성
-  for (var i = 0; i < theme.scaleColors.light.length; i++) {
-    var step = theme.scaleColors.light[i].step;
-    var alphaValue = alphaMapping[step];
-    
-    if (alphaValue === undefined) continue;
-    
-    var onColorAlphaName = 'scale/on-color-alpha-' + step;
-    console.log('[ON-COLOR-ALPHA] Creating:', onColorAlphaName, 'alpha:', alphaValue);
-    
-    var onColorAlphaVar = await findOrCreateVariable(onColorAlphaName, collection, 'COLOR');
-    
-    // 모든 모드에 설정
-    onColorAlphaVar.setValueForMode(baseLightMode.modeId, { r: onColorLight.r, g: onColorLight.g, b: onColorLight.b, a: alphaValue });
-    onColorAlphaVar.setValueForMode(baseDarkMode.modeId, { r: onColorDark.r, g: onColorDark.g, b: onColorDark.b, a: alphaValue });
-    onColorAlphaVar.setValueForMode(customLightModeId, { r: onColorLight.r, g: onColorLight.g, b: onColorLight.b, a: alphaValue });
-    onColorAlphaVar.setValueForMode(customDarkModeId, { r: onColorDark.r, g: onColorDark.g, b: onColorDark.b, a: alphaValue });
-    
-    createdCount++;
-  }
-
-  // =====================================
-  // STEP 4: 기존 변수 복사 (gray 등 비시맨틱)
-  // =====================================
-
-  console.log('=== Copying Non-Semantic Variables ===');
-
-  // 모든 변수 가져오기
-  var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
-
-  // Gray 변수 체크
-  console.log('=== Checking Gray Variables ===');
-  var grayVariables = allVariables.filter(function(v) {
-    return v.name.startsWith('scale/gray-');
-  });
-
-  if (grayVariables.length === 0) {
-    console.log('[WARNING] No gray variables found!');
-  } else {
-    console.log('Found', grayVariables.length, 'gray variables');
-  }
-
-  // 이제 복사 진행
-  for (var i = 0; i < allVariables.length; i++) {
-    var v = allVariables[i];
-    if (v.variableCollectionId === collection.id && 
-        !v.name.startsWith('semantic/') && 
-        !v.name.startsWith('scale/' + theme.themeName)) {
-      
-      if (baseLightMode && v.valuesByMode[baseLightMode.modeId]) {
-        v.setValueForMode(customLightModeId, v.valuesByMode[baseLightMode.modeId]);
-      }
-      if (baseDarkMode && v.valuesByMode[baseDarkMode.modeId]) {
-        v.setValueForMode(customDarkModeId, v.valuesByMode[baseDarkMode.modeId]);
-      }
-      
-      console.log('[COPY] Non-semantic variable:', v.name);
-    }
-  }
   
-  // =====================================
-  // STEP 5: 동적 매핑 계산 (Light/Dark 모드별 독립 계산)
-  // =====================================
-  
-  console.log('=== Finding closest step for Light mode ===');
-  var closestStepLight = findClosestStep(theme.scaleColors.light, theme.baseColor);
-
-  console.log('=== Finding closest step for Dark mode ===');
-  var closestStepDark = findClosestStep(theme.scaleColors.dark, theme.baseColor);
-
-  console.log('Closest steps - Light:', closestStepLight, 'Dark:', closestStepDark);
-
-  // Light와 Dark 매핑을 각각 가져오기
-  var lightMappings = getDynamicMappingsLight(closestStepLight, theme.themeName, applicationMode);
-  var darkMappings = getDynamicMappingsDark(closestStepDark, theme.themeName, applicationMode);
-
-  console.log('[DEBUG] Light mapping for semantic/text/on-color:', lightMappings['semantic/text/on-color']);
-  console.log('[DEBUG] Dark mapping for semantic/text/on-color:', darkMappings['semantic/text/on-color']);
-
-  // 두 매핑을 합치기
-  var dynamicMappings = {};
-  for (var key in lightMappings) {
-    dynamicMappings[key] = { 
-      light: lightMappings[key], 
-      dark: darkMappings[key] 
-    };
-  }
-  
-  // Dark 매핑에만 있는 키들도 추가
-  for (var key in darkMappings) {
-    if (!dynamicMappings[key]) {
-      dynamicMappings[key] = { 
-        light: lightMappings[key], 
-        dark: darkMappings[key] 
-      };
-    }
-  }
-  
-  console.log('[DEBUG] Total tokens in dynamicMappings:', Object.keys(dynamicMappings).length);
-  console.log('[DEBUG] semantic/text/on-color in mappings:', dynamicMappings['semantic/text/on-color']);
-  
-  // =====================================
-  // STEP 6: Semantic 토큰 생성 및 매핑
-  // =====================================
-
-  console.log('=== Applying Semantic Mappings ===');
-
-  // 보존해야 할 토큰 목록
-  var preserveTokensList = [
-    'semantic/fill/surface-floating',
-    'semantic/fill/surface-dialog', 
-    'semantic/fill/surface-sheet',
-    'semantic/fill/surface-black',
-    'semantic/background/black',
-    'semantic/common/on-white',
-    'semantic/common/on-white-hover',
-    'semantic/common/on-white-pressed',
-    'semantic/common/on-black',
-    'semantic/common/on-black-hover',
-    'semantic/common/on-black-pressed',
-    'semantic/overlay/dimmed'
-  ];
-
-  // 모든 변수 다시 로드
-  allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
-
-  // preserve 토큰들의 원본 값 저장
-  var preserveOriginalValues = {};
-  for (var k = 0; k < preserveTokensList.length; k++) {
-    var preserveTokenName = preserveTokensList[k];
-    var preserveVar = allVariables.find(function(v) {
-      return v.name === preserveTokenName && v.variableCollectionId === collection.id;
-    });
-    
-    if (preserveVar && baseLightMode && baseDarkMode) {
-      preserveOriginalValues[preserveTokenName] = {
-        light: preserveVar.valuesByMode[baseLightMode.modeId],
-        dark: preserveVar.valuesByMode[baseDarkMode.modeId]
-      };
-    }
-  }
-
-  // 동적 매핑의 모든 토큰 처리
-  for (var tokenName in dynamicMappings) {
-    var mappedValue = dynamicMappings[tokenName];
-    
-    console.log('[PROCESSING TOKEN]', tokenName, '→', mappedValue);
-    
-    var variable = await findOrCreateVariable(tokenName, collection, 'COLOR');
-    
-    // Light 모드 처리
-    if (mappedValue.light) {
-      var lightValue = mappedValue.light;
-      console.log('[DEBUG LIGHT]', tokenName, 'mapping:', lightValue);
-      
-      if (lightValue.startsWith('GRAY:')) {
-        var grayStep = parseInt(lightValue.replace('GRAY:', ''));
-        var grayVarName = 'scale/gray-' + grayStep;
-        var grayVar = allVariables.find(function(v) {
-          return v.name === grayVarName && v.variableCollectionId === collection.id;
-        });
-        if (grayVar) {
-          variable.setValueForMode(customLightModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: grayVar.id
-          });
-          console.log('[MAPPED LIGHT]', tokenName, '→', grayVarName);
-        } else {
-          console.log('[WARNING] Gray variable not found for LIGHT:', grayVarName, 'for token:', tokenName);
-        }
-      } else if (lightValue.startsWith('REF:')) {
-        var refString = lightValue.replace('REF:', '');
-        var step;
-        
-        // themeName 길이만큼 잘라내고 남은 숫자 추출
-        if (refString.startsWith(theme.themeName)) {
-          step = parseInt(refString.substring(theme.themeName.length));
-        } else {
-          // 숫자만 있는 경우 직접 파싱
-          step = parseInt(refString);
-        }
-        
-        if (step) {
-          var scaleVarName = 'scale/' + theme.themeName + '-' + step;
-          var scaleVar = allVariables.find(function(v) {
-            return v.name === scaleVarName && v.variableCollectionId === collection.id;
-          });
-          
-          if (scaleVar) {
-            variable.setValueForMode(customLightModeId, {
-              type: 'VARIABLE_ALIAS',
-              id: scaleVar.id
-            });
-            console.log('[MAPPED LIGHT]', tokenName, '→', scaleVarName);
-          }
-        }
-      } else if (lightValue.startsWith('ALPHA:')) {
-        var alphaStep = parseInt(lightValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-        var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-        var alphaVar = allVariables.find(function(v) {
-          return v.name === alphaVarName && v.variableCollectionId === collection.id;
-        });
-        if (alphaVar) {
-          variable.setValueForMode(customLightModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: alphaVar.id
-          });
-          console.log('[MAPPED LIGHT]', tokenName, '→', alphaVarName);
-        }
-      } else if (lightValue.startsWith('GRAY-ALPHA:')) {
-        var grayAlphaStep = parseInt(lightValue.replace('GRAY-ALPHA:', ''));
-        var grayAlphaVar = allVariables.find(function(v) {
-          return v.name === 'scale/gray-alpha-' + grayAlphaStep && v.variableCollectionId === collection.id;
-        });
-        if (grayAlphaVar) {
-          variable.setValueForMode(customLightModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: grayAlphaVar.id
-          });
-          console.log('[MAPPED LIGHT]', tokenName, '→ gray-alpha-' + grayAlphaStep);
-        }
-      } else if (lightValue.startsWith('ON-COLOR-ALPHA:')) {
-        var onColorStep = parseInt(lightValue.replace('ON-COLOR-ALPHA:', ''));
-        var onColorVar = allVariables.find(function(v) {
-          return v.name === 'scale/on-color-alpha-' + onColorStep && v.variableCollectionId === collection.id;
-        });
-        if (onColorVar) {
-          variable.setValueForMode(customLightModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: onColorVar.id
-          });
-          console.log('[MAPPED LIGHT]', tokenName, '→ on-color-alpha-' + onColorStep);
-        }
-      }
-    }
-    
-    // Dark 모드 처리
-    if (mappedValue.dark) {
-      var darkValue = mappedValue.dark;
-      console.log('[DEBUG DARK]', tokenName, 'mapping:', darkValue);
-      
-      if (darkValue.startsWith('GRAY:')) {
-        var grayStepDark = parseInt(darkValue.replace('GRAY:', ''));
-        var grayVarNameDark = 'scale/gray-' + grayStepDark;
-        var grayVarDark = allVariables.find(function(v) {
-          return v.name === grayVarNameDark && v.variableCollectionId === collection.id;
-        });
-        if (grayVarDark) {
-          variable.setValueForMode(customDarkModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: grayVarDark.id
-          });
-          console.log('[MAPPED DARK]', tokenName, '→', grayVarNameDark);
-        } else {
-          console.log('[WARNING] Gray variable not found for DARK:', grayVarNameDark, 'for token:', tokenName);
-        }
-      } else if (darkValue.startsWith('REF:')) {
-        var refStringDark = darkValue.replace('REF:', '');
-        var stepDark;
-        
-        // themeName 길이만큼 잘라내고 남은 숫자 추출
-        if (refStringDark.startsWith(theme.themeName)) {
-          stepDark = parseInt(refStringDark.substring(theme.themeName.length));
-        } else {
-          // 숫자만 있는 경우 직접 파싱
-          stepDark = parseInt(refStringDark);
-        }
-        
-        if (stepDark) {
-          var scaleVarNameDark = 'scale/' + theme.themeName + '-' + stepDark;
-          var scaleVarDark = allVariables.find(function(v) {
-            return v.name === scaleVarNameDark && v.variableCollectionId === collection.id;
-          });
-          
-          if (scaleVarDark) {
-            variable.setValueForMode(customDarkModeId, {
-              type: 'VARIABLE_ALIAS',
-              id: scaleVarDark.id
-            });
-            console.log('[MAPPED DARK]', tokenName, '→', scaleVarNameDark);
-          }
-        }
-      } else if (darkValue.startsWith('ALPHA:')) {
-        var alphaStepDark = parseInt(darkValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-        var alphaVarNameDark = 'scale/' + theme.themeName + '-alpha-' + alphaStepDark;
-        var alphaVarDark = allVariables.find(function(v) {
-          return v.name === alphaVarNameDark && v.variableCollectionId === collection.id;
-        });
-        if (alphaVarDark) {
-          variable.setValueForMode(customDarkModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: alphaVarDark.id
-          });
-          console.log('[MAPPED DARK]', tokenName, '→', alphaVarNameDark);
-        }
-      } else if (darkValue.startsWith('GRAY-ALPHA:')) {
-        var grayAlphaStepDark = parseInt(darkValue.replace('GRAY-ALPHA:', ''));
-        var grayAlphaVarDark = allVariables.find(function(v) {
-          return v.name === 'scale/gray-alpha-' + grayAlphaStepDark && v.variableCollectionId === collection.id;
-        });
-        if (grayAlphaVarDark) {
-          variable.setValueForMode(customDarkModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: grayAlphaVarDark.id
-          });
-          console.log('[MAPPED DARK]', tokenName, '→ gray-alpha-' + grayAlphaStepDark);
-        }
-      } else if (darkValue.startsWith('ON-COLOR-ALPHA:')) {
-        var onColorStepDark = parseInt(darkValue.replace('ON-COLOR-ALPHA:', ''));
-        var onColorVarDark = allVariables.find(function(v) {
-          return v.name === 'scale/on-color-alpha-' + onColorStepDark && v.variableCollectionId === collection.id;
-        });
-        if (onColorVarDark) {
-          variable.setValueForMode(customDarkModeId, {
-            type: 'VARIABLE_ALIAS',
-            id: onColorVarDark.id
-          });
-          console.log('[MAPPED DARK]', tokenName, '→ on-color-alpha-' + onColorStepDark);
-        }
-      }
-    }
-    
-    createdCount++;
-  }
-
-  // preserve 토큰 처리
-  for (var j = 0; j < preserveTokensList.length; j++) {
-    var preserveTokenName = preserveTokensList[j];
-    if (!dynamicMappings[preserveTokenName]) {
-      var preserveVar = await findOrCreateVariable(preserveTokenName, collection, 'COLOR');
-      var originalValues = preserveOriginalValues[preserveTokenName];
-      if (originalValues) {
-        if (originalValues.light) {
-          preserveVar.setValueForMode(customLightModeId, originalValues.light);
-        }
-        if (originalValues.dark) {
-          preserveVar.setValueForMode(customDarkModeId, originalValues.dark);
-        }
-        console.log('[PRESERVE]', preserveTokenName);
-      }
-    }
-  }
-
-  console.log('[STEP 6 COMPLETE] Processed', createdCount, 'semantic tokens');
-  
-  // =====================================
-  // STEP 7: 결과 보고
-  // =====================================
-  
-  console.log('=== Theme Creation Complete ===');
-  console.log('Created:', createdCount, 'Skipped:', skippedCount);
-  
-  figma.ui.postMessage({ 
-    type: 'custom-theme-created',
-    success: true,
-    count: createdCount,
-    skipped: skippedCount,
-    themeName: theme.themeName
-  });
+  // Semantic 토큰 생성 제거 - 오직 scale 토큰만 생성
   
   figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName);
+}
+
+// 테마 토큰을 Layer에 직접 적용하는 핸들러 (semantic 토큰 변경 없이)
+async function handleApplyThemeColorsToFrame(msg) {
+  var theme = msg.theme;
+  var applicationMode = theme.applicationMode || 'accent-on-bg-off';
+  var selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    figma.notify('Frame을 선택해주세요');
+    return;
+  }
+  
+  var collections = await figma.variables.getLocalVariableCollectionsAsync();
+  var collection = collections.find(function(c) { return c.name === 'ruler_v2'; });
+  
+  if (!collection) {
+    figma.notify('ruler_v2 컬렉션을 찾을 수 없습니다');
+    return;
+  }
+  
+  // 동적 매핑 계산 (기존 로직과 동일)
+  var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
+  var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
+  
+  // 모든 변수 가져오기
+  var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+  var appliedCount = 0;
+  
+  console.log('=== 매핑 정보 (closestStep: ' + closestStep + ', mode: ' + applicationMode + ') ===');
+  for (var tokenName in mappings) {
+    console.log(tokenName + ' → ' + mappings[tokenName]);
+  }
+  
+  // 매핑 값에서 실제 토큰을 찾는 함수
+  function findTokenFromMapping(mappingValue) {
+    if (!mappingValue) return null;
+    
+    console.log('findTokenFromMapping called with:', mappingValue);
+    
+    if (mappingValue.startsWith('REF:')) {
+      var refString = mappingValue.replace('REF:', '');
+      console.log('refString:', refString, 'themeName:', theme.themeName);
+      
+      var step;
+      
+      if (refString.startsWith(theme.themeName)) {
+        var stepString = refString.substring(theme.themeName.length);
+        console.log('stepString after substring:', stepString);
+        step = parseInt(stepString);
+      } else {
+        step = parseInt(refString);
+      }
+      
+      console.log('parsed step:', step);
+      
+      if (step) {
+        var scaleVarName = 'scale/' + theme.themeName + '-' + step;
+        console.log('looking for scaleVarName:', scaleVarName);
+        var foundVar = allVariables.find(function(v) {
+          return v.name === scaleVarName && v.variableCollectionId === collection.id;
+        });
+        console.log('found variable:', foundVar ? foundVar.name : 'null');
+        return foundVar;
+      }
+    } else if (mappingValue.startsWith('GRAY:')) {
+      var grayStep = parseInt(mappingValue.replace('GRAY:', ''));
+      var grayVarName = 'scale/gray-' + grayStep;
+      return allVariables.find(function(v) {
+        return v.name === grayVarName && v.variableCollectionId === collection.id;
+      });
+    } else if (mappingValue.startsWith('ALPHA:')) {
+      var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
+      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      return allVariables.find(function(v) {
+        return v.name === alphaVarName && v.variableCollectionId === collection.id;
+      });
+    } else if (mappingValue.startsWith('GRAY-ALPHA:')) {
+      var grayAlphaStep = parseInt(mappingValue.replace('GRAY-ALPHA:', ''));
+      var grayAlphaVarName = 'scale/gray-alpha-' + grayAlphaStep;
+      return allVariables.find(function(v) {
+        return v.name === grayAlphaVarName && v.variableCollectionId === collection.id;
+      });
+    } else if (mappingValue.startsWith('ON-COLOR-ALPHA:')) {
+      var onColorStep = parseInt(mappingValue.replace('ON-COLOR-ALPHA:', ''));
+      var onColorVarName = 'scale/on-color-alpha-' + onColorStep;
+      return allVariables.find(function(v) {
+        return v.name === onColorVarName && v.variableCollectionId === collection.id;
+      });
+    }
+    
+    return null;
+  }
+  
+  // fallback 색상 계산 함수
+  function getFallbackColor(mappingValue) {
+    if (!mappingValue) return { r: 1, g: 1, b: 1 };
+    
+    if (mappingValue.startsWith('REF:')) {
+      var refString = mappingValue.replace('REF:', '');
+      var step = parseInt(refString.startsWith(theme.themeName) ? 
+                         refString.substring(theme.themeName.length) : refString);
+      
+      var colorData = theme.scaleColors.light.find(function(c) { 
+        return c.step === step; 
+      });
+      
+      if (colorData) {
+        return hexToFigmaRGB(colorData.hex);
+      }
+    } else if (mappingValue.startsWith('GRAY:')) {
+      var grayStep = parseInt(mappingValue.replace('GRAY:', ''));
+      var grayVar = allVariables.find(function(v) {
+        return v.name === 'scale/gray-' + grayStep && v.variableCollectionId === collection.id;
+      });
+      
+      if (grayVar && grayVar.valuesByMode) {
+        var lightMode = collection.modes.find(function(m) { return m.name === 'Light'; });
+        if (lightMode && grayVar.valuesByMode[lightMode.modeId]) {
+          var grayValue = grayVar.valuesByMode[lightMode.modeId];
+          if (grayValue && typeof grayValue === 'object' && 'r' in grayValue) {
+            // 알파 값 제거하고 RGB만 반환
+            return {
+              r: grayValue.r,
+              g: grayValue.g, 
+              b: grayValue.b
+            };
+          }
+        }
+      }
+    } else if (mappingValue.startsWith('ALPHA:') || mappingValue.startsWith('GRAY-ALPHA:') || mappingValue.startsWith('ON-COLOR-ALPHA:')) {
+      // 알파 타입들의 경우 기본 컬러 반환 (실제 알파값은 토큰에서 처리)
+      return { r: 0.5, g: 0.5, b: 0.5 };
+    }
+    
+    // 기본 fallback 컬러
+    return { r: 1, g: 1, b: 1 };
+  }
+  
+  // 노드의 모든 토큰을 재귀적으로 교체하는 함수
+  function replaceTokensInNode(node, depth) {
+    var indent = '';
+    for (var d = 0; d < depth; d++) indent += '  ';
+    
+    console.log(indent + '=== Processing:', node.type, node.name, '===');
+    
+    // 현재 노드의 fills 처리
+    if ('fills' in node && node.fills && node.fills.length > 0) {
+      for (var f = 0; f < node.fills.length; f++) {
+        var fill = node.fills[f];
+        if (fill.boundVariables && fill.boundVariables.color && fill.boundVariables.color.id) {
+          // 기존 바인딩된 변수 찾기
+          var currentVar = allVariables.find(function(v) {
+            return v.id === fill.boundVariables.color.id;
+          });
+          
+          if (currentVar && currentVar.name.startsWith('semantic/')) {
+            console.log(indent + '[FOUND SEMANTIC]', currentVar.name, 'in fill');
+            
+            // 매핑에서 대응하는 토큰 찾기
+            var mappedValue = mappings[currentVar.name];
+            if (mappedValue) {
+              console.log(indent + '[MAPPING]', currentVar.name, '→', mappedValue);
+              var newToken = findTokenFromMapping(mappedValue);
+              if (newToken) {
+                var fallbackColor = getFallbackColor(mappedValue);
+                
+                // 토큰 교체 - fills 배열 전체 복사 후 수정
+                var newFills = node.fills.slice();
+                newFills[f] = {
+                  type: 'SOLID',
+                  color: fallbackColor,
+                  boundVariables: {
+                    'color': {
+                      type: 'VARIABLE_ALIAS',
+                      id: newToken.id
+                    }
+                  }
+                };
+                node.fills = newFills;
+                
+                console.log(indent + '[REPLACED]', currentVar.name, '→', newToken.name);
+                appliedCount++;
+              } else {
+                console.log(indent + '[ERROR] Token not found for mapping:', mappedValue);
+              }
+            } else {
+              console.log(indent + '[NO MAPPING]', currentVar.name);
+            }
+          }
+        }
+      }
+    }
+    
+    // 현재 노드의 strokes 처리
+    if ('strokes' in node && node.strokes && node.strokes.length > 0) {
+      for (var s = 0; s < node.strokes.length; s++) {
+        var stroke = node.strokes[s];
+        if (stroke.boundVariables && stroke.boundVariables.color && stroke.boundVariables.color.id) {
+          // 기존 바인딩된 변수 찾기
+          var currentStrokeVar = allVariables.find(function(v) {
+            return v.id === stroke.boundVariables.color.id;
+          });
+          
+          if (currentStrokeVar && currentStrokeVar.name.startsWith('semantic/')) {
+            console.log(indent + '[FOUND SEMANTIC]', currentStrokeVar.name, 'in stroke');
+            
+            // 매핑에서 대응하는 토큰 찾기
+            var strokeMappedValue = mappings[currentStrokeVar.name];
+            if (strokeMappedValue) {
+              console.log(indent + '[MAPPING]', currentStrokeVar.name, '→', strokeMappedValue);
+              var newStrokeToken = findTokenFromMapping(strokeMappedValue);
+              if (newStrokeToken) {
+                var strokeFallbackColor = getFallbackColor(strokeMappedValue);
+                
+                // 토큰 교체 - strokes 배열 전체 복사 후 수정
+                var newStrokes = node.strokes.slice();
+                newStrokes[s] = {
+                  type: 'SOLID',
+                  color: strokeFallbackColor,
+                  boundVariables: {
+                    'color': {
+                      type: 'VARIABLE_ALIAS',
+                      id: newStrokeToken.id
+                    }
+                  }
+                };
+                node.strokes = newStrokes;
+                
+                console.log(indent + '[REPLACED]', currentStrokeVar.name, '→', newStrokeToken.name);
+                appliedCount++;
+              } else {
+                console.log(indent + '[ERROR] Token not found for mapping:', strokeMappedValue);
+              }
+            } else {
+              console.log(indent + '[NO MAPPING]', currentStrokeVar.name);
+            }
+          }
+        }
+      }
+    }
+    
+    // effects (그림자 등) 처리
+    if ('effects' in node && node.effects && node.effects.length > 0) {
+      for (var e = 0; e < node.effects.length; e++) {
+        var effect = node.effects[e];
+        if (effect.boundVariables && effect.boundVariables.color && effect.boundVariables.color.id) {
+          var currentEffectVar = allVariables.find(function(v) {
+            return v.id === effect.boundVariables.color.id;
+          });
+          
+          if (currentEffectVar && currentEffectVar.name.startsWith('semantic/')) {
+            console.log(indent + '[FOUND SEMANTIC]', currentEffectVar.name, 'in effect');
+            
+            var effectMappedValue = mappings[currentEffectVar.name];
+            if (effectMappedValue) {
+              var newEffectToken = findTokenFromMapping(effectMappedValue);
+              if (newEffectToken) {
+                // Effect 토큰 교체 - effects 배열 전체 복사 후 수정
+                var newEffects = node.effects.slice();
+                newEffects[e] = Object.assign({}, effect);
+                newEffects[e].boundVariables = {
+                  'color': {
+                    type: 'VARIABLE_ALIAS',
+                    id: newEffectToken.id
+                  }
+                };
+                node.effects = newEffects;
+                
+                console.log(indent + '[REPLACED]', currentEffectVar.name, '→', newEffectToken.name);
+                appliedCount++;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // 자식 노드들 재귀 처리
+    if ('children' in node && node.children) {
+      for (var c = 0; c < node.children.length; c++) {
+        replaceTokensInNode(node.children[c], depth + 1);
+      }
+    }
+  }
+  
+  // 선택된 모든 노드에 토큰 교체 적용
+  for (var i = 0; i < selection.length; i++) {
+    var node = selection[i];
+    console.log('\n=== 처리 시작:', node.name, '===');
+    replaceTokensInNode(node, 0);
+  }
+  
+  console.log('\n=== 적용 완료 ===');
+  figma.notify('테마 토큰이 ' + appliedCount + '개 요소에 적용됨 (semantic 토큰 변경 없음)');
+}
+
+// Semantic 토큰을 프레임에 적용하는 핸들러
+async function handleApplySemanticToFrame(msg) {
+  var selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    figma.notify('Frame을 선택해주세요');
+    return;
+  }
+  
+  var collections = await figma.variables.getLocalVariableCollectionsAsync();
+  var collection = collections.find(function(c) { return c.name === 'ruler_v2'; });
+  
+  if (!collection) {
+    throw new Error('ruler_v2 컬렉션을 찾을 수 없습니다');
+  }
+  
+  // semantic 변수들 가져오기
+  var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+  var backgroundVar = allVariables.find(function(v) {
+    return v.name === 'semantic/background/default' && v.variableCollectionId === collection.id;
+  });
+  
+  var appliedCount = 0;
+  
+  // 선택된 Frame들에 적용
+  for (var i = 0; i < selection.length; i++) {
+    var node = selection[i];
+    
+    if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+      // 배경색 적용
+      if (backgroundVar && 'fills' in node) {
+        node.fills = [{
+          type: 'SOLID',
+          boundVariables: {
+            'color': {
+              type: 'VARIABLE_ALIAS',
+              id: backgroundVar.id
+            }
+          }
+        }];
+        appliedCount++;
+      }
+    }
+  }
+  
+  figma.notify('Semantic 토큰이 ' + appliedCount + '개 Frame에 적용되었습니다');
 }
 
 // Custom Mode 적용 핸들러 - 최상위 프레임에만 적용, 자식은 상속
@@ -1566,6 +1352,10 @@ figma.ui.onmessage = async function(msg) {
       await handleCreateCustomTheme(msg);
     } else if (msg.type === 'apply-custom-mode-to-frame') {
       await handleApplyCustomModeToFrame(msg);
+    } else if (msg.type === 'apply-semantic-to-frame') {
+      await handleApplySemanticToFrame(msg);
+    } else if (msg.type === 'apply-theme-colors-to-frame') {
+      await handleApplyThemeColorsToFrame(msg);
     } else if (msg.type === 'generate-tone-matching') {
       await handleToneMatching(msg);
     }
