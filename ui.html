@@ -1292,21 +1292,20 @@
                     </div>
                 </div>
                 
-                <!-- Annotation 컨트롤 -->
-                <div class="annotation-controls" style="margin: 20px 0; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f8f9fa;">
-                    <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600;">Color Annotation</h3>
+                <!-- Mapping 정보보기 컨트롤 -->
+                <div class="mapping-info-controls" style="margin: 20px 0; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f8f9fa;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600;">Mapping 정보</h3>
                     <div style="display: flex; gap: 12px; align-items: center;">
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <input type="checkbox" id="annotationToggle" onchange="toggleAnnotation()" style="margin: 0;" disabled>
-                            <span style="font-size: 13px; color: #999;">선택된 요소의 색상 매핑 표시 (Apply 후 활성화됨)</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <input type="checkbox" id="annotationPin" onchange="toggleAnnotationPin()" style="margin: 0;" disabled>
-                            <span style="font-size: 13px; color: #666;">위치 고정</span>
-                        </label>
+                        <button 
+                            id="showMappingBtn" 
+                            onclick="showMappingInfo()" 
+                            style="padding: 8px 16px; background: #007ACC; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                            선택된 Frame의 Mapping 정보보기
+                        </button>
+                        <span id="mappingStatus" style="font-size: 12px; color: #666; margin-left: 8px;">Frame을 선택하고 버튼을 눌러주세요</span>
                     </div>
                     <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                        💡 요소를 선택하면 우측에 semantic→scale 토큰 매핑 정보가 표시됩니다
+                        💡 선택된 Frame 오른쪽에 semantic→scale 토큰 매핑 정보가 표시됩니다
                     </div>
                 </div>
                 
@@ -1428,7 +1427,6 @@
     </div>
 
     <script>
-        console.log('UI Script starting...');
         
         // 전역 변수
         let currentMode = 'light';
@@ -1816,12 +1814,10 @@
         let wizardThemeData = null;
 
         function goToStep(stepNumber) {
-            console.log('goToStep called:', stepNumber, 'current step:', currentWizardStep);
             
             // 현재 스텝에서 데이터 수집 및 처리
             if (stepNumber === 3 && currentWizardStep === 1) {
                 // Step 1에서 Step 3로: 테마 변수를 먼저 생성하고 테마 데이터 생성
-                console.log('Creating theme variables and moving to mode selection...');
                 createCustomThemeVariablesAndProceed();
                 return; // 비동기 처리를 위해 여기서 리턴
             }
@@ -1833,7 +1829,6 @@
             updateStepContent(stepNumber);
 
             currentWizardStep = stepNumber;
-            console.log('Current wizard step updated to:', currentWizardStep);
         }
         
         function updateProgressBar(stepNumber) {
@@ -1857,14 +1852,12 @@
             const targetStep = document.getElementById('wizardStep' + stepNumber);
             if (targetStep) {
                 targetStep.classList.add('active');
-                console.log('Step', stepNumber, 'activated');
                 
                 // Step 3에서 모드 미리보기 업데이트
                 if (stepNumber === 3) {
                     setTimeout(() => {
                         const baseColorInput = document.getElementById('wizardThemeBaseHex');
                         if (baseColorInput && baseColorInput.value) {
-                            console.log('🎨 Initializing mode previews with color:', baseColorInput.value);
                             updateAllModePreviewsWithColor(baseColorInput.value);
                         }
                     }, 100);
@@ -1911,17 +1904,13 @@
         }
 
         function generateWizardTheme() {
-            console.log('generateWizardTheme called');
             
             // currentTheme가 이미 생성되어 있다면 그것을 사용
             if (currentTheme) {
                 const themeName = currentTheme.themeName;
                 const closestStep = currentTheme.selectedStep || 200;
                 
-                console.log('Using existing theme:', themeName, 'Closest step:', closestStep);
-                
                 // Step 2가 제거되었으므로 토큰 미리보기 업데이트 생략
-                console.log('Token preview skipped (Step 2 removed)');
 
                 // wizardThemeData와 동기화
                 wizardThemeData = {
@@ -1938,8 +1927,6 @@
                 // Scale Generator와 동일한 로직 사용
                 const closestStep = ColorUtils.findClosestStep(baseColor, 'light');
                 
-                // Step 2가 제거되었으므로 토큰 미리보기 업데이트 생략 (fallback)
-                console.log('Token preview skipped in fallback (Step 2 removed)');
 
                 wizardThemeData = {
                     themeName: themeName,
@@ -1949,11 +1936,9 @@
                 };
             }
             
-            console.log('wizardThemeData saved:', wizardThemeData);
         }
 
         function selectModeCard(card, mode) {
-            console.log('selectModeCard called:', card, mode);
             
             // 모든 카드에서 selected 클래스 제거
             document.querySelectorAll('.mode-card').forEach(c => {
@@ -1966,7 +1951,6 @@
             // 테마 데이터 업데이트
             if (wizardThemeData) {
                 wizardThemeData.applicationMode = mode;
-                console.log('Application mode updated to:', mode);
             }
         }
 
@@ -1974,13 +1958,11 @@
         function updateModeCardPreviews() {
             if (!currentTheme) return;
             
-            console.log('🎨 Updating mode card previews with current theme:', currentTheme);
             
             const modes = ['accent-on-bg-off', 'accent-off-bg-on', 'accent-on-bg-fixed', 'accent-on-bg-black'];
             
             modes.forEach(mode => {
                 const tokens = getTokensForMode(mode);
-                console.log(`🎨 Updating ${mode} with tokens:`, tokens);
                 updateModeCardPreview(mode, tokens);
             });
         }
@@ -2003,7 +1985,6 @@
                     isBrightColor = true;
                 }
             }
-            console.log(`🎨 [${mode}] selectedStep: ${selectedStep}, baseColor lightness: ${currentTheme.baseColor ? ColorUtils.hexToHsl(currentTheme.baseColor)[2] : 'N/A'}, isBrightColor: ${isBrightColor}`);
             
             let backgroundLight, textPrimaryLight, fillPrimaryLight;
             
@@ -2050,7 +2031,6 @@
                     // 실제 GRAY:50 색상 사용 (Light Mode gray scale의 50번째)
                     const colorGenerator = new ColorGenerator();
                     textPrimaryLight = colorGenerator.lightModeGrayTones[0]; // 50번째 = index 0 = '#FFFFFF'
-                    console.log(`🎨 [${mode}] Using GRAY:50 color:`, textPrimaryLight);
                     if (isBrightColor) {
                         fillPrimaryLight = lightColors.find(c => c.step === selectedStep)?.hex;
                     } else {
@@ -2059,13 +2039,6 @@
                     break;
             }
             
-            console.log(`${mode} mode mapping:`, {
-                selectedStep,
-                isBrightColor,
-                background: backgroundLight,
-                textPrimary: textPrimaryLight,
-                fillPrimary: fillPrimaryLight
-            });
             
             return {
                 background: backgroundLight,
@@ -2091,11 +2064,9 @@
             // 텍스트 색상 적용 (로고)
             if (frameHeader) {
                 const svgPaths = frameHeader.querySelectorAll('svg path');
-                console.log(`🎨 [${mode}] Setting text color ${tokens.textPrimary} to ${svgPaths.length} SVG paths`);
                 svgPaths.forEach(path => {
                     path.setAttribute('fill', tokens.textPrimary);
                     path.style.setProperty('fill', tokens.textPrimary, 'important');
-                    console.log(`🎨 [${mode}] Applied fill to path:`, path.getAttribute('fill'));
                 });
             }
             
@@ -2109,22 +2080,18 @@
             const cardSubLabel = card.querySelector('.card-sub-label');
             if (cardLabel) {
                 cardLabel.style.setProperty('color', tokens.textPrimary, 'important');
-                console.log(`🎨 [${mode}] Applied text color ${tokens.textPrimary} to card label`);
             }
             if (cardSubLabel) {
                 cardSubLabel.style.setProperty('color', tokens.textPrimary, 'important');
-                console.log(`🎨 [${mode}] Applied text color ${tokens.textPrimary} to card sub-label`);
             }
         }
 
         // 현재 입력된 색상을 기반으로 모든 모드 카드의 미리보기를 실시간 업데이트하는 함수
         function updateAllModePreviewsWithColor(baseColor) {
             if (!baseColor || !baseColor.startsWith('#')) {
-                console.log('Invalid base color for mode preview update:', baseColor);
                 return;
             }
             
-            console.log('🎨 Updating all mode previews with color:', baseColor);
             
             // 각 모드에 대해 색상 토큰 계산 및 미리보기 업데이트
             const modes = ['accent-on-bg-off', 'accent-on-bg-fixed', 'accent-off-bg-on', 'accent-on-bg-black'];
@@ -2469,7 +2436,6 @@
 
         // 탭 전환 함수
         function switchTab(tabName) {
-            console.log('Switching to tab:', tabName);
             
             // 모든 탭 버튼 비활성화
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2500,20 +2466,12 @@
 
         // Wizard 색상 동기화 설정 함수
         function setupWizardColorSync() {
-            console.log('=== Setting up wizard color sync ===');
             
             const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
             const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
             
-            console.log('Elements found:', {
-                wizardBaseColor: wizardBaseColor,
-                wizardBaseHex: wizardBaseHex,
-                wizardBaseColorType: wizardBaseColor ? wizardBaseColor.type : 'not found',
-                wizardBaseHexType: wizardBaseHex ? wizardBaseHex.type : 'not found'
-            });
             
             if (wizardBaseColor && wizardBaseHex) {
-                console.log('✅ Found wizard color elements, setting up listeners');
                 
                 // 기존 리스너 제거 (중복 방지)
                 wizardBaseColor.removeEventListener('input', handleColorPickerChange);
@@ -2525,7 +2483,6 @@
                 
                 // 테스트용 클릭 리스너도 추가
                 wizardBaseColor.addEventListener('change', () => {
-                    console.log('🔄 Color picker CHANGE event:', wizardBaseColor.value);
                 });
                 
                 // 초기 색상에 대한 분류 정보 표시
@@ -2534,22 +2491,14 @@
                     updateColorClassificationDisplay(initialColor);
                 }
                 
-                console.log('✅ Wizard color sync listeners set up successfully');
-                console.log('Current values:', {
-                    color: wizardBaseColor.value,
-                    hex: wizardBaseHex.value
-                });
             } else {
                 console.error('❌ Wizard color elements not found!');
-                console.log('Available elements with "wizard" in id:');
                 document.querySelectorAll('[id*="wizard"]').forEach(el => {
-                    console.log('  -', el.id, el.tagName, el.type || 'no type');
                 });
             }
         }
 
         function handleColorPickerChange() {
-            console.log('🎨 handleColorPickerChange called');
             const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
             const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
             
@@ -2557,10 +2506,6 @@
                 const oldHexValue = wizardBaseHex.value;
                 const newColorValue = wizardBaseColor.value.toUpperCase();
                 
-                console.log('Color picker changed:', {
-                    from: oldHexValue,
-                    to: newColorValue
-                });
                 
                 wizardBaseHex.value = newColorValue;
                 
@@ -2570,20 +2515,17 @@
                 // 색상 분류 정보 업데이트
                 updateColorClassificationDisplay(newColorValue);
                 
-                console.log('✅ Hex input updated successfully');
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
             }
         }
 
         function handleHexInputChange() {
-            console.log('✏️ handleHexInputChange called');
             const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
             const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
             
             if (wizardBaseColor && wizardBaseHex) {
                 const hexValue = wizardBaseHex.value;
-                console.log('Hex input changed to:', hexValue);
                 
                 if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
                     const oldColorValue = wizardBaseColor.value;
@@ -2595,10 +2537,6 @@
                     // 색상 분류 정보 업데이트
                     updateColorClassificationDisplay(hexValue);
                     
-                    console.log('✅ Color picker updated:', {
-                        from: oldColorValue,
-                        to: hexValue
-                    });
                 } else {
                     console.warn('⚠️ Invalid hex format:', hexValue);
                 }
@@ -2609,7 +2547,6 @@
 
         // 모드 설정 함수
         function setMode(mode) {
-            console.log('Setting mode:', mode);
             currentMode = mode;
             
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -2725,7 +2662,6 @@
                 colorGenerator.getAutoTuningValue(baseColor) :
                 parseInt(document.getElementById('tuningSlider').value) || 0;
             
-            console.log('Generating custom theme with tuning:', tuningValue);
             
             // themeGenerator에 tuning 값 전달
             currentTheme = themeGenerator.generateTheme(baseColor, themeName, applicationMode, tuningValue);
@@ -2778,7 +2714,6 @@
                 return;
             }
             
-            console.log('Creating custom theme variables:', currentTheme);
             
             parent.postMessage({
                 pluginMessage: {
@@ -2792,7 +2727,6 @@
 
         // Custom Mode 적용 함수
         function applyCustomMode(modeName) {
-            console.log('Applying custom theme colors:', modeName);
             
             if (!currentTheme) {
                 showMessage('먼저 테마를 생성해주세요!');
@@ -2928,11 +2862,9 @@ window.addEventListener('message', (event) => {
     var msg = event.data.pluginMessage;
     if (!msg) return;
 
-    console.log('Received message:', msg);
     
     switch(msg.type) {
         case 'plugin-ready':
-            console.log('Plugin ready:', msg.message);
             break;
         case 'variable-created':
             if (msg.success) {
@@ -3100,7 +3032,6 @@ window.addEventListener('message', (event) => {
 
         // 이벤트 리스너 설정
         function setupEventListeners() {
-            console.log('🎯 Setting up event listeners...');
 
             // 탭 버튼들
             const generatorTab = document.getElementById('generatorTab');
@@ -3280,7 +3211,6 @@ window.addEventListener('message', (event) => {
             // Wizard 이벤트 리스너
             
             // Step 1 색상 입력 동기화
-            console.log('📱 Calling setupWizardColorSync from setupEventListeners...');
             setupWizardColorSync();
             
             // Mode 카드 클릭 이벤트
@@ -3292,7 +3222,6 @@ window.addEventListener('message', (event) => {
             });
 
             // 초기화 완료
-            console.log('🎯✅ Event listeners set up successfully');
         }
 
         // 플러그인 메시지 수신
@@ -3300,12 +3229,10 @@ window.addEventListener('message', (event) => {
             var msg = event.data.pluginMessage;
             if (!msg) return;
 
-            console.log('Received message:', msg);
-            
+                    
             switch(msg.type) {
                 case 'plugin-ready':
-                    console.log('Plugin ready:', msg.message);
-                    break;
+                            break;
                 case 'variable-created':
                     if (msg.success) {
                         showMessage(`Variables 생성 완료! (${msg.count || 0}개)`);
@@ -3348,72 +3275,37 @@ window.addEventListener('message', (event) => {
 
         // 초기화
         function init() {
-            console.log('🚀 Initializing UI...');
-            console.log('🔧 Calling setupEventListeners...');
             setupEventListeners();
-            console.log('📊 Calling updateDisplay...');
             updateDisplay();
             
-            console.log('⏰ Setting up wizard color sync in 200ms...');
             // Custom Theme 탭이 기본이므로 초기화 시에도 wizard 색상 동기화 설정
             setTimeout(() => {
-                console.log('⏰ Timeout reached, calling setupWizardColorSync...');
                 setupWizardColorSync();
             }, 200);
             
-            console.log('✅ UI initialized successfully');
         }
         
         // =====================================
         // Annotation 제어 함수들
         // =====================================
         
-        function toggleAnnotation() {
-            const checkbox = document.getElementById('annotationToggle');
-            const pinCheckbox = document.getElementById('annotationPin');
-            
-            if (checkbox.checked) {
-                // Annotation 활성화
-                parent.postMessage({
-                    pluginMessage: {
-                        type: 'annotation-control',
-                        action: 'enable'
-                    }
-                }, '*');
-                
-                pinCheckbox.disabled = false;
-                console.log('🎯 Annotation system enabled');
-                showMessage('Color Annotation이 활성화되었습니다. 요소를 선택해보세요!');
-            } else {
-                // Annotation 비활성화
-                parent.postMessage({
-                    pluginMessage: {
-                        type: 'annotation-control',
-                        action: 'disable'
-                    }
-                }, '*');
-                
-                pinCheckbox.disabled = true;
-                pinCheckbox.checked = false;
-                console.log('🎯 Annotation system disabled');
-                showMessage('Color Annotation이 비활성화되었습니다.');
-            }
-        }
-        
-        function toggleAnnotationPin() {
-            const checkbox = document.getElementById('annotationPin');
-            
+        function showMappingInfo() {
+            // 현재 테마 정보와 함께 메시지 전송
             parent.postMessage({
                 pluginMessage: {
                     type: 'annotation-control',
-                    action: 'toggle-pin'
+                    action: 'show-mapping',
+                    theme: currentTheme // 현재 테마 정보 포함
                 }
             }, '*');
-            
-            if (checkbox.checked) {
-                showMessage('Annotation 위치가 고정되었습니다.');
-            } else {
-                showMessage('Annotation이 선택된 요소를 따라 이동합니다.');
+        }
+        
+        // Mapping 정보 표시 상태 업데이트
+        function updateMappingStatus(message, color = '#666') {
+            const statusSpan = document.getElementById('mappingStatus');
+            if (statusSpan) {
+                statusSpan.textContent = message;
+                statusSpan.style.color = color;
             }
         }
 
@@ -3426,7 +3318,6 @@ window.addEventListener('message', (event) => {
 
         // 페이지 로드 완료 후에도 확인
         window.addEventListener('load', () => {
-            console.log('Window loaded, ensuring initialization...');
             if (generatedColors.length === 0) {
                 updateDisplay();
             }
