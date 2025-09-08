@@ -1678,9 +1678,11 @@ async function handleAnnotationControl(msg) {
           var tokenName = importantMappings[m];
           var mappingValue = mappings[tokenName];
           if (mappingValue) {
-            var displayName = tokenName.replace('semantic/', '').replace('fill/', '').replace('text/', '').replace('border/', '');
+            // CSS 변수 형식으로 표시: --semantic-text/secondary: var(--scale-gray-700);
+            var semanticVar = '--' + tokenName;
             var actualTokenName = findTokenFromMapping(mappingValue);
-            mappingText += displayName + '\n→ ' + actualTokenName + '\n\n';
+            var scaleVar = '--' + actualTokenName;
+            mappingText += semanticVar + ': var(' + scaleVar + ');\n';
           }
         }
         
