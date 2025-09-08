@@ -351,6 +351,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + '700';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '600';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
@@ -385,6 +386,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
@@ -424,6 +426,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + '500';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '600';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
@@ -432,24 +435,24 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
     } else {
       // 어두운 범위 (Step>300 AND L<80% AND NOT BornBright)
-      mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/secondary'] = 'ON-COLOR-ALPHA:800';
-      mappings['semantic/text/tertiary'] = 'ON-COLOR-ALPHA:700';
-      mappings['semantic/text/disabled'] = 'ON-COLOR-ALPHA:500';
+      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
+      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
+      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/surface-contents'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:100';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + '100';
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '50';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + '50';
-      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:200';
-      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:300';
-      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:200';
+      mappings['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
+      mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -458,6 +461,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + '100';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '200';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '200';
+      mappings['semantic/common/muted'] = 'REF:' + themeName + '300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
@@ -498,6 +502,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 4);
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
@@ -531,6 +536,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + closestStep;
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
@@ -572,6 +578,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + '700';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '600';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
@@ -580,13 +587,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
     } else {
       // 어두운 범위 - 어두운 배경이지만 밝은 텍스트 사용 (흰 배경 대비)
-      mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/secondary'] = 'GRAY:300';
-      mappings['semantic/text/tertiary'] = 'GRAY:400';
-      mappings['semantic/text/disabled'] = 'GRAY:600';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
+      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
+      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
+      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/text/on-color'] = 'STATIC-WHITE-ALPHA:50';
 
-      mappings['semantic/fill/surface-contents'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:100';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -598,13 +605,14 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
-       mappings['semantic/fill/silent'] = 'GRAY:950';
+      mappings['semantic/fill/silent'] = 'GRAY:950';
       mappings['semantic/fill/silent-hover'] = 'GRAY:900';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:900';
       
       mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + closestStep;
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/common/muted'] = 'REF:' + themeName + '600';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
