@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Generator</title>
     <style>
+        /* CSS Variables - Design System */
+        :root {
+            /* Colors */
+            --basicwhite: #ffffff;
+            --basicblack: #000000;
+            --basicblack-3: #666666;
+            --basicblack-8: #333333;
+            --basicgray: #f0f0f0;
+            --specialblack-1: #e0e0e0;
+            --specialblue-3: #e3f2fd;
+            --accentblue: #007aff;
+            
+            /* Primary Color Scale */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+            
+            /* Ruler v2 Colors */
+            --ruler-v2-scale-custom-theme-150: #dbeafe;
+            --ruler-v2-scale-custom-theme-500: #3b82f6;
+            --ruler-v2-scale-gray-50: #f9fafb;
+            --ruler-v2-scale-gray-800: #1f2937;
+            --ruler-v2-scale-gray-950: #030712;
+            --ruler-v2-semantic-border-line-selected: #3b82f6;
+            --ruler-v2-semantic-fill-primary: #3b82f6;
+            --ruler-v2-semantic-fill-surface-contents: #f1f5f9;
+            
+            /* Typography */
+            --body-1-regular-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --body-1-regular-font-size: 12px;
+            --body-1-regular-font-weight: 400;
+            --body-1-regular-line-height: 16px;
+            
+            --body-1-semi-bold-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --body-1-semi-bold-font-size: 12px;
+            --body-1-semi-bold-font-weight: 600;
+            --body-1-semi-bold-line-height: 16px;
+            
+            --heading-2-semi-bold-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --heading-2-semi-bold-font-size: 14px;
+            --heading-2-semi-bold-font-weight: 600;
+            --heading-2-semi-bold-line-height: 20px;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -12,60 +63,130 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f7f7f7;
-            color: #333;
-            font-size: 12px;
-            line-height: 1.4;
+            font-family: var(--body-1-regular-font-family);
+            background: #f5f5f5;
+            color: var(--basicblack-8);
+            font-size: var(--body-1-regular-font-size);
+            line-height: var(--body-1-regular-line-height);
             overflow-x: hidden;
         }
 
         .container {
             padding: 16px;
+            width: 100%;
             max-width: 100%;
+            background: var(--basicwhite);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .tab-navigation {
             display: flex;
-            background: #f8f9fa;
-            border-radius: 6px;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 4px;
+            position: relative;
+            background-color: var(--basicgray);
+            border-radius: 12px;
             margin-bottom: 12px;
-            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .tab-navigation::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc((100% - 16px) / 3);
+            height: calc(100% - 8px);
+            background-color: var(--basicwhite);
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px -4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
         }
 
         .tab-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            position: relative;
             flex: 1;
-            padding: 8px 8px;
-            background: none;
             border: none;
-            font-size: 9px;
-            font-weight: 600;
+            background: transparent;
+            border-radius: 8px;
+            overflow: hidden;
             cursor: pointer;
-            transition: all 0.2s;
-            color: #6c757d;
-            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--body-1-semi-bold-font-family);
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--basicblack-3);
+            white-space: nowrap;
+            transform: scale(1);
+            z-index: 2;
         }
 
         .tab-btn.active {
-            background: white;
-            color: #000;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background-color: transparent;
+            color: var(--basicblack);
+            transform: scale(1.02);
+        }
+        
+        /* 두 번째 탭 활성화 */
+        .tab-navigation.second-active::before {
+            transform: translateX(calc(100% + 4px));
+        }
+        
+        /* 세 번째 탭 활성화 */
+        .tab-navigation.third-active::before {
+            transform: translateX(calc(200% + 8px));
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.01);
+        }
+        
+        .tab-btn:active {
+            transform: scale(0.98);
         }
 
         .tab-content {
             display: none;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease-in;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
+        
 
         .section {
-            background: white;
+            background: var(--basicwhite);
             border-radius: 8px;
+            border: 0.5px solid #00000010;
             padding: 12px;
             margin-bottom: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 4px rgba(0,0,0,0.04);
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .section-title {
@@ -79,25 +200,44 @@
             display: flex;
             align-items: center;
             margin-bottom: 8px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .color-picker {
-            width: 32px;
-            height: 24px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
+            
+            
+            margin-right: 8px;
+            
+            
             cursor: pointer;
             background: none;
+            flex: auto;
+            text-transform: uppercase;
+
+            width: 40px;
+            padding: 2px 2px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+            background: white;
+
+
+
         }
 
         .hex-input {
             flex: auto;
-            padding: 4px 6px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-family: 'Monaco', monospace;
-            font-size: 10px;
             text-transform: uppercase;
+
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+            background: white;
         }
 
         .mode-buttons {
@@ -109,10 +249,10 @@
         .mode-btn {
             flex: 1;
             padding: 6px 8px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--specialblack-1);
             border-radius: 4px;
-            background: white;
-            color: #666;
+            background: var(--basicwhite);
+            color: var(--basicblack-3);
             font-size: 10px;
             font-weight: 500;
             cursor: pointer;
@@ -120,49 +260,55 @@
         }
 
         .mode-btn.active {
-            background: #000;
-            color: white;
-            border-color: #000;
+            background: var(--basicblack);
+            color: var(--basicwhite);
+            border-color: var(--basicblack);
         }
 
         .action-btn {
             width: 100%;
-            padding: 8px 12px;
+            padding: 0px 12px;
+            height: 32px;
             border: none;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
+            border-radius: 3px;
+            font-family: var(--body-1-semi-bold-font-family);
+            font-size: var(--body-1-semi-bold-font-size);
+            font-weight: var(--body-1-semi-bold-font-weight);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background-color 0.2s;
             margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-primary {
-            background: #000;
-            color: white;
+            background: var(--basicblack);
+            color: var(--basicwhite);
         }
 
         .btn-primary:hover {
-            background: #333;
+            background: var(--basicblack);
         }
 
         .btn-secondary {
-            background: #f8f9fa;
-            color: #495057;
-            border: 1px solid #e0e0e0;
+            background: var(--basicgray);
+            color: var(--basicblack);
         }
 
         .btn-secondary:hover {
-            background: #e9ecef;
+            background: var(--basicgray);
+            color: var(--basicblack);
         }
 
         .btn-success {
-            background: #667EEA;
-            color: white;
+            background: var(--accentblue);
+            color: var(--basicwhite)
         }
 
         .btn-success:hover {
-            background: #768ae5;
+            background: var(--accentblue);
+            color: var(--basicwhite)
         }
 
         .color-grid {
@@ -243,7 +389,6 @@
             padding: 8px;
             background: linear-gradient(145deg, #e8f5e8, #d4f4d4);
             border-radius: 6px;
-            border-left: 3px solid #28a745;
             margin-bottom: 8px;
         }
 
@@ -272,11 +417,34 @@
         }
 
         .tone-input-area {
-            padding: 12px;
+
             background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #000;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+
+
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .button-group .action-btn {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            max-width: calc(50% - 3px);
         }
 
         .tone-suggestions {
@@ -353,6 +521,7 @@
 
         /* Custom Theme Wizard 스타일 */
         .wizard-progress {
+            margin-top: 20px;
             margin-bottom: 20px;
             padding: 0 4px;
         }
@@ -360,28 +529,42 @@
         .simple-progress-bar {
             display: flex;
             height: 4px;
-            background: #e0e0e0;
+            background: var(--specialblack-1);
             border-radius: 2px;
             overflow: hidden;
         }
 
         .progress-segment {
             flex: 1;
-            background: #e0e0e0;
+            background: var(--specialblack-1);
             margin-right: 2px;
             border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-segment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accentblue);
+            transition: left 0.6s ease-out;
         }
 
         .progress-segment:last-child {
             margin-right: 0;
         }
 
-        .progress-segment.active {
-            background: #667eea;
+        .progress-segment.active::before {
+            left: 0;
         }
 
-        .progress-segment.completed {
-            background: #667eea;
+        .progress-segment.completed::before {
+            left: 0;
+            transition: none;
         }
 
         .wizard-step {
@@ -401,18 +584,22 @@
         .step-header {
             text-align: left;
             margin-bottom: 20px;
-            padding-left: 4px;
+            padding: 0px 8px 0px 8px;
         }
 
-        .step-header h2 {
-            font-size: 16px;
-            color: #333;
+        .step-header .step-title {
+            font-size: 14px;
+            color: #1a202c;
             margin-bottom: 4px;
             font-weight: 600;
+            background: #1a202c;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .step-header p {
-            font-size: 11px;
+            font-size: 12px;
             color: #888;
             margin: 0;
         }
@@ -482,16 +669,18 @@
         .mode-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+            gap: 40px 12px;
+            margin-bottom: 30px;
+            padding:8px;
             width: 100%;
             justify-content: center;
+            padding-bottom: 20px;
         }
 
 
         .mode-card {
-            background: #ffffff;
-            
+            background: var(--basicwhite);
+            border: 1px solid #00000010;
             border-radius: 6px;
             box-sizing: border-box;
             cursor: pointer;
@@ -499,34 +688,35 @@
             text-align: center;
             position: relative;
             width: 100%;
-            height: 160px;
+            height: 168px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 10px;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .mode-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-color: var(--accentblue);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
             transform: translateY(-1px);
         }
 
         .mode-card.selected {
-            border: 2px solid #000;
+            outline: 2px solid var(--accentblue);
+            outline-offset: 2px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .card-checkbox {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
             border-radius: 14px;
-            background: #f7f7f7;
-            border: 2px solid #ddd;
+            background: #ffffff80;
+            border: 1px solid #00000010;
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -620,26 +810,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 8px;
             box-sizing: border-box;
         }
 
-        
-        .preview-frame.white-bg {
-            
-        
-        }
-        
-        .preview-frame.black-bg {
-            /* background removed */
-        }
 
         .frame-header {
             font-size: 8px;
             font-weight: 600;
             color: #333;
             text-align: left;
-            padding: 6px 8px;
+            padding: 8px 6px 12px 6px;
             width : 100%;
             
             display: flex;
@@ -663,17 +843,20 @@
         }
 
         .frame-content-area {
-            padding: 4px;
-            display: flex;
-            gap: 2px;
+            justify-content: center;
+            
+            grid-template-columns: 1fr 1fr;
             flex: 1;
             align-items: stretch;
+            width:100%;
         }
 
         .content-block {
             flex: 1;
+            height:48px;
+            margin-bottom: 8px;
             background: #f8f9fa;
-            border-radius: 2px;
+            border-radius: 4px;
         }
 
         .content-block.light {
@@ -691,10 +874,13 @@
 
         .frame-button {
             background: #bcc8ff;
-            border-radius: 3px;
-            width: 100%;
-            height: 20px;
-            margin: 2px 4px 0;
+            border-radius: 4px;
+            width: calc(100% - 16px);
+            height: 26px;
+            position: absolute;
+            bottom: 0px;
+            left: 10px;
+            right: 10px;
             transition: background-color 0.3s ease;
         }
 
@@ -707,22 +893,26 @@
         }
 
         .card-footer {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            right: 0;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            line-height: 1.2;
+            min-height: 20px;
         }
 
         .card-label {
-            font-size: 9px;
-            font-weight: 600;
+            font-size: 8px;
+            font-weight: 400;
             color: #333;
-            margin-bottom: 2px;
             transition: color 0.3s ease;
-        }
-
-        .card-sub-label {
-            font-size: 9px;
-            color: #777;
-            line-height: 1.2;
-            transition: color 0.3s ease;
+            text-align: center;
+            width: 100%;
         }
 
         .card-description {
@@ -734,19 +924,17 @@
         /* 색상 분류 정보 스타일 */
         .color-classification-info {
             margin-top: 8px;
-            padding: 10px;
             background: #f8f9fa;
             border-radius: 6px;
-            border-left: 3px solid #667eea;
             transition: all 0.3s ease;
-        }
+            display: flex;
+            flex-direction: row;
 
-        .classification-badge {
-            margin-bottom: 4px;
+            padding: 12px;
         }
 
         .classification-result {
-            display: inline-block;
+            
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 10px;
@@ -771,7 +959,7 @@
         .classification-details {
             font-size: 10px;
             color: #666;
-            margin-bottom: 4px;
+            text-align: center;
         }
 
         .classification-reasons {
@@ -796,7 +984,6 @@
             justify-content: space-between;
             gap: 8px;
             padding-top: 12px;
-            border-top: 1px solid #e0e0e0;
         }
 
         .step-actions button {
@@ -947,11 +1134,11 @@
 
         .classification-badge {
             display: inline-block;
-            padding: 4px 6px;
+            margin-right : 8px;
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
-            margin-left: 4px;
+            
         }
 
         .classification-300 {
@@ -1112,7 +1299,7 @@
             <!-- Step 1: Key Color 선택 -->
             <div id="wizardStep1" class="wizard-step active">
                 <div class="step-header">
-                    <h2>Step 1. Key Color 선택</h2>
+                    <div class="step-title">Step 1. Key Color 선택</div>
                     <p>선택한 Key Color를 기반으로 완전한 semantic 토큰 시스템을 생성합니다.</p>
                 </div>
                 
@@ -1144,7 +1331,7 @@
                 </div>
                 
                 <div class="step-actions">
-                    <button class="action-btn btn-primary" onclick="goToStep(3)">다음</button>
+                    <button class="action-btn btn-success" onclick="goToStep(3)">다음</button>
                 </div>
             </div>
 
@@ -1152,7 +1339,7 @@
             <!-- Step 3: Mode 선택 및 적용 -->
             <div id="wizardStep3" class="wizard-step">
                 <div class="step-header">
-                    <h2>Step 2. Mode 선택</h2>
+                    <div class="step-title">Step 2. Mode 선택</div>
                     <p>선택한 Frame에 Theme을 적용합니다.</p>
                 </div>
                 
@@ -1172,7 +1359,7 @@
                                 <div class="card-preview">
                                     <div class="preview-frame">
                                         <div class="frame-header">
-                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
                                                 <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
                                                 <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
@@ -1183,6 +1370,7 @@
                                             <div class="content-block light"></div>
                                             <div class="content-block light"></div>
                                         </div>
+  
                                         <div class="frame-button accent"></div>
                                     </div>
                                 </div>
@@ -1190,7 +1378,7 @@
                                     <div class="card-label">forground 중심</div>
                                 </div>
                             </div>
-                            
+       
                             <!-- Mode 3: background 중심 -->
                             <div class="mode-card" data-mode="accent-off-bg-on">
                                 <div class="card-checkbox">
@@ -1204,7 +1392,7 @@
                                 <div class="card-preview">
                                     <div class="preview-frame">
                                         <div class="frame-header">
-                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
                                                 <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
                                                 <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
@@ -1236,7 +1424,7 @@
                                 <div class="card-preview">
                                     <div class="preview-frame white-bg">
                                         <div class="frame-header">
-                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
                                                 <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
                                                 <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
@@ -1251,8 +1439,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer">
-                                    <div class="card-label">forground 중심</div>
-                                    <div class="card-sub-label">white bg</div>
+                                    <div class="card-label">forground 중심 <br> white bg</div>
                                 </div>
                             </div>
                             
@@ -1269,7 +1456,7 @@
                                 <div class="card-preview">
                                     <div class="preview-frame black-bg">
                                         <div class="frame-header">
-                                            <svg width="40" height="11" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
                                                 <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
                                                 <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
@@ -1284,8 +1471,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer">
-                                    <div class="card-label">forground 중심</div>
-                                    <div class="card-sub-label">black bg</div>
+                                    <div class="card-label">forground 중심<br> black bg</div>
                                 </div>
                             </div>
                         </div>
@@ -1293,25 +1479,21 @@
                 </div>
                 
                 <!-- Mapping 정보보기 컨트롤 -->
-                <div class="mapping-info-controls" style="margin: 20px 0; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f8f9fa;">
-                    <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600;">Mapping 정보</h3>
-                    <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="mapping-info-controls" style="margin: 8px; padding: 12px; border: 1px solid #00000010; border-radius: 8px; background: #f8f9fa;">
+                    <div style="display: flex; gap: 6px; align-items: center; flex-direction: column; ">
                         <button 
                             id="showMappingBtn" 
                             onclick="showMappingInfo()" 
-                            style="padding: 8px 16px; background: #007ACC; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                            style="padding: 8px 16px; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 10px;">
                             선택된 Frame의 Mapping 정보보기
                         </button>
-                        <span id="mappingStatus" style="font-size: 12px; color: #666; margin-left: 8px;">Frame을 선택하고 버튼을 눌러주세요</span>
-                    </div>
-                    <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                        💡 선택된 Frame 오른쪽에 semantic→scale 토큰 매핑 정보가 표시됩니다
+                        <span id="mappingStatus" style="font-size: 10px; color: #666; margin-left: 8px;">Frame을 선택하고 버튼을 눌러주세요</span>
                     </div>
                 </div>
                 
                 <div class="step-actions">
                     <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
-                    <button class="action-btn btn-primary" onclick="applyCustomTheme()">custom theme 적용하기</button>
+                    <button class="action-btn btn-success" onclick="applyCustomTheme()">custom theme 적용하기</button>
                 </div>
             </div>
         </div>
@@ -1327,7 +1509,7 @@
             </div>
 
             <!-- Base Color Input 섹션 다음에 추가 -->
-            <div class="section">
+            <div class="section" style="display: none;">
                 <div class="section-title">Fine Tuning</div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <div style="display: flex; gap: 8px;">
@@ -1382,7 +1564,7 @@
         <!-- Tone Matching 탭 -->
         <div id="toneMatchingContent" class="tab-content">
             <div class="header">
-                <div class="section-title"> 어울리는 색상을 추천해요.</div>
+                
             </div>
 
             <!-- 기준 색상 설정 -->
@@ -1395,12 +1577,12 @@
                     <input type="text" id="referenceColorHex" class="hex-input" value="#667EEA">
                 </div>
                 
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button id="setRefBtn" class="action-btn btn-primary" style="flex: 2;">Set Reference</button>
-                    <button id="clearRefBtn" class="action-btn btn-secondary" style="flex: 1; min-width: 60px;">Clear</button>
+                <div class="button-group">
+                    <button id="setRefBtn" class="action-btn btn-primary">Set Reference</button>
+                    <button id="clearRefBtn" class="action-btn btn-secondary">Clear</button>
                 </div>
                 
-                <div id="referenceStatus" style="color: #666; font-size: 10px; margin-top: 4px;">현재 설정된 기준 컬러가 없습니다.</div>
+                <div id="referenceStatus" style="color: #666; font-size: 10px; margin: 8px 0px 8px 0px;">현재 설정된 기준 컬러가 없습니다.</div>
                 <div id="referenceDisplay"></div>
             </div>
             
@@ -2040,10 +2222,14 @@
             }
             
             
+            // fillSurfaceContents는 항상 연한 회색 계열 (50-100 단계)
+            const fillSurfaceContentsLight = lightColors.find(c => c.step === 50)?.hex || '#f9fafb';
+            
             return {
                 background: backgroundLight,
                 textPrimary: textPrimaryLight,
-                fillPrimary: fillPrimaryLight
+                fillPrimary: fillPrimaryLight,
+                fillSurfaceContents: fillSurfaceContentsLight
             };
         }
         
@@ -2075,14 +2261,20 @@
                 frameButton.style.backgroundColor = tokens.fillPrimary;
             }
             
-            // 카드 라벨 텍스트 색상 적용
+            // content-block 색상 적용 (semantic-fill-surface-contents 미리보기)
+            const contentBlocks = card.querySelectorAll('.content-block');
+            contentBlocks.forEach(block => {
+                block.style.backgroundColor = tokens.fillSurfaceContents || '#f1f5f9';
+            });
+            
+            // 카드 라벨 텍스트 색상 고정 (카드 밖으로 나왔으므로 검은색 고정)
             const cardLabel = card.querySelector('.card-label');
             const cardSubLabel = card.querySelector('.card-sub-label');
             if (cardLabel) {
-                cardLabel.style.setProperty('color', tokens.textPrimary, 'important');
+                cardLabel.style.setProperty('color', '#000000', 'important');
             }
             if (cardSubLabel) {
-                cardSubLabel.style.setProperty('color', tokens.textPrimary, 'important');
+                cardSubLabel.style.setProperty('color', '#000000', 'important');
             }
         }
 
@@ -2436,6 +2628,7 @@
 
         // 탭 전환 함수
         function switchTab(tabName) {
+            const tabNavigation = document.querySelector('.tab-navigation');
             
             // 모든 탭 버튼 비활성화
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2447,15 +2640,21 @@
                 content.classList.remove('active');
             });
             
+            // 슬라이딩 애니메이션을 위한 클래스 제거
+            tabNavigation.classList.remove('second-active', 'third-active');
+            
             if (tabName === 'generator') {
                 document.getElementById('generatorTab').classList.add('active');
                 document.getElementById('generatorContent').classList.add('active');
+                tabNavigation.classList.add('second-active');
             } else if (tabName === 'tone-matching') {
                 document.getElementById('toneMatchingTab').classList.add('active');
                 document.getElementById('toneMatchingContent').classList.add('active');
+                tabNavigation.classList.add('third-active');
             } else if (tabName === 'custom-theme') {
                 document.getElementById('customThemeTab').classList.add('active');
                 document.getElementById('customThemeContent').classList.add('active');
+                // 첫 번째 탭이므로 기본 위치 (클래스 추가 안 함)
                 
                 // Custom Theme 탭 전환 시 색상 동기화 리스너 다시 설정
                 setTimeout(() => {
@@ -2939,7 +3138,7 @@ window.addEventListener('message', (event) => {
                 return;
             }
             
-            statusElement.textContent = `✅ Reference Set: ${referenceColor.hex}`;
+            statusElement.textContent = `Reference Set: ${referenceColor.hex}`;
             statusElement.style.color = '#28a745';
             
             var [h, s, l] = referenceColor.hsl;
@@ -2947,7 +3146,7 @@ window.addEventListener('message', (event) => {
                 <div class="reference-display">
                     <div class="reference-color" style="background: ${referenceColor.hex};"></div>
                     <div class="reference-info">
-                        <h4>📌 Reference Active</h4>
+                        <h4>Reference Active</h4>
                         <p><strong>${referenceColor.hex}</strong></p>
                         <p>HSL(${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(l)}%)</p>
                     </div>

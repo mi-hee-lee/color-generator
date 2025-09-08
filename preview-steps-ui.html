@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <title>Color Generator - Steps Preview</title>
+    <style>
+        /* CSS Variables - Design System */
+        :root {
+            /* Colors */
+            --basicwhite: #ffffff;
+            --basicblack: #000000;
+            --basicblack-3: #666666;
+            --basicblack-8: #333333;
+            --basicgray: #f0f0f0;
+            --specialblack-1: #e0e0e0;
+            --specialblue-3: #e3f2fd;
+            --accentblue: #007aff;
+            
+            /* Primary Color Scale */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+            
+            /* Ruler v2 Colors */
+            --ruler-v2-scale-custom-theme-150: #dbeafe;
+            --ruler-v2-scale-custom-theme-500: #3b82f6;
+            --ruler-v2-scale-gray-50: #f9fafb;
+            --ruler-v2-scale-gray-50-duplicate: #f9fafb;
+            --ruler-v2-scale-gray-800: #1f2937;
+            --ruler-v2-scale-gray-950: #030712;
+            --ruler-v2-semantic-border-line-selected: #3b82f6;
+            --ruler-v2-semantic-fill-primary: #3b82f6;
+            --ruler-v2-semantic-fill-surface-contents: #f1f5f9;
+            
+            /* Typography */
+            --body-1-regular-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --body-1-regular-font-size: 12px;
+            --body-1-regular-font-weight: 400;
+            --body-1-regular-line-height: 16px;
+            --body-1-regular-letter-spacing: 0;
+            --body-1-regular-font-style: normal;
+            
+            --body-1-semi-bold-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --body-1-semi-bold-font-size: 12px;
+            --body-1-semi-bold-font-weight: 600;
+            --body-1-semi-bold-line-height: 16px;
+            --body-1-semi-bold-letter-spacing: 0;
+            --body-1-semi-bold-font-style: normal;
+            
+            --heading-2-semi-bold-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --heading-2-semi-bold-font-size: 14px;
+            --heading-2-semi-bold-font-weight: 600;
+            --heading-2-semi-bold-line-height: 20px;
+            --heading-2-semi-bold-letter-spacing: 0;
+            --heading-2-semi-bold-font-style: normal;
+        }
+        
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--body-1-regular-font-family);
+            background: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* Container for each step */
+        .step-container {
+            width: 360px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .step-title {
+            background: #f8f9fa;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--basicblack-8);
+            border-bottom: 1px solid var(--specialblack-1);
+        }
+
+        /* Main Styles */
+        .styles-manager {
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+            align-items: flex-start;
+            position: relative;
+            background-color: #ffffff;
+        }
+
+        .styles-manager .separator {
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            height: 1px;
+            background-color: var(--specialblack-1);
+        }
+
+        .styles-manager .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            flex: 1;
+            align-self: stretch;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        .styles-manager .plugin-header {
+            display: flex;
+            height: 40px;
+            align-items: center;
+            gap: 4px;
+            padding: 0px 4px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: var(--basicwhite);
+        }
+
+        .styles-manager .element-styles {
+            width: 32px;
+            position: relative;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .styles-manager .vector {
+            position: relative;
+            width: 9px;
+            height: 9px;
+            background: var(--accentblue);
+            border-radius: 2px;
+        }
+
+        .styles-manager .label {
+            display: flex;
+            height: 32px;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            flex: 1;
+            flex-grow: 1;
+        }
+
+        .styles-manager .title {
+            position: relative;
+            width: fit-content;
+            font-family: var(--body-1-semi-bold-font-family);
+            font-weight: var(--body-1-semi-bold-font-weight);
+            color: var(--basicblack);
+            font-size: var(--body-1-semi-bold-font-size);
+            text-align: center;
+            letter-spacing: var(--body-1-semi-bold-letter-spacing);
+            line-height: var(--body-1-semi-bold-line-height);
+            white-space: nowrap;
+            font-style: var(--body-1-semi-bold-font-style);
+        }
+
+        .styles-manager .icon-button {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 3px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .styles-manager .icon-button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .styles-manager .element-x {
+            position: relative;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .styles-manager .img {
+            position: relative;
+            width: 11px;
+            height: 11px;
+        }
+
+        /* X icon using CSS */
+        .styles-manager .img::before,
+        .styles-manager .img::after {
+            content: '';
+            position: absolute;
+            width: 11px;
+            height: 1px;
+            background: var(--basicblack-3);
+            top: 50%;
+            left: 50%;
+        }
+
+        .styles-manager .img::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .styles-manager .img::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .styles-manager .tabs {
+            display: flex;
+            height: 32px;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 0px 16px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: var(--basicwhite);
+        }
+
+        .styles-manager .tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            align-self: stretch;
+            flex: 0 0 auto;
+            cursor: pointer;
+            padding: 8px 4px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .styles-manager .tab:first-child {
+            border-bottom-color: var(--accentblue);
+        }
+
+        .styles-manager .tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .styles-manager .tab .title {
+            color: var(--accentblue);
+        }
+
+        .styles-manager .text-wrapper {
+            width: fit-content;
+            font-family: var(--body-1-regular-font-family);
+            font-weight: var(--body-1-regular-font-weight);
+            color: var(--basicblack-3);
+            text-align: center;
+            white-space: nowrap;
+            position: relative;
+            font-size: var(--body-1-regular-font-size);
+            letter-spacing: var(--body-1-regular-letter-spacing);
+            line-height: var(--body-1-regular-line-height);
+            font-style: var(--body-1-regular-font-style);
+        }
+
+        /* Step Progress Bar */
+        .styles-manager .frame {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 8px 16px 0px;
+            flex: 0 0 auto;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+        }
+
+        .styles-manager .overlap-group-wrapper {
+            height: 9px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .styles-manager .overlap-group {
+            width: 280px;
+            height: 4px;
+            background-color: var(--specialblue-3);
+            border-radius: 24px;
+            position: relative;
+        }
+
+        .styles-manager .track {
+            height: 4px;
+            background-color: var(--accentblue);
+            border-radius: 24px;
+        }
+
+        .styles-manager .div {
+            position: relative;
+            align-self: stretch;
+            font-family: var(--heading-2-semi-bold-font-family);
+            font-weight: var(--heading-2-semi-bold-font-weight);
+            color: var(--basicblack-8);
+            font-size: var(--heading-2-semi-bold-font-size);
+            letter-spacing: var(--heading-2-semi-bold-letter-spacing);
+            line-height: var(--heading-2-semi-bold-line-height);
+            font-style: var(--heading-2-semi-bold-font-style);
+            margin-bottom: 8px;
+        }
+
+        .styles-manager .p {
+            position: relative;
+            align-self: stretch;
+            font-family: var(--heading-2-semi-bold-font-family);
+            font-weight: var(--heading-2-semi-bold-font-weight);
+            color: var(--basicblack-8);
+            font-size: var(--heading-2-semi-bold-font-size);
+            letter-spacing: var(--heading-2-semi-bold-letter-spacing);
+            line-height: var(--heading-2-semi-bold-line-height);
+            font-style: var(--heading-2-semi-bold-font-style);
+            margin-bottom: 8px;
+        }
+
+        .styles-manager .section-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0px 8px 24px 16px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            flex: 0 0 auto;
+        }
+
+        .styles-manager .title-2 {
+            flex: 1;
+            margin-top: -1.00px;
+            font-family: var(--body-1-regular-font-family);
+            font-weight: var(--body-1-regular-font-weight);
+            color: var(--basicblack-3);
+            position: relative;
+            font-size: var(--body-1-regular-font-size);
+            letter-spacing: var(--body-1-regular-letter-spacing);
+            line-height: var(--body-1-regular-line-height);
+            font-style: var(--body-1-regular-font-style);
+        }
+
+        .styles-manager .frame-2 {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px 16px 0px 12px;
+            flex: 0 0 auto;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+        }
+
+        .styles-manager .disclosure {
+            display: flex;
+            height: 32px;
+            align-items: flex-start;
+            gap: 7px;
+            padding: 8px 1px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: var(--basicwhite);
+            cursor: pointer;
+        }
+
+        .styles-manager .img-2 {
+            position: relative;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Caret down icon using CSS */
+        .styles-manager .img-2::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid var(--basicblack-3);
+        }
+
+        /* Caret right icon */
+        .disclosure-2 .img-2::after {
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 4px solid var(--basicblack-3);
+        }
+
+        .styles-manager .text {
+            position: relative;
+            flex: 1;
+            margin-top: -1.00px;
+            font-family: var(--body-1-semi-bold-font-family);
+            font-weight: var(--body-1-semi-bold-font-weight);
+            color: var(--basicblack-8);
+            font-size: var(--body-1-semi-bold-font-size);
+            letter-spacing: var(--body-1-semi-bold-letter-spacing);
+            line-height: var(--body-1-semi-bold-line-height);
+            font-style: var(--body-1-semi-bold-font-style);
+        }
+
+        .styles-manager .list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px 0px 8px 32px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            flex: 0 0 auto;
+        }
+
+        .styles-manager .color-control {
+            display: flex;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: var(--basicwhite);
+            border-radius: 2px;
+            overflow: hidden;
+            border: 1px solid;
+            border-color: var(--specialblack-1);
+        }
+
+        .styles-manager .color {
+            display: flex;
+            height: 32px;
+            align-items: center;
+            gap: 8px;
+            padding: 0px 0px 0px 8px;
+            position: relative;
+            flex: 1;
+            flex-grow: 1;
+            background-color: var(--basicwhite);
+            border-radius: 3px;
+        }
+
+        .styles-manager .swatch {
+            position: relative;
+            width: 26px;
+            height: 26px;
+            margin-left: -3.00px;
+            background: #18A0FB;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .styles-manager .text-2 {
+            position: relative;
+            flex: 1;
+            font-family: var(--body-1-regular-font-family);
+            font-weight: var(--body-1-regular-font-weight);
+            color: var(--basicblack);
+            font-size: var(--body-1-regular-font-size);
+            letter-spacing: var(--body-1-regular-letter-spacing);
+            line-height: var(--body-1-regular-line-height);
+            font-style: var(--body-1-regular-font-style);
+        }
+
+        /* Mode Selector Styles for Step 2 */
+        .styles-manager .frame-3 {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 32px 18px;
+            padding: 0px 0px 0px 32px;
+            flex: 0 0 auto;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+        }
+
+        .styles-manager .frame-4 {
+            display: flex;
+            flex-direction: column;
+            width: 112px;
+            align-items: center;
+            gap: 5.09px;
+            position: relative;
+        }
+
+        .styles-manager .mode-selector,
+        .styles-manager .mode-selector-2,
+        .styles-manager .mode-selector-3,
+        .styles-manager .mode-selector-4 {
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            height: 125.05px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid var(--ruler-v2-semantic-border-line-selected);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .styles-manager .mode-selector {
+            background-color: var(--ruler-v2-scale-custom-theme-150);
+        }
+
+        .styles-manager .mode-selector-2 {
+            background-color: #a4b2f3;
+        }
+
+        .styles-manager .mode-selector-3 {
+            background-color: var(--ruler-v2-scale-gray-50-duplicate);
+        }
+
+        .styles-manager .mode-selector-4 {
+            background-color: var(--ruler-v2-scale-gray-950);
+        }
+
+        .styles-manager .mode-selector:hover,
+        .styles-manager .mode-selector-2:hover,
+        .styles-manager .mode-selector-3:hover,
+        .styles-manager .mode-selector-4:hover {
+            transform: scale(1.02);
+        }
+
+        .styles-manager .ui {
+            display: flex;
+            width: 99px;
+            height: 31px;
+            align-items: center;
+            gap: 2.55px;
+            position: absolute;
+            top: 38px;
+            left: 6px;
+        }
+
+        .styles-manager .ui-2 {
+            position: relative;
+            flex: 1;
+            align-self: stretch;
+            flex-grow: 1;
+            background-color: var(--ruler-v2-semantic-fill-surface-contents);
+            border-radius: 1.91px;
+        }
+
+        .styles-manager .ui-4 {
+            position: relative;
+            flex: 1;
+            align-self: stretch;
+            flex-grow: 1;
+            background-color: var(--ruler-v2-scale-gray-800);
+            border-radius: 1.91px;
+        }
+
+        .styles-manager .overlap-group-2 {
+            position: absolute;
+            width: 99px;
+            height: 47px;
+            top: 71px;
+            left: 6px;
+        }
+
+        .styles-manager .ui-3 {
+            display: flex;
+            width: 99px;
+            height: 31px;
+            align-items: center;
+            gap: 2.55px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .styles-manager .button,
+        .styles-manager .button-2 {
+            position: absolute;
+            width: 99px;
+            height: 20px;
+            top: 27px;
+            left: 0;
+            border-radius: 2.55px;
+        }
+
+        .styles-manager .button {
+            background-color: var(--ruler-v2-scale-custom-theme-500);
+        }
+
+        .styles-manager .button-2 {
+            background-color: var(--ruler-v2-scale-gray-950);
+        }
+
+        .styles-manager .logo {
+            position: absolute;
+            width: 36px;
+            height: 10px;
+            top: 13px;
+            left: 13px;
+        }
+
+        .styles-manager .union {
+            position: relative;
+            width: 36px;
+            height: 9px;
+            background: var(--accentblue);
+            clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+        }
+
+        .styles-manager .checkbox,
+        .styles-manager .checkbox-2 {
+            display: flex;
+            width: 15px;
+            height: 15px;
+            align-items: center;
+            gap: 5.09px;
+            padding: 1.27px;
+            position: absolute;
+            top: 8px;
+            left: 89px;
+            border-radius: 7.64px;
+            border: 1.27px solid var(--ruler-v2-semantic-border-line-selected);
+        }
+
+        .styles-manager .checkbox {
+            background-color: var(--ruler-v2-semantic-fill-primary);
+        }
+
+        .styles-manager .checkbox-2 {
+            background-color: var(--ruler-v2-scale-gray-50);
+        }
+
+        .styles-manager .ic-check {
+            position: relative;
+            width: 12.73px;
+            height: 12.73px;
+            aspect-ratio: 1;
+        }
+
+        /* Check icon using CSS */
+        .styles-manager .ic-check::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            top: 1px;
+            left: 4px;
+        }
+
+        .styles-manager .text-wrapper-2,
+        .styles-manager .text-wrapper-3 {
+            position: relative;
+            font-family: "Pretendard-Medium", Helvetica, sans-serif;
+            font-weight: 500;
+            color: #000000;
+            font-size: 10.2px;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: 15.3px;
+        }
+
+        .styles-manager .text-wrapper-2 {
+            align-self: stretch;
+        }
+
+        .styles-manager .text-wrapper-3 {
+            width: fit-content;
+        }
+
+        .styles-manager .frame-5 {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px 0px 20px 12px;
+            flex: 0 0 auto;
+            margin-bottom: -11.77px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+        }
+
+        .styles-manager .disclosure-2 {
+            display: flex;
+            height: 32px;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 1px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: var(--basicwhite);
+            cursor: pointer;
+        }
+
+        .styles-manager .actions {
+            display: flex;
+            height: 48px;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            position: relative;
+            align-self: stretch;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid var(--specialblack-1);
+        }
+
+        .styles-manager .button,
+        .styles-manager .title-wrapper,
+        .styles-manager .div-wrapper {
+            all: unset;
+            box-sizing: border-box;
+            display: flex;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0px 12px;
+            position: relative;
+            flex: 1;
+            flex-grow: 1;
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .styles-manager .button {
+            background-color: var(--accentblue);
+        }
+
+        .styles-manager .button:hover {
+            background-color: #0056b3;
+        }
+
+        .styles-manager .title-wrapper {
+            background-color: var(--basicgray);
+        }
+
+        .styles-manager .title-wrapper:hover {
+            background-color: #e0e0e0;
+        }
+
+        .styles-manager .div-wrapper {
+            background-color: var(--accentblue);
+        }
+
+        .styles-manager .div-wrapper:hover {
+            background-color: #0056b3;
+        }
+
+        .styles-manager .title-3,
+        .styles-manager .title-4 {
+            width: fit-content;
+            font-family: var(--body-1-semi-bold-font-family);
+            font-weight: var(--body-1-semi-bold-font-weight);
+            text-align: center;
+            white-space: nowrap;
+            position: relative;
+            font-size: var(--body-1-semi-bold-font-size);
+            letter-spacing: var(--body-1-semi-bold-letter-spacing);
+            line-height: var(--body-1-semi-bold-line-height);
+            font-style: var(--body-1-semi-bold-font-style);
+        }
+
+        .styles-manager .title-3 {
+            color: var(--basicblack-8);
+        }
+
+        .styles-manager .title-4 {
+            color: var(--basicwhite);
+        }
+
+        /* Progress bar animation for step 2 */
+        .step-2 .track {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Step 1: Key Color Selection -->
+    <div class="step-container">
+        <div class="step-title">Step 1: Key Color 선택</div>
+        <div class="styles-manager step-1">
+            <div class="separator"></div>
+            <div class="content">
+                <div class="plugin-header">
+                    <div class="element-styles">
+                        <div class="vector"></div>
+                    </div>
+                    <div class="label">
+                        <div class="title">Color Generator</div>
+                    </div>
+                    <div class="icon-button">
+                        <div class="element-x">
+                            <div class="img"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <div class="tabs">
+                    <div class="tab">
+                        <div class="title">Custom Theme</div>
+                    </div>
+                    <div class="tab">
+                        <div class="text-wrapper">Scale Generator</div>
+                    </div>
+                    <div class="tab">
+                        <div class="text-wrapper">Tone Matching</div>
+                    </div>
+                </div>
+                <div class="frame">
+                    <div class="overlap-group-wrapper">
+                        <div class="overlap-group">
+                            <div class="track" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                    <p class="p">Step 1. Key Color 선택</p>
+                </div>
+                <div class="section-label">
+                    <p class="title-2">선택한 Key Color 기반으로 Custom Theme을 생성합니다.</p>
+                </div>
+                <div class="frame-2">
+                    <div class="disclosure">
+                        <div class="img-2"></div>
+                        <div class="text">Key Color</div>
+                    </div>
+                    <div class="list">
+                        <div class="color-control">
+                            <div class="color">
+                                <div class="swatch"></div>
+                                <div class="text-2">18A0FB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="frame-5">
+                    <div class="disclosure-2">
+                        <div class="img-2"></div>
+                        <div class="text">최근 생성한 컬러</div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="actions">
+                <button class="button" onclick="alert('다음 단계로!')">
+                    <div class="title-4">다음</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Mode Selection -->
+    <div class="step-container">
+        <div class="step-title">Step 2: Mode 선택</div>
+        <div class="styles-manager step-2">
+            <div class="separator"></div>
+            <div class="content">
+                <div class="plugin-header">
+                    <div class="element-styles">
+                        <div class="vector"></div>
+                    </div>
+                    <div class="label">
+                        <div class="title">Color Generator</div>
+                    </div>
+                    <div class="icon-button">
+                        <div class="element-x">
+                            <div class="img"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <div class="tabs">
+                    <div class="tab">
+                        <div class="title">Custom Theme</div>
+                    </div>
+                    <div class="tab">
+                        <div class="text-wrapper">Scale Generator</div>
+                    </div>
+                    <div class="tab">
+                        <div class="text-wrapper">Tone Matching</div>
+                    </div>
+                </div>
+                <div class="frame">
+                    <div class="overlap-group-wrapper">
+                        <div class="overlap-group">
+                            <div class="track" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                    <div class="div">Step 2. Mode 선택</div>
+                </div>
+                <div class="section-label">
+                    <div class="title-2">선택한 Frame에 Theme을 적용합니다.</div>
+                </div>
+                <div class="frame-2">
+                    <div class="disclosure">
+                        <div class="img-2"></div>
+                        <div class="text">Key Color</div>
+                    </div>
+                    <div class="list">
+                        <div class="color-control">
+                            <div class="color">
+                                <div class="swatch"></div>
+                                <div class="text-2">18A0FB</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame-3">
+                        <div class="frame-4">
+                            <div class="mode-selector">
+                                <div class="ui">
+                                    <div class="ui-2"></div>
+                                    <div class="ui-2"></div>
+                                </div>
+                                <div class="overlap-group-2">
+                                    <div class="ui-3">
+                                        <div class="ui-2"></div>
+                                        <div class="ui-2"></div>
+                                    </div>
+                                    <div class="button"></div>
+                                </div>
+                                <div class="logo">
+                                    <div class="union"></div>
+                                </div>
+                                <div class="checkbox">
+                                    <div class="ic-check"></div>
+                                </div>
+                            </div>
+                            <div class="text-wrapper-2">forground 중심</div>
+                        </div>
+                        <div class="frame-4">
+                            <div class="mode-selector-2">
+                                <div class="ui">
+                                    <div class="ui-2"></div>
+                                    <div class="ui-2"></div>
+                                </div>
+                                <div class="overlap-group-2">
+                                    <div class="ui-3">
+                                        <div class="ui-2"></div>
+                                        <div class="ui-2"></div>
+                                    </div>
+                                    <div class="button-2"></div>
+                                </div>
+                                <div class="logo">
+                                    <div class="union"></div>
+                                </div>
+                                <div class="checkbox">
+                                    <div class="ic-check"></div>
+                                </div>
+                            </div>
+                            <div class="text-wrapper-2">background 중심</div>
+                        </div>
+                        <div class="frame-4">
+                            <div class="mode-selector-3">
+                                <div class="ui">
+                                    <div class="ui-2"></div>
+                                    <div class="ui-2"></div>
+                                </div>
+                                <div class="overlap-group-2">
+                                    <div class="ui-3">
+                                        <div class="ui-2"></div>
+                                        <div class="ui-2"></div>
+                                    </div>
+                                    <div class="button"></div>
+                                </div>
+                                <div class="logo">
+                                    <div class="union"></div>
+                                </div>
+                                <div class="checkbox-2"></div>
+                            </div>
+                            <div class="text-wrapper-3">forground 중심<br />white bg</div>
+                        </div>
+                        <div class="frame-4">
+                            <div class="mode-selector-4">
+                                <div class="ui">
+                                    <div class="ui-4"></div>
+                                    <div class="ui-4"></div>
+                                </div>
+                                <div class="overlap-group-2">
+                                    <div class="ui-3">
+                                        <div class="ui-4"></div>
+                                        <div class="ui-4"></div>
+                                    </div>
+                                    <div class="button"></div>
+                                </div>
+                                <div class="logo">
+                                    <div class="union"></div>
+                                </div>
+                                <div class="checkbox">
+                                    <div class="ic-check" style="border-color: white;"></div>
+                                </div>
+                            </div>
+                            <div class="text-wrapper-3">forground 중심<br />black bg</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="frame-5">
+                    <div class="disclosure-2">
+                        <div class="img-2"></div>
+                        <div class="text">최근 생성한 컬러</div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="actions">
+                <button class="title-wrapper" onclick="alert('이전 단계로!')">
+                    <div class="title-3">이전</div>
+                </button>
+                <button class="div-wrapper" onclick="alert('테마 적용!')">
+                    <div class="title-4">적용</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Interactive functionality for all steps
+            document.querySelectorAll('.styles-manager').forEach(manager => {
+                // Tab switching
+                const tabs = manager.querySelectorAll('.tab');
+                tabs.forEach((tab, index) => {
+                    tab.addEventListener('click', function() {
+                        tabs.forEach(t => {
+                            t.style.borderBottomColor = 'transparent';
+                            const title = t.querySelector('.title, .text-wrapper');
+                            title.style.color = 'var(--basicblack-3)';
+                        });
+                        this.style.borderBottomColor = 'var(--accentblue)';
+                        const title = this.querySelector('.title, .text-wrapper');
+                        title.style.color = 'var(--accentblue)';
+                    });
+                });
+
+                // Disclosure toggle
+                const disclosures = manager.querySelectorAll('.disclosure, .disclosure-2');
+                disclosures.forEach(disclosure => {
+                    disclosure.addEventListener('click', function() {
+                        const caret = this.querySelector('.img-2');
+                        const list = this.parentElement.querySelector('.list, .frame-3');
+                        
+                        if (list && list.style.display === 'none') {
+                            list.style.display = 'flex';
+                            caret.style.transform = 'rotate(0deg)';
+                        } else if (list) {
+                            list.style.display = 'none';
+                            caret.style.transform = 'rotate(-90deg)';
+                        }
+                    });
+                });
+
+                // Mode selector clicks for Step 2
+                const modeSelectors = manager.querySelectorAll('.mode-selector, .mode-selector-2, .mode-selector-3, .mode-selector-4');
+                modeSelectors.forEach((selector, index) => {
+                    selector.addEventListener('click', function() {
+                        // Remove selection from all
+                        modeSelectors.forEach(s => {
+                            s.style.borderColor = 'var(--ruler-v2-semantic-border-line-selected)';
+                            s.style.borderWidth = '1.5px';
+                        });
+                        
+                        // Add selection to clicked
+                        this.style.borderColor = 'var(--accentblue)';
+                        this.style.borderWidth = '3px';
+                        
+                        console.log(`Selected mode: ${index + 1}`);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
