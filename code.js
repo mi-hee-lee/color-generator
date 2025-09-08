@@ -390,7 +390,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
     
   // =====================================
-  // 옵션 3: forground 중심 white bg
+  // 옵션 2: forground 중심 white bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-fixed') {
     mappings['semantic/background/default'] = 'GRAY:50';
@@ -449,7 +449,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
     
   // =====================================
-  // 옵션 2: background 중심
+  // 옵션 3: background 중심
   // =====================================
   } else if (applicationMode === 'accent-off-bg-on') {
     if (isLightRange) {
