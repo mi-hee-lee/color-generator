@@ -855,12 +855,12 @@ async function handleCreateCustomTheme(msg) {
   });
   createdCount++;
   
-  // 각 단계별 alpha 토큰 생성 (50, 75, 150 제외)
+  // 각 단계별 alpha 토큰 생성 (50, 75 제외)
   for (var i = 0; i < theme.scaleColors.light.length; i++) {
     var step = theme.scaleColors.light[i].step;
     
-    // 50, 75, 150은 건너뛰기
-    if (step === 50 || step === 75 || step === 150) continue;
+    // 50, 75는 건너뛰기 (150은 surface-contents에서 사용하므로 생성)
+    if (step === 50 || step === 75) continue;
     
     var alphaValue = alphaMapping[step];
     if (alphaValue === undefined) continue;
@@ -1215,7 +1215,7 @@ async function handleApplyThemeColorsToFrame(msg) {
   figma.notify('테마 토큰이 ' + appliedCount + '개 요소에 적용됨 (semantic 토큰 변경 없음)');
 }
 
-// Semantic 토큰을 프레임에 적용하는 핸들러 - 현재 mapping에 맞는 scale 토큰 직접 적용
+// Semantic 토큰을 프레임에 적용하는 핸들러 - handleApplyThemeColorsToFrame과 동일한 방식 사용
 async function handleApplySemanticToFrame(msg) {
   var selection = figma.currentPage.selection;
   
@@ -1231,89 +1231,173 @@ async function handleApplySemanticToFrame(msg) {
     throw new Error('ruler_v2 컬렉션을 찾을 수 없습니다');
   }
   
-  // 현재 테마 정보 확인 (UI에서 전달받아야 함)
+  // 테마 정보가 없으면 기본 semantic 토큰 적용
   if (!msg.theme) {
-    figma.notify('테마 정보가 없습니다. 먼저 색상을 생성해주세요.');
+    console.log('No theme info in message, falling back to semantic tokens');
+    var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+    var semanticVariables = allVariables.filter(function(v) {
+      return v.name.startsWith('semantic/') && v.variableCollectionId === collection.id;
+    });
+    
+    var backgroundTokenPriority = [
+      'semantic/fill/surface-contents',
+      'semantic/background/default',
+      'semantic/fill/surface-floating'
+    ];
+    
+    var targetVar = null;
+    for (var p = 0; p < backgroundTokenPriority.length; p++) {
+      targetVar = semanticVariables.find(function(v) {
+        return v.name === backgroundTokenPriority[p];
+      });
+      if (targetVar) break;
+    }
+    
+    var appliedCount = 0;
+    
+    for (var i = 0; i < selection.length; i++) {
+      var node = selection[i];
+      if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+        if (targetVar && 'fills' in node) {
+          node.fills = [{
+            type: 'SOLID',
+            boundVariables: {
+              'color': { type: 'VARIABLE_ALIAS', id: targetVar.id }
+            }
+          }];
+          appliedCount++;
+        }
+      }
+    }
+    
+    console.log('Applied semantic token:', targetVar ? targetVar.name : 'none');
+    figma.notify((targetVar ? targetVar.name : 'none') + ' semantic 토큰이 ' + appliedCount + '개 Frame에 적용되었습니다');
     return;
   }
   
+  // 테마 정보가 있으면 handleApplyThemeColorsToFrame과 동일한 방식 사용
   var theme = msg.theme;
   var applicationMode = theme.applicationMode || 'accent-on-bg-off';
   
-  // 현재 mapping 계산
+  console.log('=== Frame Apply with Theme Mapping ===');
+  console.log('theme:', theme.themeName, 'applicationMode:', applicationMode);
+  
+  // 동적 매핑 계산
   var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
   var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
   
-  // surface-contents mapping 값 확인
-  var surfaceContentsMapping = mappings['semantic/fill/surface-contents'];
-  var backgroundMapping = mappings['semantic/background/default'];
-  
-  // 우선순위에 따라 사용할 mapping 결정
-  var targetMapping = surfaceContentsMapping || backgroundMapping;
-  
-  console.log('=== Frame Apply with Mapping ===');
-  console.log('theme:', theme.themeName);
-  console.log('applicationMode:', applicationMode);
-  console.log('closestStep:', closestStep);
-  console.log('surfaceContentsMapping:', surfaceContentsMapping);
-  console.log('backgroundMapping:', backgroundMapping);
-  console.log('targetMapping:', targetMapping);
-  
-  // mapping에서 실제 scale 변수 찾기
+  // 모든 변수 가져오기
   var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
-  var targetVar = null;
-  
-  if (targetMapping && targetMapping.startsWith('ALPHA:')) {
-    var alphaStep = parseInt(targetMapping.replace('ALPHA:', '').replace(theme.themeName, ''));
-    var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-    targetVar = allVariables.find(function(v) {
-      return v.name === alphaVarName && v.variableCollectionId === collection.id;
-    });
-    console.log('Looking for alpha variable:', alphaVarName, 'found:', targetVar ? 'yes' : 'no');
-  } else if (targetMapping && targetMapping.startsWith('REF:')) {
-    var refString = targetMapping.replace('REF:', '');
-    var step;
-    if (refString.startsWith(theme.themeName)) {
-      var stepString = refString.substring(theme.themeName.length);
-      step = parseInt(stepString);
-    } else {
-      step = parseInt(refString);
-    }
-    var refVarName = 'scale/' + theme.themeName + '-' + step;
-    targetVar = allVariables.find(function(v) {
-      return v.name === refVarName && v.variableCollectionId === collection.id;
-    });
-    console.log('Looking for ref variable:', refVarName, 'found:', targetVar ? 'yes' : 'no');
-  }
-  
   var appliedCount = 0;
   
-  // 선택된 Frame들에 적용
-  for (var i = 0; i < selection.length; i++) {
-    var node = selection[i];
+  console.log('=== 매핑 정보 ===');
+  for (var tokenName in mappings) {
+    console.log(tokenName + ' → ' + mappings[tokenName]);
+  }
+  
+  // handleApplyThemeColorsToFrame과 동일한 findTokenFromMapping 함수
+  function findTokenFromMapping(mappingValue) {
+    if (!mappingValue) return null;
     
-    if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
-      // mapping에 맞는 scale 토큰 적용
-      if (targetVar && 'fills' in node) {
-        node.fills = [{
-          type: 'SOLID',
-          boundVariables: {
-            'color': {
-              type: 'VARIABLE_ALIAS',
-              id: targetVar.id
+    if (mappingValue.startsWith('REF:')) {
+      var refString = mappingValue.replace('REF:', '');
+      var step;
+      
+      if (refString.startsWith(theme.themeName)) {
+        var stepString = refString.substring(theme.themeName.length);
+        step = parseInt(stepString);
+      } else {
+        step = parseInt(refString);
+      }
+      
+      if (step) {
+        var scaleVarName = 'scale/' + theme.themeName + '-' + step;
+        return allVariables.find(function(v) {
+          return v.name === scaleVarName && v.variableCollectionId === collection.id;
+        });
+      }
+    } else if (mappingValue.startsWith('GRAY:')) {
+      var grayStep = parseInt(mappingValue.replace('GRAY:', ''));
+      var grayVarName = 'scale/gray-' + grayStep;
+      return allVariables.find(function(v) {
+        return v.name === grayVarName && v.variableCollectionId === collection.id;
+      });
+    } else if (mappingValue.startsWith('ALPHA:')) {
+      var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
+      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      return allVariables.find(function(v) {
+        return v.name === alphaVarName && v.variableCollectionId === collection.id;
+      });
+    }
+    
+    return null;
+  }
+  
+  // handleApplyThemeColorsToFrame과 동일한 재귀적 토큰 교체 로직
+  function replaceTokensInNode(node, depth) {
+    var indent = '';
+    for (var d = 0; d < depth; d++) indent += '  ';
+    
+    console.log(indent + '=== Processing:', node.type, node.name, '===');
+    
+    // 현재 노드의 fills 처리
+    if ('fills' in node && node.fills && node.fills.length > 0) {
+      for (var f = 0; f < node.fills.length; f++) {
+        var fill = node.fills[f];
+        if (fill.boundVariables && fill.boundVariables.color && fill.boundVariables.color.id) {
+          var currentVar = allVariables.find(function(v) {
+            return v.id === fill.boundVariables.color.id;
+          });
+          
+          if (currentVar && currentVar.name.startsWith('semantic/')) {
+            console.log(indent + '[FOUND SEMANTIC]', currentVar.name, 'in fill');
+            
+            var mappedValue = mappings[currentVar.name];
+            if (mappedValue) {
+              console.log(indent + '[MAPPING]', currentVar.name, '→', mappedValue);
+              var newToken = findTokenFromMapping(mappedValue);
+              if (newToken) {
+                var newFills = node.fills.slice();
+                newFills[f] = {
+                  type: 'SOLID',
+                  boundVariables: {
+                    'color': {
+                      type: 'VARIABLE_ALIAS',
+                      id: newToken.id
+                    }
+                  }
+                };
+                node.fills = newFills;
+                
+                console.log(indent + '[REPLACED]', currentVar.name, '→', newToken.name);
+                appliedCount++;
+              } else {
+                console.log(indent + '[ERROR] Token not found for mapping:', mappedValue);
+              }
+            } else {
+              console.log(indent + '[NO MAPPING]', currentVar.name);
             }
           }
-        }];
-        appliedCount++;
+        }
+      }
+    }
+    
+    // 자식 노드들도 재귀적으로 처리
+    if ('children' in node) {
+      for (var c = 0; c < node.children.length; c++) {
+        replaceTokensInNode(node.children[c], depth + 1);
       }
     }
   }
   
-  // 결과 표시
-  console.log('Applied scale token:', targetVar ? targetVar.name : 'none');
-  console.log('Applied to', appliedCount, 'frames');
+  // 선택된 노드들을 재귀적으로 처리
+  for (var i = 0; i < selection.length; i++) {
+    replaceTokensInNode(selection[i], 0);
+  }
   
-  figma.notify((targetVar ? targetVar.name : 'none') + ' scale 토큰이 ' + appliedCount + '개 Frame에 적용되었습니다');
+  console.log('=== 적용 완료 ===');
+  console.log('Total applied:', appliedCount);
+  figma.notify('테마 토큰이 ' + appliedCount + '개 요소에 적용되었습니다');
 }
 
 // Custom Mode 적용 핸들러 - 최상위 프레임에만 적용, 자식은 상속
@@ -1448,6 +1532,12 @@ async function handleAnnotationControl(msg) {
   } else if (msg.action === 'update') {
     // annotation 업데이트 기능
     figma.notify('Color Annotation이 업데이트되었습니다');
+  } else if (msg.action === 'enable') {
+    // annotation 활성화 기능
+    figma.notify('Color Annotation이 활성화되었습니다');
+  } else if (msg.action === 'disable') {
+    // annotation 비활성화 기능
+    figma.notify('Color Annotation이 비활성화되었습니다');
   } else {
     console.log('Unknown annotation action:', msg.action);
   }
@@ -1466,6 +1556,7 @@ async function handleAnnotationControl(msg) {
 
 figma.ui.onmessage = async function(msg) {
   console.log('Received message:', msg.type);
+  console.log('Full message data:', msg);
   
   try {
     if (msg.type === 'create-variables') {
@@ -1484,6 +1575,10 @@ figma.ui.onmessage = async function(msg) {
       await handleToneMatching(msg);
     } else if (msg.type === 'annotation-control') {
       await handleAnnotationControl(msg);
+    } else {
+      console.log('🔍 UNHANDLED MESSAGE TYPE:', msg.type);
+      console.log('🔍 FULL MESSAGE:', msg);
+      figma.notify('Unknown message type: ' + msg.type);
     }
   } catch (error) {
     console.error('Error handling message:', error);
