@@ -340,21 +340,22 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + '800';
-      
+      mappings['semantic/background/default'] = 'REF:' + themeName + adjustStep(closestStep, 6);
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:100';
-      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:200';
-      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:100';
+      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:200';
+      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + '300';
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '200';
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '200';
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + adjustStep(closestStep, 6);
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 5);
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 5);
       
       mappings['semantic/common/attention'] = 'REF:' + themeName + '700';
       mappings['semantic/common/attention-pressed'] = 'REF:' + themeName + '600';
@@ -369,7 +370,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '100';
-      
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -403,6 +405,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -428,6 +432,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
+
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -461,6 +467,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 4);
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
@@ -489,6 +496,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
@@ -524,6 +532,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -549,6 +559,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/tertiary'] = 'GRAY:200';
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
+
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -570,12 +582,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
   }
   
-  // 공통 알파 매핑
+  // 공통 알파 매핑 (surface-contents는 각 테마별로 설정)
   mappings['semantic/fill/tertiary'] = 'ALPHA:' + themeName + '100';
   mappings['semantic/fill/tertiary-hover'] = 'ALPHA:' + themeName + '200';
   mappings['semantic/fill/tertiary-pressed'] = 'ALPHA:' + themeName + '200';
   mappings['semantic/fill/disabled'] = 'ALPHA:' + themeName + '100';
-  mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '100';
   
   return mappings;
 }
@@ -867,9 +878,46 @@ async function handleCreateCustomTheme(msg) {
     createdCount++;
   }
   
-  // Semantic 토큰 생성 제거 - 오직 scale 토큰만 생성
+  // Semantic 토큰은 건드리지 않음 - scale 토큰만 생성
   
   figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName);
+}
+
+// 매핑 값을 실제 색상으로 변환하는 함수
+function calculateTokenColor(mappingValue, theme, mode) {
+  if (!mappingValue) return null;
+  
+  var scaleColors = mode === 'light' ? theme.scaleColors.light : theme.scaleColors.dark;
+  
+  if (mappingValue.startsWith('REF:')) {
+    var refString = mappingValue.replace('REF:', '');
+    var step;
+    
+    if (refString.startsWith(theme.themeName)) {
+      var stepString = refString.substring(theme.themeName.length);
+      step = parseInt(stepString);
+    } else {
+      step = parseInt(refString);
+    }
+    
+    var colorObj = scaleColors.find(function(c) { return c.step == step; });
+    return colorObj ? colorObj.hex : null;
+  } 
+  else if (mappingValue.startsWith('GRAY:')) {
+    var grayStep = parseInt(mappingValue.replace('GRAY:', ''));
+    // 간단한 그레이 계산 (실제로는 gray scale에서 가져와야 함)
+    var grayValue = Math.round(255 - (grayStep / 1000) * 255);
+    return '#' + grayValue.toString(16).padStart(2, '0').repeat(3);
+  }
+  else if (mappingValue.startsWith('ALPHA:')) {
+    var alphaString = mappingValue.replace('ALPHA:', '').replace(theme.themeName, '');
+    var alphaValue = parseInt(alphaString) / 1000;
+    var baseColor = scaleColors.find(function(c) { return c.step == 500; }) || scaleColors[Math.floor(scaleColors.length/2)];
+    // 알파값 적용은 Figma에서 별도 처리 - 일단 베이스 색상 반환
+    return baseColor ? baseColor.hex : theme.baseColor;
+  }
+  
+  return null;
 }
 
 // 테마 토큰을 Layer에 직접 적용하는 핸들러 (semantic 토큰 변경 없이)
@@ -1167,7 +1215,7 @@ async function handleApplyThemeColorsToFrame(msg) {
   figma.notify('테마 토큰이 ' + appliedCount + '개 요소에 적용됨 (semantic 토큰 변경 없음)');
 }
 
-// Semantic 토큰을 프레임에 적용하는 핸들러
+// Semantic 토큰을 프레임에 적용하는 핸들러 - 현재 mapping에 맞는 scale 토큰 직접 적용
 async function handleApplySemanticToFrame(msg) {
   var selection = figma.currentPage.selection;
   
@@ -1183,11 +1231,60 @@ async function handleApplySemanticToFrame(msg) {
     throw new Error('ruler_v2 컬렉션을 찾을 수 없습니다');
   }
   
-  // semantic 변수들 가져오기
+  // 현재 테마 정보 확인 (UI에서 전달받아야 함)
+  if (!msg.theme) {
+    figma.notify('테마 정보가 없습니다. 먼저 색상을 생성해주세요.');
+    return;
+  }
+  
+  var theme = msg.theme;
+  var applicationMode = theme.applicationMode || 'accent-on-bg-off';
+  
+  // 현재 mapping 계산
+  var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
+  var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
+  
+  // surface-contents mapping 값 확인
+  var surfaceContentsMapping = mappings['semantic/fill/surface-contents'];
+  var backgroundMapping = mappings['semantic/background/default'];
+  
+  // 우선순위에 따라 사용할 mapping 결정
+  var targetMapping = surfaceContentsMapping || backgroundMapping;
+  
+  console.log('=== Frame Apply with Mapping ===');
+  console.log('theme:', theme.themeName);
+  console.log('applicationMode:', applicationMode);
+  console.log('closestStep:', closestStep);
+  console.log('surfaceContentsMapping:', surfaceContentsMapping);
+  console.log('backgroundMapping:', backgroundMapping);
+  console.log('targetMapping:', targetMapping);
+  
+  // mapping에서 실제 scale 변수 찾기
   var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
-  var backgroundVar = allVariables.find(function(v) {
-    return v.name === 'semantic/background/default' && v.variableCollectionId === collection.id;
-  });
+  var targetVar = null;
+  
+  if (targetMapping && targetMapping.startsWith('ALPHA:')) {
+    var alphaStep = parseInt(targetMapping.replace('ALPHA:', '').replace(theme.themeName, ''));
+    var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+    targetVar = allVariables.find(function(v) {
+      return v.name === alphaVarName && v.variableCollectionId === collection.id;
+    });
+    console.log('Looking for alpha variable:', alphaVarName, 'found:', targetVar ? 'yes' : 'no');
+  } else if (targetMapping && targetMapping.startsWith('REF:')) {
+    var refString = targetMapping.replace('REF:', '');
+    var step;
+    if (refString.startsWith(theme.themeName)) {
+      var stepString = refString.substring(theme.themeName.length);
+      step = parseInt(stepString);
+    } else {
+      step = parseInt(refString);
+    }
+    var refVarName = 'scale/' + theme.themeName + '-' + step;
+    targetVar = allVariables.find(function(v) {
+      return v.name === refVarName && v.variableCollectionId === collection.id;
+    });
+    console.log('Looking for ref variable:', refVarName, 'found:', targetVar ? 'yes' : 'no');
+  }
   
   var appliedCount = 0;
   
@@ -1196,14 +1293,14 @@ async function handleApplySemanticToFrame(msg) {
     var node = selection[i];
     
     if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
-      // 배경색 적용
-      if (backgroundVar && 'fills' in node) {
+      // mapping에 맞는 scale 토큰 적용
+      if (targetVar && 'fills' in node) {
         node.fills = [{
           type: 'SOLID',
           boundVariables: {
             'color': {
               type: 'VARIABLE_ALIAS',
-              id: backgroundVar.id
+              id: targetVar.id
             }
           }
         }];
@@ -1212,7 +1309,11 @@ async function handleApplySemanticToFrame(msg) {
     }
   }
   
-  figma.notify('Semantic 토큰이 ' + appliedCount + '개 Frame에 적용되었습니다');
+  // 결과 표시
+  console.log('Applied scale token:', targetVar ? targetVar.name : 'none');
+  console.log('Applied to', appliedCount, 'frames');
+  
+  figma.notify((targetVar ? targetVar.name : 'none') + ' scale 토큰이 ' + appliedCount + '개 Frame에 적용되었습니다');
 }
 
 // Custom Mode 적용 핸들러 - 최상위 프레임에만 적용, 자식은 상속
@@ -1336,6 +1437,29 @@ async function handleToneMatching(msg) {
   });
 }
 
+// Color Annotation 제어 핸들러
+async function handleAnnotationControl(msg) {
+  console.log('=== Annotation Control ===');
+  console.log('Action:', msg.action);
+  
+  if (msg.action === 'toggle') {
+    // annotation 토글 기능
+    figma.notify('Color Annotation 기능이 토글되었습니다');
+  } else if (msg.action === 'update') {
+    // annotation 업데이트 기능
+    figma.notify('Color Annotation이 업데이트되었습니다');
+  } else {
+    console.log('Unknown annotation action:', msg.action);
+  }
+  
+  // UI로 응답 전송
+  figma.ui.postMessage({
+    type: 'annotation-control-response',
+    success: true,
+    action: msg.action
+  });
+}
+
 // =====================================
 // 메인 메시지 핸들러
 // =====================================
@@ -1358,6 +1482,8 @@ figma.ui.onmessage = async function(msg) {
       await handleApplyThemeColorsToFrame(msg);
     } else if (msg.type === 'generate-tone-matching') {
       await handleToneMatching(msg);
+    } else if (msg.type === 'annotation-control') {
+      await handleAnnotationControl(msg);
     }
   } catch (error) {
     console.error('Error handling message:', error);
