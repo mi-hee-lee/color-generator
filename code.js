@@ -335,8 +335,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     var hueBrightness = getHueBrightness(hue);
     
     
-    // 1) Lightness가 70% 이상이면 무조건 밝은 색상으로 분류
-    if (lightness >= 70) {
+    // 1) Lightness가 75% 이상이면 무조건 밝은 색상으로 분류
+    if (lightness >= 75) {
       isInherentlyBright = true;
     } 
     // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
@@ -351,7 +351,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   var colorRange;
   
   if (isInherentlyBright) {
-    // 본질적으로 밝은 색상
+    // 태생이 밝은 색상
     if (closestStep <= 400) {
       colorRange = 'light';
     } else if (closestStep >= 500 && closestStep <= 700) {
@@ -360,13 +360,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       colorRange = 'dark';  // 800-950
     }
   } else {
-    // 본질적으로 어두운 색상
+    // 태생이 어두운 색상
     if (closestStep < 300) {
       colorRange = 'light';
-    } else if (closestStep >= 300 && closestStep <= 600) {
+    } else if (closestStep >= 300 && closestStep <= 700) {
       colorRange = 'medium';
     } else {
-      colorRange = 'dark';  // 700-950
+      colorRange = 'dark';  // 800-950
     }
   }
   
@@ -498,7 +498,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + adjustStep(closestStep, 8);
+      mappings['semantic/text/selected'] = 'REF:' + themeName + adjustStep(closestStep, 4);
 
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -508,12 +508,12 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 8);
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 7);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 7);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/fill/primary-hover'] =  'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/primary-pressed'] =  'REF:' + themeName + adjustStep(closestStep, 3);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + adjustStep(closestStep, 8);
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 8);
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 4);
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -522,9 +522,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 4);
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/common/accent'] =  'REF:' + themeName + adjustStep(closestStep, 5);
+      mappings['semantic/common/accent-pressed'] =  'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 4);
       mappings['semantic/common/muted'] = 'GRAY-ALPHA:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
@@ -534,8 +534,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
-      mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/selected'] = 'GRAY:50';
+      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
 
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
@@ -543,7 +543,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:900';
 
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
@@ -571,12 +571,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
     } else {
       // 어두운 범위 (Step 700-950)
-      mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/selected'] = 'GRAY:50';
+      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
+
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
+      mappings['semantic/text/on-color'] = 'GRAY:900';
 
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
