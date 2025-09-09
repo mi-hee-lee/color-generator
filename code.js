@@ -383,8 +383,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
-      mappings['semantic/background/default'] = 'REF:' + themeName + adjustStep(closestStep, 6);
-      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+      mappings['semantic/background/default'] = 'REF:' + themeName + '950';
+      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '75';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -396,13 +396,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + adjustStep(closestStep, 6);
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 5);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 5);
+      mappings['semantic/fill/silent'] =  'REF:' + themeName + '950';
+      mappings['semantic/fill/silent-hover'] =  'REF:' + themeName + '900';
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '900';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + '700';
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '600';
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '600';
+      mappings['semantic/common/accent'] = 'REF:' + themeName + '400';
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '300';
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '300';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
@@ -1075,12 +1075,12 @@ async function handleCreateCustomTheme(msg) {
   });
   createdCount++;
   
-  // 각 단계별 alpha 토큰 생성 (50, 75 제외)
+  // 각 단계별 alpha 토큰 생성 (50 제외, 75는 surface-contents에서 사용하므로 생성)
   for (var i = 0; i < theme.scaleColors.light.length; i++) {
     var step = theme.scaleColors.light[i].step;
     
-    // 50, 75는 건너뛰기 (150은 surface-contents에서 사용하므로 생성)
-    if (step === 50 || step === 75) continue;
+    // 50만 건너뛰기 (75는 surface-contents에서 사용하므로 생성)
+    if (step === 50) continue;
     
     var alphaValue = alphaMapping[step];
     if (alphaValue === undefined) continue;
@@ -1098,9 +1098,85 @@ async function handleCreateCustomTheme(msg) {
     createdCount++;
   }
   
+  // 입력 색상의 분류에 따라 추가 alpha 변형 생성
+  var colorRange = theme.colorRange;  // light, medium, dark 중 하나
+  var additionalVariants = [];
+  
+  if (colorRange === 'light') {
+    // light 색상의 경우: medium(500), dark(950) 기준 alpha 생성
+    additionalVariants.push({ suffix: 'medium', baseStep: 500 });
+    additionalVariants.push({ suffix: 'dark', baseStep: 950 });
+  } else if (colorRange === 'medium') {
+    // medium 색상의 경우: light(100), dark(950) 기준 alpha 생성
+    additionalVariants.push({ suffix: 'light', baseStep: 100 });
+    additionalVariants.push({ suffix: 'dark', baseStep: 950 });
+  } else if (colorRange === 'dark') {
+    // dark 색상의 경우: light(100), medium(500) 기준 alpha 생성
+    additionalVariants.push({ suffix: 'light', baseStep: 100 });
+    additionalVariants.push({ suffix: 'medium', baseStep: 500 });
+  }
+  
+  // 추가 변형 alpha 토큰 생성
+  for (var v = 0; v < additionalVariants.length; v++) {
+    var variant = additionalVariants[v];
+    
+    // 각 변형별 Light/Dark 모드에서 사용할 step 결정
+    var lightModeStep, darkModeStep;
+    if (variant.suffix === 'light') {
+      lightModeStep = 100;  // Light 모드에서 light는 100 기준
+      darkModeStep = 950;   // Dark 모드에서 light는 950 기준
+    } else if (variant.suffix === 'dark') {
+      lightModeStep = 950;  // Light 모드에서 dark는 950 기준
+      darkModeStep = 50;    // Dark 모드에서 dark는 50 기준
+    } else {
+      // medium은 기존 방식
+      lightModeStep = variant.baseStep;
+      darkModeStep = variant.baseStep;
+    }
+    
+    var baseColorLightMode = theme.scaleColors.light.find(function(c) { return c.step === lightModeStep; });
+    var baseColorDarkMode = theme.scaleColors.dark.find(function(c) { return c.step === darkModeStep; });
+    
+    if (!baseColorLightMode || !baseColorDarkMode) continue;
+    
+    var baseRgbLightMode = hexToFigmaRGB(baseColorLightMode.hex);
+    var baseRgbDarkMode = hexToFigmaRGB(baseColorDarkMode.hex);
+    
+    // -00 토큰 (transparent 대신)
+    var transparentVariantName = 'scale/' + theme.themeName + '-' + variant.suffix + '-alpha-00';
+    var transparentVariantVariable = await findOrCreateVariable(transparentVariantName, collection, 'COLOR');
+    transparentVariantVariable.setValueForMode(lightMode.modeId, { 
+      r: baseRgbLightMode.r, g: baseRgbLightMode.g, b: baseRgbLightMode.b, a: 0 
+    });
+    transparentVariantVariable.setValueForMode(darkMode.modeId, { 
+      r: baseRgbDarkMode.r, g: baseRgbDarkMode.g, b: baseRgbDarkMode.b, a: 0 
+    });
+    createdCount++;
+    
+    // 각 단계별 alpha 토큰 생성
+    for (var i = 0; i < theme.scaleColors.light.length; i++) {
+      var step = theme.scaleColors.light[i].step;
+      if (step === 50) continue;
+      
+      var alphaValue = alphaMapping[step];
+      if (alphaValue === undefined) continue;
+      
+      var alphaVariantName = 'scale/' + theme.themeName + '-' + variant.suffix + '-alpha-' + step;
+      var alphaVariantVariable = await findOrCreateVariable(alphaVariantName, collection, 'COLOR');
+      
+      alphaVariantVariable.setValueForMode(lightMode.modeId, { 
+        r: baseRgbLightMode.r, g: baseRgbLightMode.g, b: baseRgbLightMode.b, a: alphaValue 
+      });
+      alphaVariantVariable.setValueForMode(darkMode.modeId, { 
+        r: baseRgbDarkMode.r, g: baseRgbDarkMode.g, b: baseRgbDarkMode.b, a: alphaValue 
+      });
+      createdCount++;
+    }
+  }
+  
   // Semantic 토큰은 건드리지 않음 - scale 토큰만 생성
   
-  figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName);
+  figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName + ' (including ' + additionalVariants.length + ' additional variants)');
 }
 
 // 매핑 값을 실제 색상으로 변환하는 함수
@@ -1201,7 +1277,23 @@ async function handleApplyThemeColorsToFrame(msg) {
       });
     } else if (mappingValue.startsWith('ALPHA:')) {
       var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      
+      // 색상 분류에 따라 적절한 alpha 변형 선택
+      var alphaVarName;
+      if (theme.colorRange === 'light') {
+        // light 색상의 경우 기본 alpha 사용
+        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      } else if (theme.colorRange === 'medium') {
+        // medium 색상의 경우 medium-alpha 사용
+        alphaVarName = 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
+      } else if (theme.colorRange === 'dark') {
+        // dark 색상의 경우 dark-alpha 사용  
+        alphaVarName = 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
+      } else {
+        // 기본값
+        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      }
+      
       return allVariables.find(function(v) {
         return v.name === alphaVarName && v.variableCollectionId === collection.id;
       });
@@ -1532,7 +1624,23 @@ async function handleApplySemanticToFrame(msg) {
       });
     } else if (mappingValue.startsWith('ALPHA:')) {
       var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      
+      // 색상 분류에 따라 적절한 alpha 변형 선택
+      var alphaVarName;
+      if (theme.colorRange === 'light') {
+        // light 색상의 경우 기본 alpha 사용
+        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      } else if (theme.colorRange === 'medium') {
+        // medium 색상의 경우 medium-alpha 사용
+        alphaVarName = 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
+      } else if (theme.colorRange === 'dark') {
+        // dark 색상의 경우 dark-alpha 사용  
+        alphaVarName = 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
+      } else {
+        // 기본값
+        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+      }
+      
       return allVariables.find(function(v) {
         return v.name === alphaVarName && v.variableCollectionId === collection.id;
       });
@@ -1841,7 +1949,16 @@ async function handleAnnotationControl(msg) {
           } else if (mappingValue.startsWith('ALPHA:')) {
             if (theme) {
               var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-              return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+              // 색상 분류에 따라 적절한 alpha 변형 선택
+              if (theme.colorRange === 'light') {
+                return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+              } else if (theme.colorRange === 'medium') {
+                return 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
+              } else if (theme.colorRange === 'dark') {
+                return 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
+              } else {
+                return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
+              }
             }
             var alphaStep = parseInt(mappingValue.replace('ALPHA:theme', ''));
             return 'scale/theme-alpha-' + alphaStep;

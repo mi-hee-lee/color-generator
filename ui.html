@@ -2705,12 +2705,16 @@
                 var closestStepLight = this.findClosestStep(lightColors, inputLightness);
                 var closestStepDark = this.findClosestStep(darkColors, inputLightness);
                 
+                // 색상 분류 결정 (code.js와 동일한 로직)
+                var colorRange = this.getColorClassification(baseHex, closestStepLight);
+                
                 // 테마 객체 생성 (백엔드 형식과 일치)
                 return {
                     themeName,
                     baseColor: baseHex,
                     applicationMode,
                     selectedStep: closestStepLight,
+                    colorRange: colorRange, // 추가
                     scaleColors: { 
                         light: lightColors, 
                         dark: darkColors 
@@ -2735,6 +2739,72 @@
                 });
                 
                 return closestStep;
+            }
+            
+            // 색상 분류 메서드 (code.js와 동일한 로직)
+            getColorClassification(baseHex, closestStep) {
+                var hsl = ColorUtils.hexToHsl(baseHex);
+                var hue = hsl[0];
+                var saturation = hsl[1];
+                var lightness = hsl[2];
+                
+                var isInherentlyBright = false;
+                
+                // Hue의 본질적 밝기 판단
+                function getHueBrightness(hue) {
+                    // 매우 밝은 색상군
+                    if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑
+                    if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록
+                    
+                    // 밝은 색상군  
+                    if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록
+                    if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계
+                    if (hue >= 30 && hue <= 50) return 'bright';          // 주황
+                    
+                    // 중간 색상군
+                    if (hue >= 0 && hue <= 30) return 'medium';           // 빨강
+                    if (hue >= 330 && hue <= 360) return 'medium';        // 빨강
+                    if (hue >= 190 && hue <= 250) return 'medium';        // 파랑
+                    
+                    // 어두운 색상군
+                    return 'dark';  // 보라 (250-330)
+                }
+                
+                if (saturation < 20) {
+                    // 회색조는 lightness로만 판단
+                    isInherentlyBright = (lightness >= 50);
+                } else {
+                    if (lightness >= 80) {
+                        isInherentlyBright = true;
+                    } else {
+                        var hueBrightness = getHueBrightness(hue);
+                        isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
+                    }
+                }
+                
+                // 색상 범위 결정
+                var colorRange;
+                if (isInherentlyBright) {
+                    // 본질적으로 밝은 색상: 더 넓은 범위를 'light'로 분류
+                    if (closestStep <= 300) {
+                        colorRange = 'light';
+                    } else if (closestStep >= 400 && closestStep <= 600) {
+                        colorRange = 'medium';
+                    } else {
+                        colorRange = 'dark';  // 700-950
+                    }
+                } else {
+                    // 중간/어두운 색상: 더 좁은 범위만 'light'로 분류
+                    if (closestStep < 200) {
+                        colorRange = 'light';
+                    } else if (closestStep >= 200 && closestStep <= 600) {
+                        colorRange = 'medium';
+                    } else {
+                        colorRange = 'dark';  // 700-950
+                    }
+                }
+                
+                return colorRange;
             }
         }
 
