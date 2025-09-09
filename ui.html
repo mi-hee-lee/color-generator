@@ -1127,6 +1127,11 @@
             color: #856404;
         }
 
+        .step-medium {
+            background: #e2e3e5;
+            color: #41464b;
+        }
+
         .step-dark {
             background: #343a40;
             color: #f8f9fa;
@@ -1141,13 +1146,19 @@
             
         }
 
-        .classification-300 {
+        .classification-light {
             background: #cfe2ff;
             color: #084298;
             border: 1px solid #b6d4fe;
         }
 
-        .classification-400 {
+        .classification-medium {
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+        }
+
+        .classification-dark {
             background: #f8d7da;
             color: #842029;
             border: 1px solid #f5c2c7;
@@ -1317,15 +1328,13 @@
                             <input type="text" id="wizardThemeBaseHex" class="hex-input" value="#667EEA">
                         </div>
                         
-                        <!-- 색상 분류 정보 표시 -->
-                        <div id="colorClassificationInfo" class="color-classification-info">
-                            <div class="classification-badge">
-                                <span id="classificationResult" class="classification-result">어두운 범위</span>
-                            </div>
-                            <div id="classificationDetails" class="classification-details">
-                                밝기: <span id="lightnessValue">50</span>% | 색조: <span id="hueValue">240</span>°
-                            </div>
-                            <div id="classificationReasons" class="classification-reasons"></div>
+                        <!-- 컬러 분류 표시 -->
+                        <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                            <span id="wizardStepIndicator" class="step-indicator">Step: 500</span>
+                            <span id="wizardClassificationBadge" class="classification-badge classification-medium">중간</span>
+                        </div>
+                        <div id="wizardStepClassificationInfo" class="color-classification-info" style="margin-top: 8px; display: none;">
+                            <span id="wizardStepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(400-600)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
                         </div>
                     </div>
                 </div>
@@ -1505,6 +1514,15 @@
                 <div class="color-input-group">
                     <input type="color" id="baseColor" class="color-picker" value="#667eea">
                     <input type="text" id="hexInput" class="hex-input" value="#667EEA">
+                </div>
+                
+                <!-- 컬러 분류 표시 -->
+                <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span id="stepIndicator" class="step-indicator">Step: 500</span>
+                    <span id="classificationBadge" class="classification-badge classification-medium">중간</span>
+                </div>
+                <div id="stepClassificationInfo" class="color-classification-info" style="margin-top: 8px; display: none;">
+                    <span id="stepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(400-600)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
                 </div>
             </div>
 
@@ -1832,6 +1850,74 @@
             }
         }
 
+        // Hue의 본질적 밝기 판단 함수
+        function getHueBrightness(hue) {
+            // Hue 범위별 본질적 밝기 분류
+            
+            // 매우 밝은 색상군
+            if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑 (Yellow)
+            if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록 (Cyan)
+            
+            // 밝은 색상군  
+            if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록 (Yellow-Green to Green)
+            if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계 (Green-Cyan)
+            if (hue >= 30 && hue <= 50) return 'bright';          // 주황 (Orange)
+            
+            // 중간 색상군
+            if (hue >= 190 && hue <= 210) return 'medium';        // 청록-파랑 경계 (Cyan-Blue)
+            if (hue >= 20 && hue <= 30) return 'medium';          // 주황-빨강 경계
+            
+            // 어두운 색상군
+            if (hue >= 210 && hue <= 240) return 'dark';          // 파랑 (Blue)
+            if (hue >= 240 && hue <= 300) return 'dark';          // 보라 (Purple/Violet)
+            if (hue >= 0 && hue <= 20 || hue >= 300) return 'dark'; // 빨강-자주 (Red-Magenta)
+            
+            return 'medium'; // 기본값
+        }
+
+        // 새로운 컬러 범위 분류 로직
+        function getColorRangeFromStep(closestStep, hex) {
+            // 본질적 밝기 판단
+            var isInherentlyBright = false;
+            if (hex) {
+                var hsl = ColorUtils.hexToHsl(hex);
+                var hue = hsl[0];
+                var lightness = hsl[2];
+                var hueBrightness = getHueBrightness(hue);
+                
+                // 1) Lightness가 80% 이상이면 무조건 밝은 색상으로 분류
+                if (lightness >= 80) {
+                    isInherentlyBright = true;
+                } 
+                // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
+                else {
+                    // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
+                    isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
+                }
+            }
+            
+            // 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
+            if (isInherentlyBright) {
+                // 본질적으로 밝은 색상: 더 넓은 범위를 'light'로 분류
+                if (closestStep <= 300) {
+                    return 'light';
+                } else if (closestStep >= 400 && closestStep <= 600) {
+                    return 'medium';
+                } else {
+                    return 'dark';  // 700-950
+                }
+            } else {
+                // 중간/어두운 색상: 더 좁은 범위만 'light'로 분류
+                if (closestStep < 200) {
+                    return 'light';
+                } else if (closestStep >= 200 && closestStep <= 600) {
+                    return 'medium';
+                } else {
+                    return 'dark';  // 700-950
+                }
+            }
+        }
+
         // 색상 생성기
         class ColorGenerator {
     constructor() {
@@ -1938,14 +2024,34 @@
             return { step, hex, contrast, isClosest: false };
         });
 
-        // 3) 입력색과 가장 가까운 L(또는 필요시 ΔE)로 ★ 표시
-        let best = { i: 0, d: 1e9 };
-        colors.forEach((c, i) => {
-            const L = ColorUtils.hexToHsl(c.hex)[2];
-            const d = Math.abs(L - lInput);
-            if (d < best.d) best = { i, d };
+        // 3) 새로운 Hue 기반 로직으로 가장 가까운 step 찾기
+        const inputColorHex = ColorUtils.hslToHex(hInput, sInput * 100, lInput);
+        
+        // 모든 step에 대해 새로운 분류 로직을 적용하여 가장 적절한 step 찾기
+        let bestStepIndex = 0;
+        let minDiff = Infinity;
+        
+        colors.forEach((color, index) => {
+            // 각 step이 입력 색상과 얼마나 유사한 범위에 속하는지 계산
+            const colorRange = getColorRangeFromStep(color.step, inputColorHex);
+            const actualLightness = lInput;
+            const stepLightness = ColorUtils.hexToHsl(color.hex)[2];
+            
+            // lightness 차이와 범위 일치도를 종합적으로 고려
+            let diff = Math.abs(actualLightness - stepLightness);
+            
+            // 같은 범위(light/medium/dark)에 속한 경우 가중치 부여 
+            if (colorRange === getColorRangeFromStep(color.step, inputColorHex)) {
+                diff *= 0.5; // 같은 범위면 우선순위 높임
+            }
+            
+            if (diff < minDiff) {
+                minDiff = diff;
+                bestStepIndex = index;
+            }
         });
-        colors[best.i].isClosest = true;
+        
+        colors[bestStepIndex].isClosest = true;
 
         return colors;
     }
@@ -2628,6 +2734,7 @@
 
         // 탭 전환 함수
         function switchTab(tabName) {
+            console.log('switchTab called with:', tabName);
             const tabNavigation = document.querySelector('.tab-navigation');
             
             // 모든 탭 버튼 비활성화
@@ -2687,7 +2794,7 @@
                 // 초기 색상에 대한 분류 정보 표시
                 const initialColor = wizardBaseColor.value || wizardBaseHex.value;
                 if (initialColor) {
-                    updateColorClassificationDisplay(initialColor);
+                    updateWizardStepIndicator(initialColor);
                 }
                 
             } else {
@@ -2712,7 +2819,7 @@
                 updateAllModePreviewsWithColor(newColorValue);
                 
                 // 색상 분류 정보 업데이트
-                updateColorClassificationDisplay(newColorValue);
+                updateWizardStepIndicator(newColorValue);
                 
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
@@ -2734,7 +2841,7 @@
                     updateAllModePreviewsWithColor(hexValue);
                     
                     // 색상 분류 정보 업데이트
-                    updateColorClassificationDisplay(hexValue);
+                    updateWizardStepIndicator(hexValue);
                     
                 } else {
                     console.warn('⚠️ Invalid hex format:', hexValue);
@@ -2764,6 +2871,8 @@
             var inputHex = baseColor.value;
             var tuningVal = 0;
             
+            console.log('updateDisplay called with:', inputHex);
+            
             // Fine Tuning 값 가져오기
             if (document.getElementById('autoTuning').checked) {
                 tuningVal = colorGenerator.getAutoTuningValue(inputHex);
@@ -2773,8 +2882,16 @@
                 tuningVal = parseInt(document.getElementById('tuningSlider').value) || 0;
             }
             
+            console.log('Generating colors with tuningVal:', tuningVal);
+            
             // tuning 값을 포함하여 색상 생성
-            generatedColors = colorGenerator.generateColors(inputHex, currentMode, tuningVal);
+            try {
+                generatedColors = colorGenerator.generateColors(inputHex, currentMode, tuningVal);
+                console.log('Generated colors:', generatedColors);
+            } catch (error) {
+                console.error('Error generating colors:', error);
+                return;
+            }
             
             displayColors();
         }
@@ -2782,11 +2899,15 @@
         // 색상 표시
         function displayColors() {
             var container = document.getElementById('colorResults');
+            console.log('displayColors called, container found:', !!container);
+            console.log('generatedColors length:', generatedColors.length);
+            
             if (!container) return;
 
             container.innerHTML = '';
             
             generatedColors.forEach(color => {
+                console.log('Creating row for color:', color);
                 var row = createColorRow(color);
                 container.appendChild(row);
             });
@@ -2823,31 +2944,85 @@
             return row;
         }
 
-        // 스텝 분류 표시 업데이트
+        // 스텝 분류 표시 업데이트 (Scale Generator용)
         function updateStepIndicator(hex) {
             var stepIndicator = document.getElementById('stepIndicator');
             var classificationBadge = document.getElementById('classificationBadge');
             var classificationInfo = document.getElementById('stepClassificationInfo');
             var classificationText = document.getElementById('stepClassificationText');
             
-            var closestStep = ColorUtils.findClosestStep(hex, 'light');
+            if (!stepIndicator || !classificationBadge) return;
+            
+            // ColorGenerator에서 생성된 색상들과 일치시키기
+            var colors = colorGenerator.generateColors(hex, 'light', 0);
+            var closestColor = colors.find(color => color.isClosest);
+            var closestStep = closestColor ? closestColor.step : 500;
+            var colorRange = getColorRangeFromStep(closestStep, hex);
             
             stepIndicator.textContent = `Step: ${closestStep}`;
             
-            if (closestStep <= 300) {
+            if (colorRange === 'light') {
                 stepIndicator.className = 'step-indicator step-light';
-                classificationBadge.textContent = '300 이하';
-                classificationBadge.className = 'classification-badge classification-300';
+                classificationBadge.textContent = '밝음';
+                classificationBadge.className = 'classification-badge classification-light';
                 
-                classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 색상(300 이하)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
-            } else if (closestStep >= 400) {
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else if (colorRange === 'medium') {
+                stepIndicator.className = 'step-indicator step-medium';
+                classificationBadge.textContent = '중간';
+                classificationBadge.className = 'classification-badge classification-medium';
+                
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else {
                 stepIndicator.className = 'step-indicator step-dark';
-                classificationBadge.textContent = '400 이상';
-                classificationBadge.className = 'classification-badge classification-400';
+                classificationBadge.textContent = '어두움';
+                classificationBadge.className = 'classification-badge classification-dark';
                 
-                classificationInfo.style.display = 'block';
-                classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간~어두운 색상(400 이상)으로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 어두운 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            }
+        }
+
+        // 스텝 분류 표시 업데이트 (Custom Theme Wizard용)
+        function updateWizardStepIndicator(hex) {
+            var stepIndicator = document.getElementById('wizardStepIndicator');
+            var classificationBadge = document.getElementById('wizardClassificationBadge');
+            var classificationInfo = document.getElementById('wizardStepClassificationInfo');
+            var classificationText = document.getElementById('wizardStepClassificationText');
+            
+            if (!stepIndicator || !classificationBadge) return;
+            
+            // ColorGenerator에서 생성된 색상들과 일치시키기
+            var colors = colorGenerator.generateColors(hex, 'light', 0);
+            var closestColor = colors.find(color => color.isClosest);
+            var closestStep = closestColor ? closestColor.step : 500;
+            var colorRange = getColorRangeFromStep(closestStep, hex);
+            
+            stepIndicator.textContent = `Step: ${closestStep}`;
+            
+            if (colorRange === 'light') {
+                stepIndicator.className = 'step-indicator step-light';
+                classificationBadge.textContent = '밝음';
+                classificationBadge.className = 'classification-badge classification-light';
+                
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 밝은 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else if (colorRange === 'medium') {
+                stepIndicator.className = 'step-indicator step-medium';
+                classificationBadge.textContent = '중간';
+                classificationBadge.className = 'classification-badge classification-medium';
+                
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 중간 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
+            } else {
+                stepIndicator.className = 'step-indicator step-dark';
+                classificationBadge.textContent = '어두움';
+                classificationBadge.className = 'classification-badge classification-dark';
+                
+                if (classificationInfo) classificationInfo.style.display = 'block';
+                if (classificationText) classificationText.textContent = `입력 색상이 Step ${closestStep}에 해당합니다. 어두운 범위로 분류되어 Mode별로 다른 매핑이 적용됩니다.`;
             }
         }
 
@@ -3238,19 +3413,28 @@ window.addEventListener('message', (event) => {
             const customThemeTab = document.getElementById('customThemeTab');
             
             if (generatorTab) {
-                generatorTab.addEventListener('click', () => switchTab('generator'));
+                generatorTab.addEventListener('click', () => {
+                    console.log('Generator tab clicked');
+                    switchTab('generator');
+                });
             } else {
                 console.warn('generatorTab not found');
             }
             
             if (toneMatchingTab) {
-                toneMatchingTab.addEventListener('click', () => switchTab('tone-matching'));
+                toneMatchingTab.addEventListener('click', () => {
+                    console.log('Tone matching tab clicked');
+                    switchTab('tone-matching');
+                });
             } else {
                 console.warn('toneMatchingTab not found');
             }
             
             if (customThemeTab) {
-                customThemeTab.addEventListener('click', () => switchTab('custom-theme'));
+                customThemeTab.addEventListener('click', () => {
+                    console.log('Custom theme tab clicked');
+                    switchTab('custom-theme');
+                });
             } else {
                 console.warn('customThemeTab not found');
             }
@@ -3263,6 +3447,7 @@ window.addEventListener('message', (event) => {
                 baseColor.addEventListener('input', () => {
                     hexInput.value = baseColor.value.toUpperCase();
                     updateDisplay();
+                    updateStepIndicator(baseColor.value);
                     // 모드 미리보기도 업데이트
                     if (document.getElementById('wizardStep3').classList.contains('active')) {
                         updateAllModePreviewsWithColor(baseColor.value);
@@ -3273,6 +3458,7 @@ window.addEventListener('message', (event) => {
                     if (/^#[0-9A-F]{6}$/i.test(hexInput.value)) {
                         baseColor.value = hexInput.value;
                         updateDisplay();
+                        updateStepIndicator(hexInput.value);
                         // 모드 미리보기도 업데이트
                         if (document.getElementById('wizardStep3').classList.contains('active')) {
                             updateAllModePreviewsWithColor(hexInput.value);
@@ -3476,6 +3662,12 @@ window.addEventListener('message', (event) => {
         function init() {
             setupEventListeners();
             updateDisplay();
+            
+            // 초기 컬러 분류 표시
+            const baseColor = document.getElementById('baseColor');
+            if (baseColor) {
+                updateStepIndicator(baseColor.value);
+            }
             
             // Custom Theme 탭이 기본이므로 초기화 시에도 wizard 색상 동기화 설정
             setTimeout(() => {
