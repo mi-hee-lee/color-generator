@@ -329,12 +329,14 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   var isInherentlyBright = false;
   if (baseColor) {
     var hsl = hexToHsl(baseColor);
-    var hue = hsl[0];
-    var lightness = hsl[2];
+    var hue = hsl[0]; // Already in degrees
+    var saturation = hsl[1]; // Already in percentage
+    var lightness = hsl[2]; // Already in percentage
     var hueBrightness = getHueBrightness(hue);
     
-    // 1) Lightness가 80% 이상이면 무조건 밝은 색상으로 분류
-    if (lightness >= 80) {
+    
+    // 1) Lightness가 70% 이상이면 무조건 밝은 색상으로 분류
+    if (lightness >= 70) {
       isInherentlyBright = true;
     } 
     // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
@@ -342,30 +344,32 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
       isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
     }
+    
   }
   
   // 2단계: 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
   var colorRange;
   
   if (isInherentlyBright) {
-    // 본질적으로 밝은 색상: 더 넓은 범위를 'light'로 분류
-    if (closestStep <= 300) {
+    // 본질적으로 밝은 색상
+    if (closestStep <= 400) {
       colorRange = 'light';
-    } else if (closestStep >= 400 && closestStep <= 600) {
+    } else if (closestStep >= 500 && closestStep <= 700) {
       colorRange = 'medium';
     } else {
-      colorRange = 'dark';  // 700-950
+      colorRange = 'dark';  // 800-950
     }
   } else {
-    // 중간/어두운 색상: 더 좁은 범위만 'light'로 분류
-    if (closestStep < 200) {
+    // 본질적으로 어두운 색상
+    if (closestStep < 300) {
       colorRange = 'light';
-    } else if (closestStep >= 200 && closestStep <= 600) {
+    } else if (closestStep >= 300 && closestStep <= 600) {
       colorRange = 'medium';
     } else {
       colorRange = 'dark';  // 700-950
     }
   }
+  
   
   // 기존 호환성을 위한 변수
   var isLightRange = colorRange === 'light';
@@ -378,13 +382,15 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/secondary'] = 'GRAY:100';
-      mappings['semantic/text/tertiary'] = 'GRAY:200';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+
+      mappings['semantic/text/secondary'] = 'GRAY:300';
+      mappings['semantic/text/tertiary'] = 'GRAY:400';
       mappings['semantic/text/disabled'] = 'GRAY:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '950';
-      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '75';
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -392,9 +398,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'ON-COLOR-ALPHA:200';
-      mappings['semantic/border/line'] = 'ON-COLOR-ALPHA:300';
-      mappings['semantic/border/line-disabled'] = 'ON-COLOR-ALPHA:200';
+      mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
+      mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/silent'] =  'REF:' + themeName + '950';
       mappings['semantic/fill/silent-hover'] =  'REF:' + themeName + '900';
@@ -403,33 +409,35 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'REF:' + themeName + '400';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '300';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '300';
-      mappings['semantic/common/muted'] = 'GRAY:300';
+      mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
       
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
       mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
+      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+
+     mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/border/line'] = 'ALPHA:' + themeName + '300';
-      mappings['semantic/border/line-disabled'] = 'ALPHA:' + themeName + '200';
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
+      mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'REF:' + themeName + '100';
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
@@ -440,31 +448,33 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/common/muted'] = 'GRAY:300';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-BLACK-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
       
     } else {
       // 어두운 범위 (Step 700-950)
       mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
+      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+
+     mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'ALPHA:' + themeName + '200';
-      mappings['semantic/border/line'] = 'ALPHA:' + themeName + '300'
-      mappings['semantic/border/line-disabled'] = 'ALPHA:' + themeName + '200';
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
+      mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'REF:' + themeName + '100';
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
@@ -475,10 +485,10 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/common/muted'] = 'GRAY:300';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-BLACK-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
     }
     
   // =====================================
@@ -488,20 +498,22 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + adjustStep(closestStep, 8);
+
+      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
+      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
+      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/surface-contents'] = 'ALPHA:' + themeName + '150';
+      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 4);
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 8);
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 7);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 7);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '400';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + '400';
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + adjustStep(closestStep, 8);
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 8);
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -510,26 +522,28 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + '500';
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '600';
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '600';
-      mappings['semantic/common/muted'] = 'GRAY:300';
+      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/common/muted'] = 'GRAY-ALPHA:300';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:100';
       
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
-      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
-      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
-      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/selected'] = 'GRAY:50';
+
+      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
+      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
+      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
       mappings['semantic/text/on-color'] = 'GRAY:900';
-      
+
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:100';
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:300';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
@@ -542,29 +556,30 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/common/accent'] = 'REF:' + themeName + '100';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '200';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '200';
-      mappings['semantic/common/muted'] = 'REF:' + themeName + '300';
+      mappings['semantic/common/muted'] = 'GRAY-ALPHA:400';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-BLACK-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
       
     } else {
       // 어두운 범위 (Step 700-950)
-      mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
-      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
-      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
-      
+      mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/selected'] = 'GRAY:50';
+      mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
+      mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
+      mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
+      mappings['semantic/text/on-color'] = 'GRAY:50';
+
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:100';
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/primary'] = 'REF:' + themeName + '50';
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + '100';
@@ -577,18 +592,18 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/common/accent'] = 'REF:' + themeName + '100';
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '200';
       mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '200';
-      mappings['semantic/common/muted'] = 'REF:' + themeName + '300';
+      mappings['semantic/common/muted'] = 'GRAY-ALPHA:400';
       
-      mappings['semantic/fill/tertiary'] = 'STATIC-BLACK-ALPHA:100';
-      mappings['semantic/fill/tertiary-hover'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-BLACK-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'STATIC-BLACK-ALPHA:100';
+      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
     }
     
   // =====================================
@@ -600,6 +615,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
@@ -634,6 +650,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
       mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
@@ -668,6 +685,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else {
       // 어두운 범위 (Step 700-950)
       mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
@@ -709,6 +727,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 - 어두운 배경에 맞는 텍스트 색상
       mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/selected'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'GRAY:200';
       mappings['semantic/text/tertiary'] = 'GRAY:300';
       mappings['semantic/text/disabled'] = 'GRAY:600';
@@ -743,6 +762,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600) - 어두운 배경이지만 밝은 텍스트 사용 (흰 배경 대비)
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
@@ -777,6 +797,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else {
       // 어두운 범위 (Step 700-950) - 어두운 배경이지만 밝은 텍스트 사용 (흰 배경 대비)
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:400';
@@ -1098,85 +1119,9 @@ async function handleCreateCustomTheme(msg) {
     createdCount++;
   }
   
-  // 입력 색상의 분류에 따라 추가 alpha 변형 생성
-  var colorRange = theme.colorRange;  // light, medium, dark 중 하나
-  var additionalVariants = [];
-  
-  if (colorRange === 'light') {
-    // light 색상의 경우: medium(500), dark(950) 기준 alpha 생성
-    additionalVariants.push({ suffix: 'medium', baseStep: 500 });
-    additionalVariants.push({ suffix: 'dark', baseStep: 950 });
-  } else if (colorRange === 'medium') {
-    // medium 색상의 경우: light(100), dark(950) 기준 alpha 생성
-    additionalVariants.push({ suffix: 'light', baseStep: 100 });
-    additionalVariants.push({ suffix: 'dark', baseStep: 950 });
-  } else if (colorRange === 'dark') {
-    // dark 색상의 경우: light(100), medium(500) 기준 alpha 생성
-    additionalVariants.push({ suffix: 'light', baseStep: 100 });
-    additionalVariants.push({ suffix: 'medium', baseStep: 500 });
-  }
-  
-  // 추가 변형 alpha 토큰 생성
-  for (var v = 0; v < additionalVariants.length; v++) {
-    var variant = additionalVariants[v];
-    
-    // 각 변형별 Light/Dark 모드에서 사용할 step 결정
-    var lightModeStep, darkModeStep;
-    if (variant.suffix === 'light') {
-      lightModeStep = 100;  // Light 모드에서 light는 100 기준
-      darkModeStep = 950;   // Dark 모드에서 light는 950 기준
-    } else if (variant.suffix === 'dark') {
-      lightModeStep = 950;  // Light 모드에서 dark는 950 기준
-      darkModeStep = 50;    // Dark 모드에서 dark는 50 기준
-    } else {
-      // medium은 기존 방식
-      lightModeStep = variant.baseStep;
-      darkModeStep = variant.baseStep;
-    }
-    
-    var baseColorLightMode = theme.scaleColors.light.find(function(c) { return c.step === lightModeStep; });
-    var baseColorDarkMode = theme.scaleColors.dark.find(function(c) { return c.step === darkModeStep; });
-    
-    if (!baseColorLightMode || !baseColorDarkMode) continue;
-    
-    var baseRgbLightMode = hexToFigmaRGB(baseColorLightMode.hex);
-    var baseRgbDarkMode = hexToFigmaRGB(baseColorDarkMode.hex);
-    
-    // -00 토큰 (transparent 대신)
-    var transparentVariantName = 'scale/' + theme.themeName + '-' + variant.suffix + '-alpha-00';
-    var transparentVariantVariable = await findOrCreateVariable(transparentVariantName, collection, 'COLOR');
-    transparentVariantVariable.setValueForMode(lightMode.modeId, { 
-      r: baseRgbLightMode.r, g: baseRgbLightMode.g, b: baseRgbLightMode.b, a: 0 
-    });
-    transparentVariantVariable.setValueForMode(darkMode.modeId, { 
-      r: baseRgbDarkMode.r, g: baseRgbDarkMode.g, b: baseRgbDarkMode.b, a: 0 
-    });
-    createdCount++;
-    
-    // 각 단계별 alpha 토큰 생성
-    for (var i = 0; i < theme.scaleColors.light.length; i++) {
-      var step = theme.scaleColors.light[i].step;
-      if (step === 50) continue;
-      
-      var alphaValue = alphaMapping[step];
-      if (alphaValue === undefined) continue;
-      
-      var alphaVariantName = 'scale/' + theme.themeName + '-' + variant.suffix + '-alpha-' + step;
-      var alphaVariantVariable = await findOrCreateVariable(alphaVariantName, collection, 'COLOR');
-      
-      alphaVariantVariable.setValueForMode(lightMode.modeId, { 
-        r: baseRgbLightMode.r, g: baseRgbLightMode.g, b: baseRgbLightMode.b, a: alphaValue 
-      });
-      alphaVariantVariable.setValueForMode(darkMode.modeId, { 
-        r: baseRgbDarkMode.r, g: baseRgbDarkMode.g, b: baseRgbDarkMode.b, a: alphaValue 
-      });
-      createdCount++;
-    }
-  }
-  
   // Semantic 토큰은 건드리지 않음 - scale 토큰만 생성
   
-  figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName + ' (including ' + additionalVariants.length + ' additional variants)');
+  figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName);
 }
 
 // 매핑 값을 실제 색상으로 변환하는 함수
@@ -1278,21 +1223,7 @@ async function handleApplyThemeColorsToFrame(msg) {
     } else if (mappingValue.startsWith('ALPHA:')) {
       var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
       
-      // 색상 분류에 따라 적절한 alpha 변형 선택
-      var alphaVarName;
-      if (theme.colorRange === 'light') {
-        // light 색상의 경우 기본 alpha 사용
-        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-      } else if (theme.colorRange === 'medium') {
-        // medium 색상의 경우 medium-alpha 사용
-        alphaVarName = 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
-      } else if (theme.colorRange === 'dark') {
-        // dark 색상의 경우 dark-alpha 사용  
-        alphaVarName = 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
-      } else {
-        // 기본값
-        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-      }
+      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
       
       return allVariables.find(function(v) {
         return v.name === alphaVarName && v.variableCollectionId === collection.id;
@@ -1625,21 +1556,7 @@ async function handleApplySemanticToFrame(msg) {
     } else if (mappingValue.startsWith('ALPHA:')) {
       var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
       
-      // 색상 분류에 따라 적절한 alpha 변형 선택
-      var alphaVarName;
-      if (theme.colorRange === 'light') {
-        // light 색상의 경우 기본 alpha 사용
-        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-      } else if (theme.colorRange === 'medium') {
-        // medium 색상의 경우 medium-alpha 사용
-        alphaVarName = 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
-      } else if (theme.colorRange === 'dark') {
-        // dark 색상의 경우 dark-alpha 사용  
-        alphaVarName = 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
-      } else {
-        // 기본값
-        alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-      }
+      var alphaVarName = 'scale/' + theme.themeName + '-alpha-' + alphaStep;
       
       return allVariables.find(function(v) {
         return v.name === alphaVarName && v.variableCollectionId === collection.id;
@@ -1949,16 +1866,7 @@ async function handleAnnotationControl(msg) {
           } else if (mappingValue.startsWith('ALPHA:')) {
             if (theme) {
               var alphaStep = parseInt(mappingValue.replace('ALPHA:', '').replace(theme.themeName, ''));
-              // 색상 분류에 따라 적절한 alpha 변형 선택
-              if (theme.colorRange === 'light') {
-                return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-              } else if (theme.colorRange === 'medium') {
-                return 'scale/' + theme.themeName + '-medium-alpha-' + alphaStep;
-              } else if (theme.colorRange === 'dark') {
-                return 'scale/' + theme.themeName + '-dark-alpha-' + alphaStep;
-              } else {
-                return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
-              }
+              return 'scale/' + theme.themeName + '-alpha-' + alphaStep;
             }
             var alphaStep = parseInt(mappingValue.replace('ALPHA:theme', ''));
             return 'scale/theme-alpha-' + alphaStep;

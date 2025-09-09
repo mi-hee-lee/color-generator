@@ -1892,29 +1892,35 @@
             if (hex) {
                 var hsl = ColorUtils.hexToHsl(hex);
                 var hue = hsl[0];
+                var saturation = hsl[1];
                 var lightness = hsl[2];
                 var hueBrightness = getHueBrightness(hue);
                 
-                // 1) Lightness가 80% 이상이면 무조건 밝은 색상으로 분류
-                if (lightness >= 80) {
-                    isInherentlyBright = true;
-                } 
-                // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
-                else {
-                    // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
-                    isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
+                if (saturation < 20) {
+                    // 회색조는 lightness로만 판단
+                    isInherentlyBright = (lightness >= 50);
+                } else {
+                    // 1) Lightness가 70% 이상이면 무조건 밝은 색상으로 분류
+                    if (lightness >= 70) {
+                        isInherentlyBright = true;
+                    } 
+                    // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
+                    else {
+                        // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
+                        isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
+                    }
                 }
             }
             
             // 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
             if (isInherentlyBright) {
-                // 본질적으로 밝은 색상: 더 넓은 범위를 'light'로 분류
-                if (closestStep <= 300) {
+                // 본질적으로 밝은 색상
+                if (closestStep <= 400) {
                     return 'light';
-                } else if (closestStep >= 400 && closestStep <= 600) {
+                } else if (closestStep >= 500 && closestStep <= 700) {
                     return 'medium';
                 } else {
-                    return 'dark';  // 700-950
+                    return 'dark';  // 800-950
                 }
             } else {
                 // 중간/어두운 색상: 더 좁은 범위만 'light'로 분류
@@ -2774,7 +2780,7 @@
                     // 회색조는 lightness로만 판단
                     isInherentlyBright = (lightness >= 50);
                 } else {
-                    if (lightness >= 80) {
+                    if (lightness >= 70) {
                         isInherentlyBright = true;
                     } else {
                         var hueBrightness = getHueBrightness(hue);
@@ -2785,24 +2791,25 @@
                 // 색상 범위 결정
                 var colorRange;
                 if (isInherentlyBright) {
-                    // 본질적으로 밝은 색상: 더 넓은 범위를 'light'로 분류
-                    if (closestStep <= 300) {
+                    // 본질적으로 밝은 색상
+                    if (closestStep <= 400) {
                         colorRange = 'light';
-                    } else if (closestStep >= 400 && closestStep <= 600) {
+                    } else if (closestStep >= 500 && closestStep <= 700) {
                         colorRange = 'medium';
                     } else {
-                        colorRange = 'dark';  // 700-950
+                        colorRange = 'dark';  // 800-950
                     }
                 } else {
-                    // 중간/어두운 색상: 더 좁은 범위만 'light'로 분류
-                    if (closestStep < 200) {
+                    // 본질적으로 어두운 색상
+                    if (closestStep < 300) {
                         colorRange = 'light';
-                    } else if (closestStep >= 200 && closestStep <= 600) {
+                    } else if (closestStep >= 300 && closestStep <= 600) {
                         colorRange = 'medium';
                     } else {
                         colorRange = 'dark';  // 700-950
                     }
                 }
+                
                 
                 return colorRange;
             }
