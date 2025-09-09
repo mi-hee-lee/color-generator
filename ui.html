@@ -367,18 +367,28 @@
         }
 
         .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 6px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00000095;
+            color: white;
+            padding: 8px 20px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 12px;
             text-align: center;
-            margin-top: 6px;
-            display: none;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            width: calc(100% - 40px);
         }
 
         .success-message.show {
-            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* 톤 매칭 스타일 */
@@ -1115,7 +1125,7 @@
 
         .step-indicator {
             display: inline-block;
-            padding: 4px 6px;
+            padding: 2px 4px;
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
@@ -1139,7 +1149,7 @@
 
         .classification-badge {
             display: inline-block;
-            margin-right : 8px;
+            padding: 2px 4px;
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
@@ -1487,6 +1497,11 @@
                     </div>
                 </div>
                 
+                <div class="step-actions">
+                    <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
+                    <button class="action-btn btn-success" onclick="applyCustomTheme()">custom theme 적용하기</button>
+                </div>
+                
                 <!-- Mapping 정보보기 컨트롤 -->
                 <div class="mapping-info-controls" style="margin: 8px; padding: 12px; border: 1px solid #00000010; border-radius: 8px; background: #f8f9fa;">
                     <div style="display: flex; gap: 6px; align-items: center; flex-direction: column; ">
@@ -1498,11 +1513,6 @@
                         </button>
                         <span id="mappingStatus" style="font-size: 10px; color: #666; margin-left: 8px;">Frame을 선택하고 버튼을 눌러주세요</span>
                     </div>
-                </div>
-                
-                <div class="step-actions">
-                    <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
-                    <button class="action-btn btn-success" onclick="applyCustomTheme()">custom theme 적용하기</button>
                 </div>
             </div>
         </div>
