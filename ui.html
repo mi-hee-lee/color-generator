@@ -815,6 +815,7 @@
             
             border-radius: 3px;
             position: relative;
+            transition: all 0.2s ease-in-out; /* 부드러운 색상 전환 애니메이션 */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -884,6 +885,7 @@
 
         .frame-button {
             background: #bcc8ff;
+            transition: background-color 0.2s ease-in-out; /* 버튼 색상 전환 애니메이션 */
             border-radius: 4px;
             width: calc(100% - 16px);
             height: 26px;
@@ -2378,15 +2380,18 @@
                 });
             }
             
-            // 버튼 색상 적용
+            // 버튼 색상 적용 (semantic/fill/primary)
             if (frameButton) {
                 frameButton.style.backgroundColor = tokens.fillPrimary;
+                frameButton.style.border = 'none';
+                frameButton.style.boxShadow = 'none';
             }
             
-            // content-block 색상 적용 (semantic-fill-surface-contents 미리보기)
+            // content-block 색상 적용 (semantic/fill/surface-contents 미리보기)
             const contentBlocks = card.querySelectorAll('.content-block');
             contentBlocks.forEach(block => {
                 block.style.backgroundColor = tokens.fillSurfaceContents || '#f1f5f9';
+                block.style.border = 'none';
             });
             
             // 카드 라벨 텍스트 색상 고정 (카드 밖으로 나왔으므로 검은색 고정)
@@ -2406,7 +2411,6 @@
                 return;
             }
             
-            
             // 각 모드에 대해 색상 토큰 계산 및 미리보기 업데이트
             const modes = ['accent-on-bg-off', 'accent-on-bg-fixed', 'accent-off-bg-on', 'accent-on-bg-black'];
             
@@ -2418,62 +2422,230 @@
             });
         }
 
-        // 각 모드별로 미리보기용 색상 토큰을 계산하는 함수
+        // 현재 테마의 실시간 미리보기 업데이트
+        function updateCurrentThemePreview(newBaseColor) {
+            if (!currentTheme || !themeGenerator) return;
+            
+            // 현재 테마의 설정을 유지하면서 baseColor만 변경
+            const themeName = currentTheme.themeName || 'preview-theme';
+            const applicationMode = currentTheme.applicationMode || 'accent-on-bg-off';
+            const tuningValue = 0; // 기본값
+            
+            try {
+                const updatedTheme = themeGenerator.generateTheme(newBaseColor, themeName, applicationMode, tuningValue);
+                currentTheme = updatedTheme;
+                
+                // 테마 미리보기 업데이트
+                displayThemePreview(updatedTheme);
+                
+            } catch (error) {
+                console.warn('테마 실시간 업데이트 중 오류:', error);
+            }
+        }
+
+        // 미리보기 업데이트 성능 최적화
+        function optimizedPreviewUpdate(baseColor) {
+            // 이미 같은 색상으로 업데이트 중이면 스킵
+            if (window.lastPreviewColor === baseColor) return;
+            window.lastPreviewColor = baseColor;
+            
+            // 애니메이션 프레임 내에서 업데이트 실행
+            requestAnimationFrame(() => {
+                updateAllModePreviewsWithColor(baseColor);
+                updateWizardStepIndicator(baseColor);
+                
+                if (currentTheme) {
+                    updateCurrentThemePreview(baseColor);
+                }
+            });
+        }
+
+        // 각 모드별로 미리보기용 색상 토큰을 계산하는 함수 (실제 semantic token 매핑 기반)
         function calculatePreviewTokensForMode(baseColor, mode) {
             if (!baseColor) return null;
             
-            // HSL 변환 함수들이 없다면 간단한 구현
+            try {
+                // 임시 테마 생성하여 실제 매핑 규칙 사용
+                const tempTheme = themeGenerator ? themeGenerator.generateTheme(baseColor, 'preview', mode, 0) : null;
+                if (tempTheme && tempTheme.scaleColors) {
+                    
+                    // 실제 semantic token 매핑에서 값 추출
+                    const lightColors = tempTheme.scaleColors.light;
+                    const darkColors = tempTheme.scaleColors.dark;
+                    
+                    // 색상 분류 (실제 로직과 동일)
+                    const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(baseColor) : hexToHsl(baseColor);
+                    const lightness = hsl[2];
+                    const hue = hsl[0];
+                    const saturation = hsl[1];
+                    
+                    // 색상 분류 로직 (75% 기준)
+                    let isInherentlyBright = false;
+                    if (saturation < 20) {
+                        isInherentlyBright = (lightness >= 50);
+                    } else {
+                        if (lightness >= 75) {
+                            isInherentlyBright = true;
+                        } else {
+                            // Hue 기반 판단
+                            const isBrightHue = (hue >= 50 && hue <= 190);
+                            isInherentlyBright = isBrightHue;
+                        }
+                    }
+                    
+                    // closestStep 계산
+                    const closestStep = findClosestStepFromColors(lightColors, baseColor) || 500;
+                    
+                    // 색상 범위 결정
+                    let colorRange;
+                    if (isInherentlyBright) {
+                        if (closestStep <= 400) colorRange = 'light';
+                        else if (closestStep >= 500 && closestStep <= 700) colorRange = 'medium';
+                        else colorRange = 'dark';
+                    } else {
+                        if (closestStep < 300) colorRange = 'light';
+                        else if (closestStep >= 300 && closestStep <= 700) colorRange = 'medium';
+                        else colorRange = 'dark';
+                    }
+                    
+                    // 모드별 매핑 결정
+                    return calculateTokensForModeAndRange(mode, colorRange, lightColors, darkColors, baseColor, closestStep);
+                }
+            } catch (error) {
+                console.warn('임시 테마 생성 실패, 기본 로직 사용:', error);
+            }
+            
+            // 폴백: 기본 로직
+            return calculateBasicPreviewTokens(baseColor, mode);
+        }
+
+        // 실제 semantic token 매핑 기반 토큰 계산
+        function calculateTokensForModeAndRange(mode, colorRange, lightColors, darkColors, baseColor, closestStep) {
+            let tokens = {
+                background: '#ffffff',
+                textPrimary: '#000000',  
+                fillPrimary: baseColor,
+                fillSurfaceContents: '#f8fafc'
+            };
+            
+            const getColorByStep = (step) => {
+                const color = lightColors.find(c => c.step === step);
+                return color ? color.hex : baseColor;
+            };
+            
+            switch (mode) {
+                case 'accent-on-bg-off': // forground 중심
+                    if (colorRange === 'light') {
+                        // 밝은 색상: 어두운 배경 + 밝은 fillPrimary
+                        tokens.background = getColorByStep(950);  
+                        tokens.textPrimary = '#f9fafb'; // GRAY:50 (밝은 텍스트)
+                        tokens.fillPrimary = getColorByStep(400); // 밝은 primary 색상
+                        tokens.fillSurfaceContents = 'rgba(255,255,255,0.2)'; // STATIC-WHITE-ALPHA:200
+                    } else if (colorRange === 'medium') {
+                        // 중간 색상: 색상 배경 + 밝은 primary
+                        tokens.background = getColorByStep(closestStep);
+                        tokens.textPrimary = 'rgba(255,255,255,0.9)'; // STATIC-WHITE-ALPHA:900
+                        tokens.fillPrimary = getColorByStep(50); // 밝은 primary
+                        tokens.fillSurfaceContents = 'rgba(255,255,255,0.2)'; 
+                    } else {
+                        // 어두운 색상: 색상 배경 + 밝은 primary  
+                        tokens.background = getColorByStep(closestStep);
+                        tokens.textPrimary = 'rgba(255,255,255,0.9)'; // STATIC-WHITE-ALPHA:900
+                        tokens.fillPrimary = getColorByStep(50); // 밝은 primary
+                        tokens.fillSurfaceContents = 'rgba(255,255,255,0.2)';
+                    }
+                    break;
+                    
+                case 'accent-on-bg-fixed': // forground 중심 white bg
+                    tokens.background = '#ffffff'; // 항상 흰 배경으로 고정
+                    tokens.textPrimary = '#1f2937'; // GRAY:900
+                    tokens.fillPrimary = getColorByStep(closestStep);
+                    tokens.fillSurfaceContents = 'rgba(107,114,128,0.1)'; // GRAY-ALPHA:100
+                    break;
+                    
+                case 'accent-off-bg-on': // background 중심  
+                    tokens.background = baseColor;
+                    tokens.textPrimary = getContrastTextColor(baseColor);
+                    tokens.fillPrimary = getLighterShade(baseColor);
+                    tokens.fillSurfaceContents = 'rgba(255,255,255,0.1)';
+                    break;
+                    
+                case 'accent-on-bg-black': // forground 중심 black bg
+                    tokens.background = '#1f1f1f';
+                    tokens.textPrimary = '#f9fafb'; // GRAY:50
+                    tokens.fillPrimary = baseColor;
+                    tokens.fillSurfaceContents = 'rgba(255,255,255,0.2)'; // STATIC-WHITE-ALPHA:200
+                    break;
+            }
+            
+            return tokens;
+        }
+
+        // 기본 미리보기 토큰 계산 (폴백)
+        function calculateBasicPreviewTokens(baseColor, mode) {
             const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(baseColor) : hexToHsl(baseColor);
             const lightness = hsl[2];
-            const hue = hsl[0];
-            
-            // 밝은 색상 판단: 1) 밝기 80% 이상 또는 2) BornBright 색상 (Hue 40°-190°)
-            const isLightColor = lightness >= 80 || (hue >= 40 && hue <= 190);
+            const isLightColor = lightness >= 75;
             
             let tokens = {
                 background: '#ffffff',
                 textPrimary: '#000000',
-                fillPrimary: baseColor
+                fillPrimary: baseColor,
+                fillSurfaceContents: '#f8fafc'
             };
             
             switch (mode) {
                 case 'accent-on-bg-off':
                     if (isLightColor) {
-                        // 밝은 색상일 때: 색상 기반의 어두운 배경에 밝은 텍스트
-                        tokens.background = adjustColorLightness(baseColor, 20);
+                        tokens.background = adjustColorLightness(baseColor, 15);
                         tokens.textPrimary = '#ffffff';
-                        tokens.fillPrimary = baseColor;
                     } else {
-                        // 어두운 색상일 때: 색상 기반의 밝은 배경에 어두운 텍스트
                         tokens.background = adjustColorLightness(baseColor, 95);
                         tokens.textPrimary = '#000000';
-                        tokens.fillPrimary = baseColor;
                     }
                     break;
                     
                 case 'accent-on-bg-fixed':
-                    // 항상 흰 배경
                     tokens.background = '#ffffff';
                     tokens.textPrimary = '#000000';
-                    tokens.fillPrimary = baseColor;
                     break;
                     
                 case 'accent-off-bg-on':
-                    // 배경에 메인 색상 사용
                     tokens.background = baseColor;
                     tokens.textPrimary = getContrastTextColor(baseColor);
                     tokens.fillPrimary = getLighterShade(baseColor);
                     break;
                     
                 case 'accent-on-bg-black':
-                    // 항상 검은 배경
                     tokens.background = '#1f1f1f';
                     tokens.textPrimary = '#ffffff';
-                    tokens.fillPrimary = baseColor;
                     break;
             }
             
             return tokens;
+        }
+
+        // 색상 배열에서 가장 가까운 step 찾기
+        function findClosestStepFromColors(colors, targetColor) {
+            if (!colors || !targetColor) return 500;
+            
+            const targetHsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(targetColor) : hexToHsl(targetColor);
+            const targetLightness = targetHsl[2];
+            
+            let closestStep = 500;
+            let minDiff = Infinity;
+            
+            colors.forEach(color => {
+                const colorHsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(color.hex) : hexToHsl(color.hex);
+                const diff = Math.abs(targetLightness - colorHsl[2]);
+                
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestStep = color.step;
+                }
+            });
+            
+            return closestStep;
         }
 
         // 색상의 명도를 조정하는 헬퍼 함수
@@ -2870,18 +3042,31 @@
                 wizardBaseColor.removeEventListener('input', handleColorPickerChange);
                 wizardBaseHex.removeEventListener('input', handleHexInputChange);
                 
-                // 새 리스너 추가
+                // 새 리스너 추가 - input 이벤트로 실시간 반응
                 wizardBaseColor.addEventListener('input', handleColorPickerChange);
                 wizardBaseHex.addEventListener('input', handleHexInputChange);
                 
-                // 테스트용 클릭 리스너도 추가
-                wizardBaseColor.addEventListener('change', () => {
+                // change 이벤트도 추가 (마지막 확정값)
+                wizardBaseColor.addEventListener('change', handleColorPickerChange);
+                wizardBaseHex.addEventListener('change', handleHexInputChange);
+                
+                // 키보드 입력 시 더 즉각적인 반응을 위한 keyup 이벤트
+                wizardBaseHex.addEventListener('keyup', (e) => {
+                    const value = e.target.value.toUpperCase();
+                    // Enter 키나 완전한 hex 값일 때 즉시 업데이트
+                    if (e.key === 'Enter' || /^#[0-9A-F]{6}$/i.test(value)) {
+                        clearTimeout(window.colorUpdateTimeout);
+                        optimizedPreviewUpdate(value);
+                    }
                 });
                 
-                // 초기 색상에 대한 분류 정보 표시
+                // 초기 미리보기 업데이트
                 const initialColor = wizardBaseColor.value || wizardBaseHex.value;
                 if (initialColor) {
-                    updateWizardStepIndicator(initialColor);
+                    setTimeout(() => {
+                        updateAllModePreviewsWithColor(initialColor);
+                        updateWizardStepIndicator(initialColor);
+                    }, 100);
                 }
                 
             } else {
@@ -2899,14 +3084,13 @@
                 const oldHexValue = wizardBaseHex.value;
                 const newColorValue = wizardBaseColor.value.toUpperCase();
                 
-                
                 wizardBaseHex.value = newColorValue;
                 
-                // 모드 카드 미리보기 업데이트
-                updateAllModePreviewsWithColor(newColorValue);
-                
-                // 색상 분류 정보 업데이트
-                updateWizardStepIndicator(newColorValue);
+                // 실시간 미리보기 업데이트 (성능 최적화)
+                clearTimeout(window.colorUpdateTimeout);
+                window.colorUpdateTimeout = setTimeout(() => {
+                    optimizedPreviewUpdate(newColorValue);
+                }, 30); // 30ms 디바운스로 더 빠른 반응
                 
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
@@ -2918,19 +3102,18 @@
             const wizardBaseHex = document.getElementById('wizardThemeBaseHex');
             
             if (wizardBaseColor && wizardBaseHex) {
-                const hexValue = wizardBaseHex.value;
+                const hexValue = wizardBaseHex.value.toUpperCase();
                 
                 if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
-                    const oldColorValue = wizardBaseColor.value;
                     wizardBaseColor.value = hexValue;
                     
-                    // 모드 카드 미리보기 업데이트
-                    updateAllModePreviewsWithColor(hexValue);
+                    // 실시간 미리보기 업데이트 (성능 최적화)
+                    clearTimeout(window.colorUpdateTimeout);
+                    window.colorUpdateTimeout = setTimeout(() => {
+                        optimizedPreviewUpdate(hexValue);
+                    }, 80); // 타이핑 시에는 조금 더 긴 디바운스
                     
-                    // 색상 분류 정보 업데이트
-                    updateWizardStepIndicator(hexValue);
-                    
-                } else {
+                } else if (hexValue.length >= 3) { // 최소 3자리 이상일 때만 경고
                     console.warn('⚠️ Invalid hex format:', hexValue);
                 }
             } else {
