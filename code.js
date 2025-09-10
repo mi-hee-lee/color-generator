@@ -508,12 +508,12 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/background/default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
       
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, 4);
-      mappings['semantic/fill/primary-hover'] =  'REF:' + themeName + adjustStep(closestStep, 3);
-      mappings['semantic/fill/primary-pressed'] =  'REF:' + themeName + adjustStep(closestStep, 3);
+      mappings['semantic/fill/primary'] = 'GRAY:950';
+      mappings['semantic/fill/primary-hover'] = 'GRAY:900';
+      mappings['semantic/fill/primary-pressed'] =  'GRAY:900';
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + adjustStep(closestStep, 4);
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/border/divider-strong'] = 'GRAY:950';
+      mappings['semantic/border/line-selected'] = 'GRAY:950';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
