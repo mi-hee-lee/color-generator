@@ -522,9 +522,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/common/accent'] =  'REF:' + themeName + adjustStep(closestStep, 5);
-      mappings['semantic/common/accent-pressed'] =  'REF:' + themeName + adjustStep(closestStep, 4);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 4);
+      mappings['semantic/common/accent'] =  'REF:' + themeName + adjustStep(closestStep, 6);
+      mappings['semantic/common/accent-pressed'] =  'REF:' + themeName + adjustStep(closestStep, 5);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 5);
       mappings['semantic/common/muted'] = 'GRAY-ALPHA:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
