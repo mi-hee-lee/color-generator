@@ -376,7 +376,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   
 
   // =====================================
-  // 옵션 1: forground 중심
+  // 옵션 1: foreground 중심
   // =====================================
   if (applicationMode === 'accent-on-bg-off') {
     if (colorRange === 'light') {
@@ -608,7 +608,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
     
   // =====================================
-  // 옵션 3: forground 중심 white bg
+  // 옵션 3: foreground 중심 white bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-fixed') {
     mappings['semantic/background/default'] = 'GRAY:50';
@@ -723,7 +723,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
   
   // =====================================
-  // 옵션 4: forground 중심 black bg
+  // 옵션 4: foreground 중심 black bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-black') {
     // 배경은 항상 black으로 고정

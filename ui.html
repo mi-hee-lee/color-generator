@@ -1367,7 +1367,7 @@
                 <div class="step-content">
                     <div class="mode-selection">
                         <div class="mode-cards">
-                            <!-- Mode 1: forground 중심 -->
+                            <!-- Mode 1: foreground 중심 -->
                             <div class="mode-card selected" data-mode="accent-on-bg-off">
                                 <div class="card-checkbox">
                                     <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1396,7 +1396,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer">
-                                    <div class="card-label">forground 중심</div>
+                                    <div class="card-label">foreground 중심</div>
                                 </div>
                             </div>
        
@@ -1432,7 +1432,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Mode 2: forground 중심 white bg -->
+                            <!-- Mode 2: foreground 중심 white bg -->
                             <div class="mode-card" data-mode="accent-on-bg-fixed">
                                 <div class="card-checkbox">
                                     <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -1460,11 +1460,11 @@
                                     </div>
                                 </div>
                                 <div class="card-footer">
-                                    <div class="card-label">forground 중심 <br> white bg</div>
+                                    <div class="card-label">foreground 중심 <br> white bg</div>
                                 </div>
                             </div>
                             
-                            <!-- Mode 4: forground 중심 black bg -->
+                            <!-- Mode 4: foreground 중심 black bg -->
                             <div class="mode-card" data-mode="accent-on-bg-black">
                                 <div class="card-checkbox">
                                     <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -1492,7 +1492,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer">
-                                    <div class="card-label">forground 중심<br> black bg</div>
+                                    <div class="card-label">foreground 중심<br> black bg</div>
                                 </div>
                             </div>
                         </div>
@@ -2296,7 +2296,7 @@
             
             switch(mode) {
                 case 'accent-on-bg-off':
-                    // forground 중심: 배경 고정, 텍스트와 fill이 accent
+                    // foreground 중심: 배경 고정, 텍스트와 fill이 accent
                     backgroundLight = '#FFFFFF';
                     if (isBrightColor) {
                         textPrimaryLight = lightColors.find(c => c.step === 900)?.hex || '#000000';
@@ -2320,7 +2320,7 @@
                     break;
                     
                 case 'accent-on-bg-fixed':
-                    // forground 중심, white bg 고정
+                    // foreground 중심, white bg 고정
                     backgroundLight = '#FFFFFF';
                     if (isBrightColor) {
                         textPrimaryLight = lightColors.find(c => c.step === 900)?.hex || '#000000';
@@ -2332,7 +2332,7 @@
                     break;
                     
                 case 'accent-on-bg-black':
-                    // forground 중심, black bg 고정 (백엔드와 동일한 로직)
+                    // foreground 중심, black bg 고정 (백엔드와 동일한 로직)
                     backgroundLight = '#1f1f1f';
                     // 실제 GRAY:50 색상 사용 (Light Mode gray scale의 50번째)
                     const colorGenerator = new ColorGenerator();
@@ -2534,7 +2534,7 @@
             };
             
             switch (mode) {
-                case 'accent-on-bg-off': // forground 중심
+                case 'accent-on-bg-off': // foreground 중심
                     if (colorRange === 'light') {
                         // 밝은 색상: 어두운 배경 + 밝은 fillPrimary
                         tokens.background = getColorByStep(950);  
@@ -2556,7 +2556,7 @@
                     }
                     break;
                     
-                case 'accent-on-bg-fixed': // forground 중심 white bg
+                case 'accent-on-bg-fixed': // foreground 중심 white bg
                     tokens.background = '#ffffff'; // 항상 흰 배경으로 고정
                     tokens.textPrimary = '#1f2937'; // GRAY:900
                     tokens.fillPrimary = getColorByStep(closestStep);
@@ -2570,7 +2570,7 @@
                     tokens.fillSurfaceContents = 'rgba(255,255,255,0.1)';
                     break;
                     
-                case 'accent-on-bg-black': // forground 중심 black bg
+                case 'accent-on-bg-black': // foreground 중심 black bg
                     tokens.background = '#1f1f1f';
                     tokens.textPrimary = '#f9fafb'; // GRAY:50
                     tokens.fillPrimary = baseColor;
