@@ -419,7 +419,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'GRAY:900';
 
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -433,8 +433,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
 
-     mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+     mappings['semantic/border/divider-strong'] = 'GRAY:900';
+      mappings['semantic/border/line-selected'] = 'GRAY:900';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -443,9 +443,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '150';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
@@ -639,9 +639,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'GRAY:75';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:75';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + '500';
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '400';
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '400';
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY:100';
@@ -652,11 +652,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'GRAY:900';
 
-      mappings['semantic/text/secondary'] = 'GRAY:700';
-      mappings['semantic/text/tertiary'] = 'GRAY:600';
-      mappings['semantic/text/disabled'] = 'GRAY:400';
+      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
+      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
+      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
 
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
@@ -665,8 +665,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider-strong'] = 'GRAY:950';
+      mappings['semantic/border/line-selected'] = 'GRAY:950';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -674,16 +674,18 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent'] = 'GRAY:50';
       mappings['semantic/fill/silent-hover'] = 'GRAY:75';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:75';
-
-      mappings['semantic/common/accent'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY:100';
       mappings['semantic/fill/tertiary-hover'] = 'GRAY:200';
       mappings['semantic/fill/tertiary-pressed'] = 'GRAY:200';
       mappings['semantic/fill/disabled'] = 'GRAY:150';
+
+
       
     } else {
       // 어두운 범위 (Step 700-950)
