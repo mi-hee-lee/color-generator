@@ -616,7 +616,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + '600';
+      mappings['semantic/text/selected'] = 'GRAY:950';
 
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -629,11 +629,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + '500';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + '500';
-      mappings['semantic/border/divider'] = 'REF:' + themeName + '100';
-      mappings['semantic/border/line'] = 'REF:' + themeName + '200';
-      mappings['semantic/border/line-disabled'] = 'REF:' + themeName + '100';
+      mappings['semantic/border/divider-strong'] = 'GRAY:950';
+      mappings['semantic/border/line-selected'] = 'GRAY:950';
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
+      mappings['semantic/border/line'] = 'GRAY:200';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'GRAY:50';
       mappings['semantic/fill/silent-hover'] = 'GRAY:75';
@@ -667,9 +667,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
       mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'REF:' + themeName + '100';
-      mappings['semantic/border/line'] = 'REF:' + themeName + '200';
-      mappings['semantic/border/line-disabled'] = 'REF:' + themeName + '100';
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
+      mappings['semantic/border/line'] = 'GRAY:200';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
       mappings['semantic/fill/silent'] = 'GRAY:50';
       mappings['semantic/fill/silent-hover'] = 'GRAY:75';
