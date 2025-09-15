@@ -300,6 +300,8 @@ function adjustStep(currentStep, adjustment) {
 function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) {
   var mappings = {};
   
+  console.log('[Backend] getDynamicMappings 호출됨 - closestStep:', closestStep, 'applicationMode:', applicationMode, 'baseColor:', baseColor);
+  
   // 1단계: Hue의 본질적 밝기 판단
   function getHueBrightness(hue) {
     // Hue 범위별 본질적 밝기 분류
@@ -350,6 +352,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   // 2단계: 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
   var colorRange;
   
+  console.log('[Backend] 본질적 밝기 판단 - isInherentlyBright:', isInherentlyBright);
+  
   if (isInherentlyBright) {
     // 태생이 밝은 색상
     if (closestStep <= 400) {
@@ -370,6 +374,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     }
   }
   
+  console.log('[Backend] 결정된 색상 범위 - colorRange:', colorRange, 'closestStep:', closestStep);
+  
   
   // 기존 호환성을 위한 변수
   var isLightRange = colorRange === 'light';
@@ -379,6 +385,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   // 옵션 1: foreground 중심
   // =====================================
   if (applicationMode === 'accent-on-bg-off') {
+    console.log('[Backend] 옵션 1 (accent-on-bg-off) 실행 - colorRange:', colorRange);
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:50';
@@ -611,6 +618,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   // 옵션 3: foreground 중심 white bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-fixed') {
+    console.log('[Backend] 옵션 3 (accent-on-bg-fixed) 실행 - colorRange:', colorRange);
     mappings['semantic/background/default'] = 'GRAY:50';
     
     if (colorRange === 'light') {
@@ -728,6 +736,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   // 옵션 4: foreground 중심 black bg
   // =====================================
   } else if (applicationMode === 'accent-on-bg-black') {
+    console.log('[Backend] 옵션 4 (accent-on-bg-black) 실행 - colorRange:', colorRange);
     // 배경은 항상 black으로 고정
     mappings['semantic/background/default'] = 'GRAY:950';
     
@@ -837,6 +846,86 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
+    }
+  
+  // =====================================
+  // Custom Background: 배경만 사용자 지정, 나머지는 기본 매핑 사용
+  // =====================================
+  } else if (applicationMode === 'custom-background') {
+    console.log('[Backend] Custom Background 모드 실행');
+    
+    // 기본적으로 옵션 1 (accent-on-bg-off)의 매핑을 사용하되, 배경만 사용자 지정
+    if (colorRange === 'light') {
+      mappings['semantic/text/primary'] = 'GRAY:50';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/secondary'] = 'GRAY:300';
+      mappings['semantic/text/tertiary'] = 'GRAY:400';
+      mappings['semantic/text/disabled'] = 'GRAY:600';
+      mappings['semantic/text/on-color'] = 'GRAY:900';
+      
+      // 배경은 CUSTOM으로 표시 (나중에 handleApplyThemeColorsToFrame에서 처리)
+      mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+      mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
+
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
+      mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
+      
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + '950';
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '900';
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '900';
+      
+      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, -2);
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/common/muted'] = 'GRAY:700';
+      
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
+      
+    } else {
+      // 어두운 범위도 동일하게 옵션 1 로직 사용
+      mappings['semantic/text/primary'] = 'GRAY:900';
+      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
+      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
+      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
+      mappings['semantic/text/on-color'] = 'GRAY:50';
+      
+      mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+      mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
+
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+
+      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
+      mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
+      
+      mappings['semantic/fill/silent'] = 'REF:' + themeName + '100';
+      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
+      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '150';
+      
+      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/muted'] = 'GRAY:300';
+      
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
     }
   }
   
@@ -1171,11 +1260,40 @@ function calculateTokenColor(mappingValue, theme, mode) {
   return null;
 }
 
+// Frame 선택 상태 확인 핸들러
+async function handleCheckFrameSelection(msg) {
+  console.log('[Backend] Frame 선택 상태 확인 중...');
+  
+  var selection = figma.currentPage.selection;
+  var frameNodes = selection.filter(function(node) {
+    return node.type === 'FRAME';
+  });
+  
+  var frameInfo = {
+    hasFrames: frameNodes.length > 0,
+    frameCount: frameNodes.length,
+    frameNames: frameNodes.map(function(frame) {
+      return frame.name;
+    })
+  };
+  
+  console.log('[Backend] Frame 선택 정보:', frameInfo);
+  
+  // UI에 결과 전송
+  figma.ui.postMessage({
+    type: 'frame-selection-result',
+    frameInfo: frameInfo
+  });
+}
+
 // 테마 토큰을 Layer에 직접 적용하는 핸들러 (semantic 토큰 변경 없이)
 async function handleApplyThemeColorsToFrame(msg) {
   var theme = msg.theme;
   var applicationMode = theme.applicationMode || 'accent-on-bg-off';
   var selection = figma.currentPage.selection;
+  
+  console.log('[Backend] 테마 적용 시작 - applicationMode:', applicationMode);
+  console.log('[Backend] 받은 테마 데이터:', theme);
   
   if (selection.length === 0) {
     figma.notify('Frame을 선택해주세요');
@@ -1192,7 +1310,10 @@ async function handleApplyThemeColorsToFrame(msg) {
   
   // 동적 매핑 계산 (기존 로직과 동일)
   var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
+  console.log('[Backend] Closest step:', closestStep);
+  
   var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
+  console.log('[Backend] 생성된 매핑:', mappings);
   
   // 모든 변수 가져오기
   var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
@@ -1265,6 +1386,10 @@ async function handleApplyThemeColorsToFrame(msg) {
       return allVariables.find(function(v) {
         return v.name === staticBlackVarName && v.variableCollectionId === collection.id;
       });
+    } else if (mappingValue === 'CUSTOM_BACKGROUND') {
+      // Custom Background는 변수 대신 직접 색상값을 사용
+      console.log('[Backend] Custom Background 토큰 감지');
+      return 'CUSTOM_BACKGROUND';
     }
     
     return null;
@@ -1315,6 +1440,9 @@ async function handleApplyThemeColorsToFrame(msg) {
     } else if (mappingValue.startsWith('STATIC-BLACK-ALPHA:')) {
       // 정적 검은색 알파의 경우 검은색 기본값 반환
       return { r: 0, g: 0, b: 0 };
+    } else if (mappingValue === 'CUSTOM_BACKGROUND') {
+      // Custom Background의 경우 실제 색상은 별도 처리되므로 임시 색상 반환
+      return { r: 0.96, g: 0.96, b: 0.96 }; // #F5F5F5
     }
     
     // 기본 fallback 컬러
@@ -1343,7 +1471,22 @@ async function handleApplyThemeColorsToFrame(msg) {
             var mappedValue = mappings[currentVar.name];
             if (mappedValue) {
               var newToken = findTokenFromMapping(mappedValue);
-              if (newToken) {
+              
+              // Custom Background 처리
+              if (newToken === 'CUSTOM_BACKGROUND' && theme.customBackgroundColor) {
+                console.log('[Backend] Custom Background 색상 적용:', theme.customBackgroundColor, '토큰:', currentVar.name);
+                var customColor = hexToFigmaRGB(theme.customBackgroundColor);
+                
+                // Custom 색상으로 직접 설정 (변수 바인딩 없이)
+                var newFills = node.fills.slice();
+                newFills[f] = {
+                  type: 'SOLID',
+                  color: customColor
+                };
+                node.fills = newFills;
+                appliedCount++;
+                
+              } else if (newToken) {
                 var fallbackColor = getFallbackColor(mappedValue);
                 
                 // 토큰 교체 - fills 배열 전체 복사 후 수정
@@ -1996,6 +2139,8 @@ figma.ui.onmessage = async function(msg) {
       await handleToneMatching(msg);
     } else if (msg.type === 'annotation-control') {
       await handleAnnotationControl(msg);
+    } else if (msg.type === 'check-frame-selection') {
+      await handleCheckFrameSelection(msg);
     }
   } catch (error) {
     console.error('Error handling message:', error);
