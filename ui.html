@@ -83,82 +83,80 @@
             overflow: hidden;
         }
 
-        /* Tabs */
         .tab-navigation {
             display: flex;
-            flex-direction: row;
             align-items: flex-start;
-            padding: 0px 16px;
-            gap: 16px;
+            gap: 4px;
+            padding: 4px;
             position: relative;
-            width: 352px;
-            height: 40px;
-            background: #FFFFFF;
-            margin-bottom: 16px;
+            background-color: var(--basicgray);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            width: 100%;
             box-sizing: border-box;
         }
         
+        .tab-navigation::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc((100% - 16px) / 3);
+            height: calc(100% - 8px);
+            background-color: var(--basicwhite);
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px -4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
 
-        /* Tab */
         .tab-btn {
-            display: flex;
-            flex-direction: row;
+            display: inline-flex;
             align-items: center;
-            padding: 0px;
-            gap: 4px;
-            height: 40px;
-            flex: none;
-            align-self: stretch;
-            flex-grow: 0;
-            background: transparent;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            position: relative;
+            flex: 1;
             border: none;
+            background: transparent;
+            border-radius: 8px;
+            overflow: hidden;
             cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--body-1-semi-bold-font-family);
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--basicblack-3);
+            white-space: nowrap;
+            transform: scale(1);
+            z-index: 2;
         }
 
-        /* Title for active tab */
         .tab-btn.active {
-            font-family: 'Inter';
-            font-style: normal;
-            font-weight: 600;
-            font-size: 11px;
-            line-height: 16px;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            letter-spacing: 0.005em;
-            color: #000000;
+            background-color: transparent;
+            color: var(--basicblack);
+            transform: scale(1.02);
         }
         
-        /* Title for inactive tabs */
-        .tab-btn:not(.active) {
-            font-family: 'Inter';
-            font-style: normal;
-            font-weight: 400;
-            font-size: 11px;
-            line-height: 16px;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            letter-spacing: 0.005em;
-            color: rgba(0, 0, 0, 0.3);
+        /* 두 번째 탭 활성화 */
+        .tab-navigation.second-active::before {
+            transform: translateX(calc(100% + 4px));
         }
         
-        /* Specific widths for different tabs */
-        .tab-btn:nth-child(1) {
-            width: 82px;
-            order: 0;
+        /* 세 번째 탭 활성화 */
+        .tab-navigation.third-active::before {
+            transform: translateX(calc(200% + 8px));
         }
         
-        .tab-btn:nth-child(2) {
-            width: 85px;
-            order: 1;
+        .tab-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.01);
         }
         
-        .tab-btn:nth-child(3) {
-            width: 78px;
-            order: 2;
+        .tab-btn:active {
+            transform: scale(0.98);
         }
-
 
         .tab-content {
             display: none;
@@ -801,296 +799,6 @@
             color: white;
         }
 
-        /* Background Selection Styles */
-        .background-selection {
-            width: 100%;
-        }
-
-        .bg-options-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .bg-card {
-            border: 2px solid #E5E5E5;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-            overflow: hidden;
-        }
-        
-        .bg-card.selected {
-            border-color: #007AFF;
-            box-shadow: 0 2px 12px rgba(0, 122, 255, 0.2);
-        }
-        
-        .bg-card[data-mode="accent-on-bg-black"] {
-            background: #000000;
-        }
-        
-        .bg-card-content {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .bg-card-header {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-        }
-        
-        .bg-large-preview {
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
-            flex-shrink: 0;
-            background: #F5F5F5; /* 기본값 */
-        }
-        
-        .bg-radio-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 24px;
-            height: 24px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .bg-radio-button.selected {
-            background: #007AFF;
-        }
-        
-        .bg-radio-button.white-circle {
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        .radio-circle {
-            width: 16px;
-            height: 16px;
-            border: none;
-            border-radius: 8px;
-            background: #D1D1D6;
-        }
-        
-        .radio-circle.white {
-            background: #666666;
-        }
-        
-        .radio-icon {
-            width: 16px;
-            height: 16px;
-        }
-        
-        .bg-card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .bg-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #000000;
-        }
-        
-        .bg-hex-code {
-            font-size: 12px;
-            color: #666666;
-            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        }
-
-        /* Custom Background Card */
-        .custom-bg-card {
-            border: 2px solid #E5E5E5;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-            margin-top: 16px;
-            position: relative;
-        }
-        
-        .custom-bg-card.selected {
-            border-color: #007AFF;
-            box-shadow: 0 2px 12px rgba(0, 122, 255, 0.2);
-        }
-        
-        .custom-bg-card-content {
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .custom-bg-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-        
-        .bg-small-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            flex-shrink: 0;
-        }
-        
-        .custom-bg-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        
-        .custom-bg-inputs {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .custom-bg-inputs input[type="color"] {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            background: none;
-        }
-        
-        .custom-bg-inputs input[type="color"]::-webkit-color-swatch-wrapper {
-            padding: 0;
-            border-radius: 8px;
-            border: 2px solid #E5E5E5;
-        }
-        
-        .custom-bg-inputs input[type="color"]::-webkit-color-swatch {
-            border: none;
-            border-radius: 6px;
-        }
-        
-        .custom-bg-inputs input[type="text"] {
-            width: 100px;
-            height: 40px;
-            border: 2px solid #E5E5E5;
-            border-radius: 8px;
-            padding: 0 12px;
-            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .custom-bg-inputs input[type="text"]:focus {
-            outline: none;
-            border-color: #007AFF;
-        }
-        
-        .custom-bg-card .bg-radio-button {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-        }
-
-        .bg-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .bg-option span {
-            font-size: 12px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .bg-hex {
-            font-size: 10px;
-            color: #666;
-            font-family: monospace;
-        }
-
-        /* Custom Background Section */
-        .custom-bg-section {
-            margin-top: 16px;
-        }
-
-        .custom-bg-option {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-direction: row;
-        }
-
-        .custom-bg-option:hover {
-            border-color: var(--accentblue);
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.1);
-        }
-
-        .custom-bg-option.selected {
-            border-color: var(--accentblue);
-            background: #f0f7ff;
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
-        }
-
-        .custom-bg-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .custom-bg-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .custom-bg-info span {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .custom-bg-input {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .custom-bg-input input[type="color"] {
-            width: 40px;
-            height: 32px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .custom-bg-input input[type="text"] {
-            width: 80px;
-            padding: 6px 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        /* 기존 custom-background 클래스는 제거 (더 이상 사용안함) */
-
         .card-preview {
             
             flex: 1;
@@ -1584,6 +1292,218 @@
         .color-hex.copied {
             animation: copyFlash 0.5s ease;
         }
+
+        /* Background Selection Styles */
+        .background-selection {
+            width: 100%;
+        }
+
+        .bg-options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bg-card {
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            width: 120px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 8px;
+            position: relative;
+        }
+
+        .bg-card.selected {
+            border: 2px solid #18A0FB;
+            box-shadow: none;
+        }
+
+        .bg-card[data-mode="accent-on-bg-black"] {
+            background: #000000;
+        }
+
+        .bg-card-content {
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bg-card-header {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .bg-large-preview {
+            width: 100%;
+            height: 64px;
+            border-radius: 0px;
+            flex-shrink: 0;
+            background: #F5F5F5;
+        }
+
+        .bg-radio-button {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            border: 1px solid #D1D1D6;
+            border-radius: 4px;
+            background: white;
+            margin: 0;
+        }
+
+        .bg-radio-button.selected,
+        .simple-checkbox-input:checked {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .bg-radio-button.white-circle {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .bg-radio-button.white-circle.selected {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .bg-radio-button .radio-icon,
+        .simple-checkbox-input + .radio-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .radio-circle {
+            display: none !important;
+        }
+
+        .radio-icon {
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .bg-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0px 8px 8px;
+        }
+
+        .bg-label {
+            font-size: 12px;
+            line-height: 1;
+            font-weight: 400;
+            color: #000000;
+        }
+
+        .bg-hex-code {
+            font-size: 10px;
+            color: #0000002f;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        }
+
+        /* Simple Checkbox Option */
+        .simple-checkbox-option {
+            margin-top: 16px;
+            cursor: pointer;
+        }
+
+        .simple-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper {
+            position: relative;
+            width: 16px;
+            height: 16px;
+        }
+
+        .bg-card-header .checkbox-wrapper {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .simple-checkbox-input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            border: 1px solid #D1D1D6;
+            border-radius: 4px;
+            background: white;
+            margin: 0;
+        }
+
+        .simple-checkbox-text {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.8);
+            user-select: none;
+        }
+
+        /* 커스텀 배경 컬러 입력 */
+        .custom-bg-color-input {
+            padding-left: 24px;
+        }
+
+        .color-input-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #FFFFFF;
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+        }
+
+        .color-swatch {
+            width: 16px;
+            height: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: none;
+            padding: 0;
+        }
+
+        .color-swatch::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .color-swatch::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -1644,90 +1564,235 @@
                 </div>
                 
                 <div class="step-actions">
-                    <button class="action-btn btn-success" onclick="goToStep(3)">다음</button>
+                    <button class="action-btn btn-success" onclick="goToStep(2)">다음</button>
                 </div>
             </div>
 
-
-            <!-- Step 3: Background 선택 및 적용 -->
-            <div id="wizardStep3" class="wizard-step">
+            <!-- Step 2: Background 선택 -->
+            <div id="wizardStep2" class="wizard-step">
                 <div class="step-header">
                     <div class="step-title">Step 2. Background 선택</div>
                     <p>선택한 Key Color에 맞는 Background를 선택하거나 직접 지정하세요.</p>
                 </div>
-                
-                
+
                 <div class="step-content">
-                    <div class="background-selection">
-                        <!-- 상단 3개 옵션 -->
-                        <div class="bg-options-grid">
-                            <!-- 추천 색상 (Mode 1) -->
-                            <div class="bg-card selected" data-mode="accent-on-bg-off">
-                                <div class="bg-card-content">
-                                    <div class="bg-card-header">
-                                        <div class="bg-large-preview" id="recommendedBgPreview"></div>
-                                        <div class="bg-radio-button selected">
-                                            <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="bg-card-info">
-                                        <div class="bg-label">추천 색상</div>
-                                        <div class="bg-hex-code" id="recommendedBgHex">#F5F5F5</div>
-                                    </div>
+                    <div class="bg-options-grid">
+                        <!-- 추천 색상 카드 -->
+                        <div class="bg-card selected" data-mode="accent-on-bg-off" id="recommendedBgCard">
+                            <div class="bg-card-header">
+                                <div class="bg-large-preview" id="recommendedBgPreview" style="background: #F5F5F5;"></div>
+                                <div class="checkbox-wrapper">
+                                    <input type="radio" name="backgroundMode" value="accent-on-bg-off" class="bg-radio-button selected" id="recommendedBgRadio" checked>
+                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
                                 </div>
                             </div>
-                            
-                            <!-- White 배경 (Mode 3) -->
-                            <div class="bg-card" data-mode="accent-on-bg-fixed">
-                                <div class="bg-card-content">
-                                    <div class="bg-card-header">
-                                        <div class="bg-large-preview" style="background: #FFFFFF; border: 1px solid #E5E5E5;"></div>
-                                        <div class="bg-radio-button">
-                                            <div class="radio-circle"></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-card-info">
-                                        <div class="bg-label">White</div>
-                                        <div class="bg-hex-code">#FFFFFF</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Black 배경 (Mode 4) -->
-                            <div class="bg-card" data-mode="accent-on-bg-black">
-                                <div class="bg-card-content">
-                                    <div class="bg-card-header">
-                                        <div class="bg-large-preview" style="background: #000000;"></div>
-                                        <div class="bg-radio-button white-circle">
-                                            <div class="radio-circle white"></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-card-info">
-                                        <div class="bg-label" style="color: white;">Black</div>
-                                        <div class="bg-hex-code" style="color: #999999;">#000000</div>
-                                    </div>
-                                </div>
+                            <div class="bg-card-info">
+                                <div class="bg-label">추천 색상</div>
+                                <div class="bg-hex-code" id="recommendedBgHex">#F5F5F5</div>
                             </div>
                         </div>
-                        
-                        <!-- Custom Background Option -->
-                        <div class="custom-bg-card" data-mode="custom-background" id="customBgOption">
-                            <div class="custom-bg-card-content">
-                                <div class="custom-bg-left">
-                                    <div class="bg-small-preview" id="customBgPreview" style="background: #F5F5F5;"></div>
-                                    <div class="custom-bg-info">
-                                        <div class="bg-label">Custom</div>
-                                        <div class="bg-hex-code" id="customBgHexDisplay">#F5F5F5</div>
+
+                        <!-- White 카드 -->
+                        <div class="bg-card" data-mode="accent-on-bg-fixed">
+                            <div class="bg-card-header">
+                                <div class="bg-large-preview" style="background: #FFFFFF;"></div>
+                                <div class="checkbox-wrapper">
+                                    <input type="radio" name="backgroundMode" value="accent-on-bg-fixed" class="bg-radio-button">
+                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="bg-card-info">
+                                <div class="bg-label">White</div>
+                                <div class="bg-hex-code">#FFFFFF</div>
+                            </div>
+                        </div>
+
+                        <!-- Black 카드 -->
+                        <div class="bg-card" data-mode="accent-on-bg-black">
+                            <div class="bg-card-header">
+                                <div class="bg-large-preview" style="background: #000000;"></div>
+                                <div class="checkbox-wrapper">
+                                    <input type="radio" name="backgroundMode" value="accent-on-bg-black" class="bg-radio-button white-circle">
+                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="bg-card-info">
+                                <div class="bg-label">Black</div>
+                                <div class="bg-hex-code">#000000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 배경 색 직접 설정하기 체크박스 -->
+                    <div class="simple-checkbox-option" data-mode="custom-background" id="customBgOption">
+                        <label class="simple-checkbox-label">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="simple-checkbox-input" id="customBgCheckbox">
+                                <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                            <span class="simple-checkbox-text">배경 색 직접 설정하기</span>
+                        </label>
+                    </div>
+
+                    <!-- 커스텀 배경 색상 입력 (숨김 상태) -->
+                    <div class="custom-bg-color-input" id="customBgColorContainer" style="display: none; margin-top: 16px;">
+                        <div class="color-input-container">
+                            <input type="color" id="customBgColor" class="color-swatch" value="#F5F5F5">
+                            <input type="text" id="customBgHex" class="hex-input" value="#F5F5F5" style="text-transform: uppercase;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-actions">
+                    <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
+                    <button class="action-btn btn-success" onclick="applyCustomThemeWithBackground()">적용하기</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Mode 선택 및 적용 -->
+            <div id="wizardStep3" class="wizard-step">
+                <div class="step-header">
+                    <div class="step-title">Step 2. Mode 선택</div>
+                    <p>선택한 Frame에 Theme을 적용합니다.</p>
+                </div>
+                
+                <div class="step-content">
+                    <div class="mode-selection">
+                        <div class="mode-cards">
+                            <!-- Mode 1: foreground 중심 -->
+                            <div class="mode-card selected" data-mode="accent-on-bg-off">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame">
+                                        <div class="frame-header">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block light"></div>
+                                            <div class="content-block light"></div>
+                                        </div>
+  
+                                        <div class="frame-button accent"></div>
                                     </div>
                                 </div>
-                                <div class="custom-bg-inputs">
-                                    <input type="color" id="customBgColor" value="#F5F5F5">
-                                    <input type="text" id="customBgHex" value="#F5F5F5" placeholder="#F5F5F5">
+                                <div class="card-footer">
+                                    <div class="card-label">foreground 중심</div>
                                 </div>
-                                <div class="bg-radio-button" id="customRadioButton">
-                                    <div class="radio-circle"></div>
+                            </div>
+       
+                            <!-- Mode 3: background 중심 -->
+                            <div class="mode-card" data-mode="accent-off-bg-on">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame">
+                                        <div class="frame-header">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block white"></div>
+                                            <div class="content-block white"></div>
+                                        </div>
+                                        <div class="frame-button dark"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">background 중심</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mode 2: foreground 중심 white bg -->
+                            <div class="mode-card" data-mode="accent-on-bg-fixed">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame white-bg">
+                                        <div class="frame-header">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block light"></div>
+                                            <div class="content-block light"></div>
+                                        </div>
+                                        <div class="frame-button accent"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">foreground 중심 <br> white bg</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mode 4: foreground 중심 black bg -->
+                            <div class="mode-card" data-mode="accent-on-bg-black">
+                                <div class="card-checkbox">
+                                    <svg class="checkbox-icon selected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                        <path d="M4.0332 10.0227L8.69951 15.0004L15.9589 5.03613" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="checkbox-icon unselected-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="10" cy="10" r="8" stroke="#ddd" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="card-preview">
+                                    <div class="preview-frame black-bg">
+                                        <div class="frame-header">
+                                            <svg width="48" height="14" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3088 0.55957C15.5807 0.55957 13.3688 2.70342 13.3688 5.34814C13.3688 7.92637 15.5253 10.0165 18.1852 10.0165C18.2997 10.0165 18.4097 10.0021 18.5197 9.98764C18.5724 9.98073 18.6251 9.97381 18.6783 9.96847L14.9751 15.1993H17.4012L22.4563 7.88935C22.973 7.14237 23.2492 6.25583 23.2492 5.34814C23.2492 2.70342 21.0375 0.55957 18.3088 0.55957ZM18.3088 8.30514C16.6757 8.30514 15.3518 6.98118 15.3518 5.34814C15.3518 3.71478 16.6757 2.39081 18.3088 2.39081C19.9418 2.39081 21.2658 3.71478 21.2658 5.34814C21.2658 6.98118 19.9418 8.30514 18.3088 8.30514Z" />
+                                                <path d="M39.3951 4.05236C38.3724 3.02899 36.9648 2.39064 35.4071 2.39064C32.2922 2.39064 29.7579 4.92496 29.7579 8.03979C29.7579 11.1546 32.2922 13.6888 35.4071 13.6888C36.9648 13.6888 38.3724 13.0506 39.3951 12.0271L40.7388 13.3707C39.362 14.6942 37.4839 15.5183 35.4071 15.5183C31.1984 15.5183 27.7743 12.1633 27.7743 8.03979C27.7743 3.91633 31.1984 0.561317 35.4071 0.561317C37.4839 0.561317 39.362 1.38521 40.7388 2.70885L39.3951 4.05236Z" />
+                                                <path d="M52.6666 7.91318L57.6453 0.879978H59.8262V15.1995H57.8408V3.90107L52.6666 11.3855L47.492 3.90107V15.1995H45.5068V0.879978H47.6878L52.6666 7.91318Z" />
+                                                <path d="M4.5399 0.559586C7.0473 0.559586 9.07995 2.52526 9.07995 4.94999C9.07995 6.0115 8.67185 7.03231 7.94025 7.80124L2.64392 13.3682H9.07995V15.1993H0V13.3682L6.43603 6.60338C6.86032 6.15747 7.09681 5.56558 7.09681 4.94999C7.09681 3.53662 5.95214 2.39083 4.5399 2.39083C3.12781 2.39083 1.98298 3.53662 1.98298 4.94999H0C0 2.52526 2.03249 0.559586 4.5399 0.559586Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="frame-content-area">
+                                            <div class="content-block white"></div>
+                                            <div class="content-block white"></div>
+                                        </div>
+                                        <div class="frame-button accent"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-label">foreground 중심<br> black bg</div>
                                 </div>
                             </div>
                         </div>
@@ -1736,7 +1801,7 @@
                 
                 <div class="step-actions">
                     <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
-                    <button class="action-btn btn-success" onclick="applyCustomThemeWithBackground()">적용하기</button>
+                    <button class="action-btn btn-success" onclick="applyCustomTheme()">custom theme 적용하기</button>
                 </div>
                 
                 <!-- Mapping 정보보기 컨트롤 -->
@@ -1753,8 +1818,6 @@
                 </div>
             </div>
         </div>
-        </div>
-        <!-- End Step 3 -->
 
         <!-- Scale Generator 탭 부분 수정 -->
         <div id="generatorContent" class="tab-content">
@@ -2357,12 +2420,17 @@
         let wizardThemeData = null;
 
         function goToStep(stepNumber) {
-            
-            // 현재 스텝에서 데이터 수집 및 처리
-            if (stepNumber === 3 && currentWizardStep === 1) {
-                // Step 1에서 Step 3로: 테마 변수를 먼저 생성하고 테마 데이터 생성
+
+            // Step 1에서 Step 2로: 테마 변수 생성
+            if (stepNumber === 2 && currentWizardStep === 1) {
                 createCustomThemeVariablesAndProceed();
                 return; // 비동기 처리를 위해 여기서 리턴
+            }
+
+            // Step 2에서 Step 3로: 배경 선택 처리
+            if (stepNumber === 3 && currentWizardStep === 2) {
+                // 배경 선택 처리는 여기서 수행
+                console.log('Step 2에서 Step 3로 이동');
             }
 
             // 프로그레스 업데이트
@@ -2371,15 +2439,14 @@
             // 스텝 콘텐츠 업데이트
             updateStepContent(stepNumber);
 
-            // Step 3로 이동할 때 추천 배경색 업데이트
-            if (stepNumber === 3) {
+            // Step 2로 이동할 때 추천 배경색 업데이트
+            if (stepNumber === 2) {
                 setTimeout(() => {
                     const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
                     if (wizardBaseColor && wizardBaseColor.value) {
-                        console.log('🎨 Step 3 진입 시 추천 배경색 업데이트:', wizardBaseColor.value);
                         updateRecommendedBackground(wizardBaseColor.value);
                     }
-                }, 100); // DOM 업데이트 후 실행
+                }, 100);
             }
 
             currentWizardStep = stepNumber;
@@ -2447,12 +2514,12 @@
             
             showMessage('테마 변수 생성 중...');
             
-            // 잠시 후 Step 3로 바로 진행
+            // 잠시 후 Step 2로 진행
             setTimeout(() => {
                 generateWizardTheme(); // 토큰 미리보기 생성
-                updateProgressBar(3);
-                updateStepContent(3);
-                currentWizardStep = 3;
+                updateProgressBar(2);
+                updateStepContent(2);
+                currentWizardStep = 2;
                 showMessage('테마 변수가 생성되었습니다!');
             }, 1000);
         }
@@ -2489,7 +2556,90 @@
                     applicationMode: 'accent-on-bg-off'
                 };
             }
-            
+
+        }
+
+        // 추천 배경색 업데이트 함수
+        function updateRecommendedBackground(keyColor) {
+            let recommendedBg = '#F5F5F5'; // 기본값
+
+            // 현재 테마의 Mode 1 semantic-background-default 값 가져오기
+            if (currentTheme && currentTheme.semanticColors && currentTheme.semanticColors['accent-on-bg-off']) {
+                const mode1Semantics = currentTheme.semanticColors['accent-on-bg-off'];
+                if (mode1Semantics['semantic-background-default']) {
+                    recommendedBg = mode1Semantics['semantic-background-default'];
+                }
+            }
+
+            // 추천 배경색 프리뷰 업데이트
+            const recommendedBgPreview = document.getElementById('recommendedBgPreview');
+            const recommendedBgHex = document.getElementById('recommendedBgHex');
+
+            if (recommendedBgPreview) {
+                recommendedBgPreview.style.background = recommendedBg;
+            }
+            if (recommendedBgHex) {
+                recommendedBgHex.textContent = recommendedBg;
+            }
+
+            console.log('추천 배경색 업데이트:', recommendedBg);
+        }
+
+        // Step 2에서 배경 선택 후 테마 적용
+        function applyCustomThemeWithBackground() {
+            // 먼저 Frame 선택 상태 확인
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'check-frame-selection'
+                }
+            }, '*');
+
+            // Frame 선택 확인 결과를 기다리지 않고 바로 처리
+            setTimeout(() => {
+                // 선택된 배경 모드 확인
+                let selectedMode = 'accent-on-bg-off'; // 기본값 (Mode 1)
+                let customBackgroundColor = null;
+
+                // 체크박스가 선택되었는지 확인
+                const customBgCheckbox = document.getElementById('customBgCheckbox');
+                if (customBgCheckbox && customBgCheckbox.checked) {
+                    selectedMode = 'custom-background';
+                    const customBgHex = document.getElementById('customBgHex');
+                    if (customBgHex) {
+                        customBackgroundColor = customBgHex.value;
+                    }
+                } else {
+                    // 선택된 카드 확인
+                    const selectedCard = document.querySelector('.bg-card.selected');
+                    if (selectedCard) {
+                        selectedMode = selectedCard.dataset.mode;
+                    }
+                }
+
+                // currentTheme 업데이트 (wizardThemeData 대신 currentTheme 사용)
+                if (currentTheme) {
+                    currentTheme.applicationMode = selectedMode;
+                    if (customBackgroundColor) {
+                        currentTheme.customBackgroundColor = customBackgroundColor;
+                    }
+                }
+
+                // 테마 적용
+                console.log('🎨 테마 적용 시작');
+                console.log('- 선택된 모드:', selectedMode);
+                console.log('- 커스텀 배경:', customBackgroundColor);
+                console.log('- 테마 데이터:', currentTheme);
+
+                // Figma로 테마 적용 메시지 전송
+                parent.postMessage({
+                    pluginMessage: {
+                        type: 'apply-theme-colors-to-frame',
+                        theme: currentTheme
+                    }
+                }, '*');
+
+                showMessage('테마가 적용되었습니다!');
+            }, 100);
         }
 
         function selectModeCard(card, mode) {
@@ -3093,282 +3243,10 @@
             showMessage('Custom Theme 적용 중...');
         }
 
-        function applyCustomThemeWithBackground() {
-            // 선택된 background 옵션 가져오기
-            const selectedBgOption = document.querySelector('.bg-card.selected, .custom-bg-card.selected');
-            if (!selectedBgOption) {
-                showMessage('Background를 선택해주세요!');
-                return;
-            }
-
-            // Frame 선택 확인
-            parent.postMessage({
-                pluginMessage: { type: 'check-frame-selection' }
-            }, '*');
-            
-            // 응답을 기다리기 위해 플래그 설정
-            window.pendingThemeApplication = true;
-        }
-
-        // Frame 선택 체크 응답 처리
-        window.handleFrameSelectionResult = function(frameInfo) {
-            if (window.pendingThemeApplication) {
-                window.pendingThemeApplication = false;
-                
-                if (frameInfo && frameInfo.hasFrames) {
-                    applySelectedBackgroundTheme();
-                } else {
-                    showMessage('⚠️ Frame을 선택한 후 다시 시도해주세요');
-                }
-            }
-        };
-
-        function applySelectedBackgroundTheme() {
-            if (!currentTheme && !wizardThemeData) {
-                showMessage('먼저 테마를 생성해주세요!');
-                return;
-            }
-
-            // 선택된 background 옵션의 mode 가져오기
-            const selectedBgOption = document.querySelector('.bg-card.selected, .custom-bg-card.selected');
-            const selectedMode = selectedBgOption.dataset.mode;
-            
-            let themeToApply;
-            if (currentTheme) {
-                themeToApply = {
-                    ...currentTheme,
-                    applicationMode: selectedMode
-                };
-            } else {
-                themeToApply = {
-                    themeName: wizardThemeData.themeName,
-                    baseColor: wizardThemeData.baseColor,
-                    applicationMode: selectedMode,
-                    scaleColors: { light: generateScaleColors(wizardThemeData.baseColor) }
-                };
-            }
-
-            // Custom Background가 선택된 경우 색상 정보 추가
-            if (selectedMode === 'custom-background') {
-                const customBgHex = document.getElementById('customBgHex');
-                if (customBgHex && customBgHex.value) {
-                    themeToApply.customBackgroundColor = customBgHex.value;
-                    console.log('🎨 Custom Background 적용:', customBgHex.value);
-                }
-            }
-
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'apply-theme-colors-to-frame',
-                    theme: themeToApply
-                }
-            }, '*');
-            
-            showMessage('Custom Theme 적용 중...');
-        }
-
-        // Background 옵션 선택 이벤트 핸들러
-        function initBackgroundSelection() {
-            const bgCards = document.querySelectorAll('.bg-card, .custom-bg-card');
-            bgCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    // 모든 카드에서 selected 클래스 제거 및 라디오 버튼 상태 업데이트
-                    bgCards.forEach(c => {
-                        c.classList.remove('selected');
-                        const radioButton = c.querySelector('.bg-radio-button');
-                        if (radioButton) {
-                            radioButton.classList.remove('selected');
-                            const radioIcon = radioButton.querySelector('.radio-icon');
-                            const radioCircle = radioButton.querySelector('.radio-circle');
-                            if (radioIcon) radioIcon.style.display = 'none';
-                            if (radioCircle) radioCircle.style.display = 'block';
-                        }
-                    });
-                    
-                    // 선택된 카드에 selected 클래스 추가 및 라디오 버튼 상태 업데이트
-                    card.classList.add('selected');
-                    const radioButton = card.querySelector('.bg-radio-button');
-                    if (radioButton) {
-                        radioButton.classList.add('selected');
-                        const radioIcon = radioButton.querySelector('.radio-icon');
-                        const radioCircle = radioButton.querySelector('.radio-circle');
-                        if (radioIcon) radioIcon.style.display = 'block';
-                        if (radioCircle) radioCircle.style.display = 'none';
-                    }
-                });
-            });
-
-            // 초기 추천 배경색 설정
-            const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
-            if (wizardBaseColor && wizardBaseColor.value) {
-                updateRecommendedBackground(wizardBaseColor.value);
-            }
-
-            // Custom background 색상 변경 이벤트
-            const customBgColor = document.getElementById('customBgColor');
-            const customBgHex = document.getElementById('customBgHex');
-            const customBgPreview = document.getElementById('customBgPreview');
-            const customBgHexDisplay = document.getElementById('customBgHexDisplay');
-            const customBgOption = document.getElementById('customBgOption');
-            
-            function updateCustomBgDisplay(color) {
-                if (customBgPreview) {
-                    customBgPreview.style.background = color;
-                }
-                if (customBgHexDisplay) {
-                    customBgHexDisplay.textContent = color;
-                }
-                
-                // Custom 옵션이 선택되어 있다면 자동으로 선택 유지
-                if (customBgOption && customBgOption.classList.contains('selected')) {
-                    // 이미 선택된 상태이므로 유지
-                }
-            }
-            
-            if (customBgColor) {
-                customBgColor.addEventListener('change', (e) => {
-                    const color = e.target.value.toUpperCase();
-                    customBgHex.value = color;
-                    updateCustomBgDisplay(color);
-                    
-                    // Custom 옵션 자동 선택 및 라디오 버튼 상태 업데이트
-                    const bgCards = document.querySelectorAll('.bg-card, .custom-bg-card');
-                    bgCards.forEach(card => {
-                        card.classList.remove('selected');
-                        const radioButton = card.querySelector('.bg-radio-button');
-                        if (radioButton) {
-                            radioButton.classList.remove('selected');
-                            const radioIcon = radioButton.querySelector('.radio-icon');
-                            const radioCircle = radioButton.querySelector('.radio-circle');
-                            if (radioIcon) radioIcon.style.display = 'none';
-                            if (radioCircle) radioCircle.style.display = 'block';
-                        }
-                    });
-                    if (customBgOption) {
-                        customBgOption.classList.add('selected');
-                        const radioButton = customBgOption.querySelector('.bg-radio-button');
-                        if (radioButton) {
-                            radioButton.classList.add('selected');
-                            const radioIcon = radioButton.querySelector('.radio-icon');
-                            const radioCircle = radioButton.querySelector('.radio-circle');
-                            if (radioIcon) radioIcon.style.display = 'block';
-                            if (radioCircle) radioCircle.style.display = 'none';
-                        }
-                    }
-                });
-            }
-            
-            if (customBgHex) {
-                customBgHex.addEventListener('input', (e) => {
-                    const hex = e.target.value;
-                    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-                        customBgColor.value = hex;
-                        updateCustomBgDisplay(hex);
-                        
-                        // Custom 옵션 자동 선택 및 라디오 버튼 상태 업데이트
-                        const bgCards = document.querySelectorAll('.bg-card, .custom-bg-card');
-                        bgCards.forEach(card => {
-                            card.classList.remove('selected');
-                            const radioButton = card.querySelector('.bg-radio-button');
-                            if (radioButton) {
-                                radioButton.classList.remove('selected');
-                                const radioIcon = radioButton.querySelector('.radio-icon');
-                                const radioCircle = radioButton.querySelector('.radio-circle');
-                                if (radioIcon) radioIcon.style.display = 'none';
-                                if (radioCircle) radioCircle.style.display = 'block';
-                            }
-                        });
-                        if (customBgOption) {
-                            customBgOption.classList.add('selected');
-                            const radioButton = customBgOption.querySelector('.bg-radio-button');
-                            if (radioButton) {
-                                radioButton.classList.add('selected');
-                                const radioIcon = radioButton.querySelector('.radio-icon');
-                                const radioCircle = radioButton.querySelector('.radio-circle');
-                                if (radioIcon) radioIcon.style.display = 'block';
-                                if (radioCircle) radioCircle.style.display = 'none';
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // 추천 배경색 업데이트 함수
-        function updateRecommendedBackground(keyColor) {
-            console.log('🎨 updateRecommendedBackground 호출됨:', keyColor);
-            
-            // Mode 1 (accent-on-bg-off) 로직 기반으로 추천 배경색 생성
-            try {
-                // themeGenerator를 사용하여 임시 테마 생성
-                const tempTheme = themeGenerator.generateTheme(keyColor, 'temp', 'accent-on-bg-off', 0);
-                if (!tempTheme || !tempTheme.scaleColors || !tempTheme.scaleColors.light) {
-                    console.error('❌ 테마 생성 실패');
-                    return;
-                }
-                
-                const lightColors = tempTheme.scaleColors.light;
-                console.log('📊 생성된 라이트 컬러:', lightColors);
-                
-                // Step 찾기 - 기존 로직과 동일
-                var inputHsl = ColorUtils.hexToHsl(keyColor);
-                var inputLightness = inputHsl[2];
-                var closestStep = themeGenerator.findClosestStep(lightColors, inputLightness);
-                
-                console.log('🎯 Closest step:', closestStep, 'Input lightness:', inputLightness);
-                
-                // 컬러 분류 (bright/medium/dark)
-                let colorRange;
-                if (closestStep >= 700) {
-                    colorRange = 'bright';
-                } else if (closestStep >= 400) {
-                    colorRange = 'medium';
-                } else {
-                    colorRange = 'dark';
-                }
-                
-                console.log('🌈 Color range:', colorRange);
-                
-                // Mode 1 배경색 결정 로직
-                let recommendedBg = '#F5F5F5'; // 기본값
-                
-                if (colorRange === 'bright') {
-                    recommendedBg = lightColors[200] || '#F5F5F5';
-                } else if (colorRange === 'medium') {
-                    recommendedBg = lightColors[100] || '#F8F9FA';
-                } else { // dark
-                    recommendedBg = '#FFFFFF';
-                }
-                
-                console.log('🎨 추천 배경색:', recommendedBg);
-                
-                // UI 업데이트
-                const recommendedBgPreview = document.getElementById('recommendedBgPreview');
-                const recommendedBgHex = document.getElementById('recommendedBgHex');
-                
-                console.log('🔍 UI 요소 확인:', {
-                    preview: !!recommendedBgPreview,
-                    hex: !!recommendedBgHex
-                });
-                
-                if (recommendedBgPreview) {
-                    recommendedBgPreview.style.background = recommendedBg;
-                    console.log('✅ Preview 업데이트됨');
-                }
-                if (recommendedBgHex) {
-                    recommendedBgHex.textContent = recommendedBg;
-                    console.log('✅ Hex 업데이트됨:', recommendedBg);
-                }
-                
-            } catch (error) {
-                console.error('❌ 추천 배경색 생성 실패:', error);
-            }
-        }
-
         function generateScaleColors(baseColor) {
-            // CustomThemeGenerator를 사용하여 색상 생성
-            const tempTheme = themeGenerator.generateTheme(baseColor, 'temp', 'accent-on-bg-off', 0);
-            return tempTheme && tempTheme.scaleColors ? tempTheme.scaleColors : { light: {} };
+            // 기존 ScaleColorGenerator 로직 사용
+            const generator = new ScaleColorGenerator();
+            return generator.generate(baseColor, 'light');
         }
 
 
@@ -3610,7 +3488,6 @@
                 clearTimeout(window.colorUpdateTimeout);
                 window.colorUpdateTimeout = setTimeout(() => {
                     optimizedPreviewUpdate(newColorValue);
-                    updateRecommendedBackground(newColorValue);
                 }, 30); // 30ms 디바운스로 더 빠른 반응
                 
             } else {
@@ -3632,7 +3509,6 @@
                     clearTimeout(window.colorUpdateTimeout);
                     window.colorUpdateTimeout = setTimeout(() => {
                         optimizedPreviewUpdate(hexValue);
-                        updateRecommendedBackground(hexValue);
                     }, 80); // 타이핑 시에는 조금 더 긴 디바운스
                     
                 } else if (hexValue.length >= 3) { // 최소 3자리 이상일 때만 경고
@@ -4389,7 +4265,77 @@ window.addEventListener('message', (event) => {
             
             // Step 1 색상 입력 동기화
             setupWizardColorSync();
-            
+
+            // Step 2 배경 카드 클릭 이벤트
+            document.querySelectorAll('.bg-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    // 모든 카드에서 selected 제거
+                    document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
+                    // 클릭된 카드에 selected 추가
+                    card.classList.add('selected');
+
+                    // 라디오 버튼 업데이트 - 모든 아이콘 숨기기
+                    document.querySelectorAll('.bg-radio-button').forEach(radio => {
+                        radio.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.bg-card .radio-icon').forEach(icon => {
+                        icon.style.display = 'none';
+                    });
+
+                    const radioButton = card.querySelector('.bg-radio-button');
+                    const icon = card.querySelector('.radio-icon');
+                    if (radioButton) {
+                        radioButton.classList.add('selected');
+                        radioButton.checked = true;
+                        console.log('라디오 버튼 선택됨:', radioButton);
+                        console.log('아이콘 찾음:', icon);
+                        if (icon) {
+                            icon.style.display = 'block';
+                            icon.style.visibility = 'visible';
+                            icon.style.opacity = '1';
+                            console.log('아이콘 표시됨 - display:', icon.style.display);
+                        }
+                    }
+                });
+            });
+
+            // 체크박스 이벤트
+            const customBgCheckbox = document.getElementById('customBgCheckbox');
+            const customBgColorContainer = document.getElementById('customBgColorContainer');
+            const customBgColor = document.getElementById('customBgColor');
+            const customBgHex = document.getElementById('customBgHex');
+
+            if (customBgCheckbox) {
+                customBgCheckbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        customBgColorContainer.style.display = 'block';
+                        // 체크박스 아이콘 표시
+                        const icon = e.target.nextElementSibling;
+                        if (icon) icon.style.display = 'block';
+                    } else {
+                        customBgColorContainer.style.display = 'none';
+                        // 체크박스 아이콘 숨김
+                        const icon = e.target.nextElementSibling;
+                        if (icon) icon.style.display = 'none';
+                    }
+                });
+            }
+
+            // 커스텀 배경색 변경 이벤트
+            if (customBgColor && customBgHex) {
+                customBgColor.addEventListener('input', (e) => {
+                    const color = e.target.value.toUpperCase();
+                    customBgHex.value = color;
+                });
+
+                customBgHex.addEventListener('input', (e) => {
+                    const color = e.target.value.toUpperCase();
+                    if (/^#[0-9A-F]{6}$/i.test(color)) {
+                        customBgColor.value = color;
+                    }
+                });
+            }
+
             // Mode 카드 클릭 이벤트
             document.querySelectorAll('.mode-card').forEach(card => {
                 card.addEventListener('click', () => {
@@ -4464,17 +4410,9 @@ window.addEventListener('message', (event) => {
             // Custom Theme 탭이 기본이므로 초기화 시에도 wizard 색상 동기화 설정
             setTimeout(() => {
                 setupWizardColorSync();
-                initBackgroundSelection();
-                
-                // 초기 추천 배경색 설정
-                const wizardBaseColor = document.getElementById('wizardThemeBaseColor');
-                if (wizardBaseColor && wizardBaseColor.value) {
-                    updateRecommendedBackground(wizardBaseColor.value);
-                }
             }, 200);
             
         }
-        
         
         // =====================================
         // Annotation 제어 함수들
@@ -4506,17 +4444,6 @@ window.addEventListener('message', (event) => {
         } else {
             init();
         }
-
-        // Backend에서 오는 메시지 처리
-        window.addEventListener('message', function(event) {
-            const msg = event.data.pluginMessage;
-            if (msg && msg.type === 'frame-selection-result') {
-                console.log('📨 Frame 선택 결과 수신:', msg.frameInfo);
-                if (typeof window.handleFrameSelectionResult === 'function') {
-                    window.handleFrameSelectionResult(msg.frameInfo);
-                }
-            }
-        });
 
         // 페이지 로드 완료 후에도 확인
         window.addEventListener('load', () => {
