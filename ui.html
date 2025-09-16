@@ -2869,6 +2869,7 @@
         }
 
         function createCustomAccentColors() {
+            console.log('[프론트] createCustomAccentColors 함수 실행됨');
             if (!currentTheme) {
                 showMessage('먼저 Step 1에서 변수를 생성해주세요!');
                 return;
@@ -2897,6 +2898,9 @@
             const defaultColor = accentTheme.scaleColors.light.find(c => c.step === accentTheme.selectedStep);
             if (defaultColor) {
                 updateAccentColorMappings(defaultColor);
+                console.log('[프론트] 기본 매핑 생성됨:', customAccentTheme.accentMappings);
+            } else {
+                console.log('[프론트] 기본 색상을 찾을 수 없음:', accentTheme.selectedStep);
             }
             
             showMessage('Accent 색상 옵션이 생성되었습니다!');
@@ -3011,9 +3015,9 @@
                 pressedHoverStep = adjustStepValue(selectedStep, 1);
             }
             
-            mappings['semantic/common/accent'] = `REF:${accentThemeName}${selectedStep}`;
-            mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}${pressedHoverStep}`;
-            mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}${pressedHoverStep}`;
+            mappings['semantic/common/accent'] = `REF:${accentThemeName}-${selectedStep}`;
+            mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}-${pressedHoverStep}`;
+            mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}-${pressedHoverStep}`;
             
             return mappings;
         }
@@ -3355,6 +3359,10 @@
 
         // Step 2에서 배경 선택 후 테마 적용
         function applyCustomThemeWithBackground() {
+            console.log('[프론트] applyCustomThemeWithBackground 함수 실행됨');
+            console.log('[프론트] isAccentChecked:', isAccentChecked);
+            console.log('[프론트] customAccentTheme:', customAccentTheme);
+            
             // 선택된 배경 모드 확인
             let selectedMode = 'accent-on-bg-off'; // 기본값 (Mode 1)
             let customBackgroundColor = null;
@@ -3383,6 +3391,7 @@
 
             // Custom Accent Color 체크
             useCustomAccent = isAccentChecked;
+            console.log('[프론트] useCustomAccent 설정됨:', useCustomAccent);
 
             if (useCustomAccent && !customAccentTheme) {
                 showMessage('먼저 Accent 색상을 입력하고 생성해주세요!');
@@ -3425,13 +3434,24 @@
             }
 
             if (useCustomAccent && customAccentTheme) {
+                console.log('[프론트] Custom Accent 적용:', customAccentTheme);
+                console.log('[프론트] Accent 매핑:', customAccentTheme.accentMappings);
+                console.log('[프론트] customAccentTheme.scaleColors:', customAccentTheme.scaleColors);
+                console.log('[프론트] customAccentTheme.themeName:', customAccentTheme.themeName);
                 themeToApply.customAccentTheme = customAccentTheme;
                 // Accent 매핑 오버라이드 정보 추가
                 if (customAccentTheme.accentMappings) {
                     themeToApply.accentMappingOverrides = customAccentTheme.accentMappings;
+                    console.log('[프론트] Accent 매핑 오버라이드 전달:', customAccentTheme.accentMappings);
+                } else {
+                    console.log('[프론트] accentMappings이 없습니다!');
                 }
+            } else {
+                console.log('[프론트] Custom Accent 사용 안 함:', { useCustomAccent, customAccentTheme });
             }
 
+            console.log('[프론트] 백엔드로 전송할 테마:', themeToApply);
+            
             parent.postMessage({
                 pluginMessage: {
                     type: 'apply-theme-colors-to-frame',
@@ -5215,6 +5235,7 @@ window.addEventListener('message', (event) => {
                 customAccentCheckbox.addEventListener('click', (e) => {
                     e.preventDefault();
                     isAccentChecked = !isAccentChecked;
+                    console.log('[프론트] Accent 체크박스 클릭됨, isAccentChecked:', isAccentChecked);
                     
                     // 체크박스 시각적 상태 업데이트
                     const svg = customAccentCheckbox.querySelector('svg');
