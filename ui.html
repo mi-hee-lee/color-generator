@@ -267,33 +267,17 @@
             padding: 0;
         }
 
-        .color-swatch {
-            box-sizing: border-box;
-            width: 40px;
-            height: 20px;
-            border: 1px solid #FFFFFF; /* Basic/White */
-            filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.08)); /* Shadow/Small */
-            border-radius: 3px;
-            cursor: pointer;
-            flex-shrink: 0;
-            appearance: none;
-            -webkit-appearance: none;
-            background: none;
-            padding: 0;
-        }
 
         /* WebKit color swatch normalization */
-        .color-picker::-webkit-color-swatch-wrapper,
-        .color-swatch::-webkit-color-swatch-wrapper {
+        .color-picker::-webkit-color-swatch-wrapper {
             padding: 0;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
         }
 
-        .color-picker::-webkit-color-swatch,
-        .color-swatch::-webkit-color-swatch {
+        .color-picker::-webkit-color-swatch {
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
         }
 
         /* Text (HEX) */
@@ -385,10 +369,8 @@
         .btn-success:hover { background: #18A0FB; color: #FFFFFF; }
 
         .color-grid {
-            display: flex;
             flex-direction: column;
-            gap: 3px;
-            max-height: 300px;
+            gap: 4px;
             overflow-y: auto;
         }
 
@@ -397,23 +379,22 @@
             border-radius: 4px;
             overflow: hidden;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            font-size: 9px;
+            font-size: 10px;
         }
 
         .color-row.closest {
-            border: 1.5px solid #000000;
+            border: 2px solid #000000;
         }
 
         .color-swatch {
-            width: 28px;
-            height: 24px;
+            width: 40px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 8px;
+            font-size: 10px;
             color: white;
-            text-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
 
         .color-info {
@@ -423,6 +404,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 4px 6px;
+            height: auto;
         }
 
         .color-hex {
@@ -470,7 +452,7 @@
             align-items: center;
             gap: 8px;
             padding: 8px;
-            background: linear-gradient(145deg, #e8f5e8, #d4f4d4);
+            background: #18a0fb22;    
             border-radius: 6px;
             margin-bottom: 8px;
         }
@@ -510,7 +492,9 @@
             width: 100%;
             max-width: 100%;
             overflow: hidden;
-
+            display: flex;
+            flex-direction: column;
+            gap: 12Px;
 
         }
         
@@ -781,7 +765,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            padding: 0 0 12px 8px;
+            padding: 0 12px 12px;
             margin-top: 10px;
             background: #FFFFFF;
             border: 1px solid rgba(0,0,0,0.06);
@@ -792,7 +776,7 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 8px 8px 1px;
+            padding: 12px 0px 8px 0px;
             gap: 7px;
             width: 100%;
         }
@@ -1459,7 +1443,7 @@
             gap: 8px;
             padding: 8px 1px;
             width: 100%;
-            max-width: 212px;
+            max-width: 100%;
             height: 32px;
             border: none;
             background: #FFFFFF;
@@ -1501,7 +1485,7 @@
 
         .bg-accordion-panel {
             display: none;
-            padding-left: 32px;
+            padding-left: 8px;
         }
 
         .bg-accordion-panel.expanded {
@@ -1662,7 +1646,7 @@
                 
                 <div class="step-content">
                     <div class="input-group">
-                        <label>테마 이름</label>
+                        <label>Color Name</label>
                         <input type="text" id="wizardThemeNameInput" class="theme-name-input" 
                                placeholder="예: custom-theme" value="custom-theme-a" readonly>
                     </div>
@@ -1740,12 +1724,12 @@
                                     <path d="M8 10L11 6L5 6L8 10Z" fill="black"/>
                                 </svg>
                             </span>
-                            <span class="bg-accordion-title">배경 색 직접 설정하기</span>
+                            <span class="bg-accordion-title">배경색 직접 입력하기</span>
                         </button>
                         <div class="bg-accordion-panel" id="customBgPanel">
                             <div class="custom-bg-color-input" id="customBgColorContainer" style="margin-top: 12px;">
                                 <div class="color-input-container">
-                                    <input type="color" id="customBgColor" class="color-swatch" value="#ff4800">
+                                    <input type="color" id="customBgColor" class="color-picker" value="#ff4800">
                                     <input type="text" id="customBgHex" class="hex-input" value="#FF4800" style="text-transform: uppercase;">
                                     <button type="button" id="customBgCreateBtn" class="inline-input-btn">입력</button>
                                 </div>
@@ -1982,7 +1966,7 @@
             </div>
 
             <!-- 액션 버튼들 추가 -->
-            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 2px; margin-top: 4px;">
+            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 2px; margin-top: 4px; padding: 12px;">
                 <button class="action-btn btn-primary" onclick="createVariables()">
                     Create Variables (현재 모드)
                 </button>
@@ -2005,7 +1989,7 @@
             <div class="section">
                 <div class="step-header">
                 <div class="section-title">Step 1. 기준 색상 정하기</div>
-                <p>기준이 될 색상을 선택하세요</p>
+                <p>기준이 될 색상을 입력하세요.</p>
                 </div>
                 <div class="color-input-group">
                     <input type="color" id="referenceColorPicker" class="color-picker" value="#ff4800">
@@ -2017,6 +2001,8 @@
                     <button id="clearRefBtn" class="action-btn btn-secondary">Clear</button>
                 </div>
 
+                <div id="referenceStatus" style="color: #666; font-size: 10px; margin: 8px 0px 8px 0px;">현재 설정된 기준 컬러가 없습니다.</div>
+                
                 <div id="toneRecentColorsSection" class="recent-colors" style="display: none; margin-top: 12px;">
                     <div class="recent-header">
                         <span class="recent-title">최근 사용한 컬러</span>
@@ -2024,8 +2010,6 @@
                     </div>
                     <div id="toneRecentColorsContainer" class="recent-swatches"></div>
                 </div>
-                
-                <div id="referenceStatus" style="color: #666; font-size: 10px; margin: 8px 0px 8px 0px;">현재 설정된 기준 컬러가 없습니다.</div>
                 <div id="referenceDisplay"></div>
             </div>
             
@@ -2033,7 +2017,7 @@
             <div class="section">
                 <div class="step-header">
                 <div class="section-title">Step 2. 새로운 컬러 입력하기</div>
-                <p>원하는 색상을 입력하면 톤 매칭이 제공됩니다</p>
+                <p>색상을 입력하면 톤 매칭이 시작돼요.</p>
                 </div>
                 <div class="tone-input-area">
                     <div class="color-input-group">
@@ -4633,20 +4617,10 @@ window.addEventListener('message', (event) => {
                 return;
             }
             
-            statusElement.textContent = `Reference Set: ${referenceColor.hex}`;
-            statusElement.style.color = '#28a745';
+            statusElement.textContent = '기준 색상이 설정되었어요';
+            statusElement.style.color = '#18A0FB';
             
-            var [h, s, l] = referenceColor.hsl;
-            displayElement.innerHTML = `
-                <div class="reference-display">
-                    <div class="reference-color" style="background: ${referenceColor.hex};"></div>
-                    <div class="reference-info">
-                        <h4>Reference Active</h4>
-                        <p><strong>${referenceColor.hex}</strong></p>
-                        <p>HSL(${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(l)}%)</p>
-                    </div>
-                </div>
-            `;
+            displayElement.innerHTML = '';
         }
 
         function generateToneMatching() {
