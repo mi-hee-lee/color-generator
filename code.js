@@ -100,64 +100,6 @@ function contrastRatio(hex1, hex2) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// Custom Accent Theme 변수 생성 함수
-async function createAccentThemeVariables(accentTheme) {
-  console.log('[Backend] createAccentThemeVariables 함수 시작');
-  console.log('[Backend] accentTheme:', accentTheme);
-  
-  var collections = await figma.variables.getLocalVariableCollectionsAsync();
-  console.log('[Backend] 기존 컬렉션 개수:', collections.length);
-  
-  var collection = collections.find(function(c) { 
-    return c.name === 'ruler_v2'; 
-  });
-  
-  if (!collection) {
-    console.log('[Backend] ruler_v2 컬렉션이 없어서 새로 생성');
-    collection = figma.variables.createVariableCollection('ruler_v2');
-  } else {
-    console.log('[Backend] 기존 ruler_v2 컬렉션 사용');
-  }
-  
-  var modeId = collection.modes[0].modeId;
-  var createdCount = 0;
-  
-  // Light mode 색상들만 사용 (단일 모드)
-  console.log('[Backend] accentTheme.scaleColors:', accentTheme.scaleColors);
-  var colors = accentTheme.scaleColors ? accentTheme.scaleColors.light : null;
-  console.log('[Backend] 처리할 색상 개수:', colors ? colors.length : 'null');
-  console.log('[Backend] 첫 번째 색상 예시:', colors && colors.length > 0 ? colors[0] : 'none');
-  
-  if (!colors) {
-    console.error('[Backend] scaleColors.light가 없습니다');
-    console.error('[Backend] accentTheme 전체 구조:', JSON.stringify(accentTheme, null, 2));
-    return 0;
-  }
-  
-  for (var i = 0; i < colors.length; i++) {
-    var color = colors[i];
-    if (!color || !color.hex) {
-      console.log('[Backend] 색상 스킵:', i, color);
-      continue;
-    }
-    
-    var variableName = 'scale/' + accentTheme.themeName + '-' + color.step;
-    console.log('[Backend] 변수 생성 중:', variableName, color.hex);
-    
-    try {
-      var variable = await findOrCreateVariable(variableName, collection, 'COLOR');
-      variable.setValueForMode(modeId, hexToFigmaRGB(color.hex));
-      createdCount++;
-      console.log('[Backend] 변수 생성 성공:', variableName);
-    } catch (error) {
-      console.error('[Backend] 변수 생성 실패:', variableName, error);
-    }
-  }
-  
-  console.log('[Backend] Created ' + createdCount + ' accent theme variables');
-  return createdCount;
-}
-
 // =====================================
 // 유틸리티 함수들
 // =====================================
@@ -428,13 +370,12 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     console.log('[Backend] 옵션 1 (accent-on-bg-off) 실행 - colorRange:', colorRange);
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
-
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
 
-      mappings['semantic/text/secondary'] = 'GRAY:300';
-      mappings['semantic/text/tertiary'] = 'GRAY:400';
-      mappings['semantic/text/disabled'] = 'GRAY:600';
+      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '950';
@@ -456,12 +397,15 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] =  'REF:' + themeName + '900';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '900';
       
-      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
-      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-low'] = 'ORANGE-RED-50';
+      mappings['semantic/common/accent'] = 'REF:' + themeName + '400';
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '300';
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '300';
       mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
-
+      
+      mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
       
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
@@ -495,7 +439,6 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'ORANGE-RED-400';
       mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
       mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-low'] = 'ORANGE-RED-50';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
@@ -532,10 +475,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '150';
       
-      mappings['semantic/common/accent'] = 'ORANGE-RED-300';
-      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-200';
-      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-200';
-      mappings['semantic/common/accent-low'] = 'ORANGE-RED-900';
+      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
@@ -1484,8 +1426,6 @@ async function handleApplyThemeColorsToFrame(msg) {
   
   console.log('[Backend] 테마 적용 시작 - applicationMode:', applicationMode);
   console.log('[Backend] 받은 테마 데이터:', theme);
-  console.log('[Backend] customAccentTheme 확인:', theme.customAccentTheme ? ' 있음' : '없음');
-  console.log('[Backend] accentMappingOverrides 확인:', theme.accentMappingOverrides ? '있음' : '없음');
   
   if (selection.length === 0) {
     figma.notify('Frame을 선택해주세요');
@@ -2288,37 +2228,6 @@ async function handleAnnotationControl(msg) {
       // 동적 매핑 계산
       var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
       mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
-      
-      // Custom Accent Theme 변수 생성
-      if (theme.customAccentTheme) {
-        console.log('[Backend] Custom Accent Theme 발견:', theme.customAccentTheme.themeName);
-        console.log('[Backend] Custom Accent Theme 데이터:', theme.customAccentTheme);
-        console.log('[Backend] customAccentTheme 키들:', Object.keys(theme.customAccentTheme));
-        try {
-          var createdCount = await createAccentThemeVariables(theme.customAccentTheme);
-          console.log('[Backend] Custom Accent Theme 변수 생성 완료:', createdCount + '개');
-        } catch (error) {
-          console.error('[Backend] Custom Accent Theme 변수 생성 실패:', error);
-        }
-      } else {
-        console.log('[Backend] Custom Accent Theme 없음');
-      }
-      
-      // Accent 매핑 오버라이드 적용
-      if (theme.accentMappingOverrides) {
-        console.log('[Backend] Accent 매핑 오버라이드 적용:', theme.accentMappingOverrides);
-        console.log('[Backend] 오버라이드 전 기존 accent 매핑:', {
-          'semantic/common/accent': mappings['semantic/common/accent'],
-          'semantic/common/accent-pressed': mappings['semantic/common/accent-pressed'],
-          'semantic/common/accent-hover': mappings['semantic/common/accent-hover']
-        });
-        Object.assign(mappings, theme.accentMappingOverrides);
-        console.log('[Backend] 오버라이드 후 accent 매핑:', {
-          'semantic/common/accent': mappings['semantic/common/accent'],
-          'semantic/common/accent-pressed': mappings['semantic/common/accent-pressed'],
-          'semantic/common/accent-hover': mappings['semantic/common/accent-hover']
-        });
-      }
     }
     
     var mappingInfoCount = 0;
