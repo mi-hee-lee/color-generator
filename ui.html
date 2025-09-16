@@ -792,7 +792,7 @@
             border: none; background: transparent; color: #888; font-size: 10px; cursor: pointer;
         }
         .recent-clear:hover { color: #333; text-decoration: underline; }
-        .recent-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding-left:2px;  }
+        .recent-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding-left:2px; }
         .recent-swatch {
             width: 24px; height: 24px; border-radius: 20px;
             border: 0.5px solid rgba(0,0,0,0.2);
@@ -800,6 +800,7 @@
             cursor: pointer;
         }
         .recent-swatch:hover { outline: 2px solid #18A0FB; outline-offset: 1px; }
+        .recent-swatch.selected { outline: 2px solid #18A0FB; outline-offset: 1px; }
 
         /* Force-hide wizard and generator step classification info */
         #wizardStepClassificationInfo { display: none !important; }
@@ -1754,7 +1755,12 @@
                                 <input type="text" id="customAccentHex" class="hex-input" value="#FF4800" style="text-transform: uppercase;">
                                 <button type="button" id="customAccentCreateBtn" class="inline-input-btn">입력</button>
                             </div>
-                            <div id="customAccentColorsContainer" class="recent-swatches" style="margin-top: 8px; display: none;"></div>
+                            <div id="customAccentColorsContainer" style="margin-top: 8px; margin-left:8px; display: none;">
+                                <div class="bg-swatch-row">
+                                    <div class="bg-swatch-grid" id="accentSwatchGrid">
+                                    </div>
+                                </div>
+                            </div>
                             <div id="customAccentHint" class="custom-bg-hint" style="display: none;"></div>
                         </div>
                     </div>
@@ -2880,17 +2886,24 @@
                 return;
             }
 
-            const themeName = 'custom-accent-theme';
+            const themeName = 'custom-theme-c';
             const accentTheme = themeGenerator.generateTheme(hex, themeName, 'accent-on-bg-off', 0);
             customAccentTheme = accentTheme;
 
             // 인접 색상 3개까지 표시
             displayAccentColorOptions(accentTheme);
+            
+            // 기본으로 선택된 색상(closestStep)으로 매핑 생성
+            const defaultColor = accentTheme.scaleColors.light.find(c => c.step === accentTheme.selectedStep);
+            if (defaultColor) {
+                updateAccentColorMappings(defaultColor);
+            }
+            
             showMessage('Accent 색상 옵션이 생성되었습니다!');
         }
 
         function displayAccentColorOptions(accentTheme) {
-            const container = document.getElementById('customAccentColorsContainer');
+            const container = document.getElementById('accentSwatchGrid');
             if (!container || !accentTheme.scaleColors) {
                 return;
             }
@@ -2929,45 +2942,38 @@
                 }
             });
 
-            container.style.display = 'block';
+            // 상위 컨테이너 표시
+            const parentContainer = document.getElementById('customAccentColorsContainer');
+            if (parentContainer) {
+                parentContainer.style.display = 'block';
+            }
         }
 
         function createAccentColorSwatch(color, isSelected) {
-            const swatch = document.createElement('div');
-            swatch.className = `color-swatch ${isSelected ? 'selected' : ''}`;
-            swatch.style.cssText = `
-                background: ${color.hex};
-                width: 32px;
-                height: 32px;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-right: 8px;
-                border: ${isSelected ? '2px solid #000' : '1px solid #ddd'};
-                position: relative;
-            `;
+            const swatch = document.createElement('button');
+            swatch.type = 'button';
+            swatch.className = `bg-swatch ${isSelected ? 'selected' : ''}`;
+            swatch.title = `${color.hex} (Step ${color.step})`;
             
-            if (isSelected) {
-                swatch.innerHTML = '<div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #000; border-radius: 50%; color: white; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</div>';
-            }
+            const chip = document.createElement('span');
+            chip.className = 'bg-swatch-chip';
+            chip.style.setProperty('--swatch-color', color.hex);
             
+            swatch.appendChild(chip);
             swatch.addEventListener('click', () => selectAccentColor(color));
             return swatch;
         }
 
         function selectAccentColor(selectedColor) {
             // 모든 swatch에서 선택 상태 제거
-            const container = document.getElementById('customAccentColorsContainer');
-            const swatches = container.querySelectorAll('.color-swatch');
+            const container = document.getElementById('accentSwatchGrid');
+            const swatches = container.querySelectorAll('.bg-swatch');
             swatches.forEach(s => {
                 s.classList.remove('selected');
-                s.style.border = '1px solid #ddd';
-                s.innerHTML = '';
             });
 
             // 선택된 swatch 표시
-            event.target.classList.add('selected');
-            event.target.style.border = '2px solid #000';
-            event.target.innerHTML = '<div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #000; border-radius: 50%; color: white; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</div>';
+            event.target.closest('.bg-swatch').classList.add('selected');
 
             // Accent 색상 매핑 업데이트
             updateAccentColorMappings(selectedColor);
@@ -2994,24 +3000,33 @@
             const accentThemeName = customAccentTheme.themeName;
             const selectedStep = selectedColor.step;
             
+            // 배경 밝기에 따라 pressed/hover 조정 방향 결정
+            let pressedHoverStep;
+            
             if (backgroundBrightness === 'light') {
-                // 배경이 밝을 경우: 선택된 색상보다 한 단계 낮아짐
-                mappings['semantic/common/accent'] = `REF:${accentThemeName}700`;
-                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}600`;
-                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}600`;
-            } else if (backgroundBrightness === 'medium') {
-                // 중간 범위
-                mappings['semantic/common/accent'] = `REF:${accentThemeName}100`;
-                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}200`;
-                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}200`;
+                // 배경이 밝을 경우: 선택된 색상보다 한 단계 어둡게 (step 감소)
+                pressedHoverStep = adjustStepValue(selectedStep, -1);
             } else {
-                // 어두운 범위
-                mappings['semantic/common/accent'] = `REF:${accentThemeName}100`;
-                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}200`;
-                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}200`;
+                // 중간/어두운 배경: 선택된 색상보다 한 단계 밝게 (step 증가)
+                pressedHoverStep = adjustStepValue(selectedStep, 1);
             }
             
+            mappings['semantic/common/accent'] = `REF:${accentThemeName}${selectedStep}`;
+            mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}${pressedHoverStep}`;
+            mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}${pressedHoverStep}`;
+            
             return mappings;
+        }
+        
+        // Step 값 조정 헬퍼 함수
+        function adjustStepValue(currentStep, direction) {
+            const steps = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+            const currentIndex = steps.indexOf(currentStep);
+            
+            if (currentIndex === -1) return currentStep; // 유효하지 않은 step
+            
+            const newIndex = Math.max(0, Math.min(steps.length - 1, currentIndex + direction));
+            return steps[newIndex];
         }
 
         function generateWizardTheme() {
@@ -3411,6 +3426,10 @@
 
             if (useCustomAccent && customAccentTheme) {
                 themeToApply.customAccentTheme = customAccentTheme;
+                // Accent 매핑 오버라이드 정보 추가
+                if (customAccentTheme.accentMappings) {
+                    themeToApply.accentMappingOverrides = customAccentTheme.accentMappings;
+                }
             }
 
             parent.postMessage({
