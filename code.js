@@ -293,55 +293,49 @@ function adjustStep(currentStep, adjustment) {
 }
 
 function getHueBrightness(hue) {
-  if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑 (Yellow)
-  if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록 (Cyan)
-
-  if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록 (Yellow-Green to Green)
-  if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계 (Green-Cyan)
-  if (hue >= 30 && hue <= 50) return 'bright';          // 주황 (Orange)
-
-  if (hue >= 190 && hue <= 210) return 'medium';        // 청록-파랑 경계 (Cyan-Blue)
-  if (hue >= 20 && hue <= 30) return 'medium';          // 주황-빨강 경계
-
-  if (hue >= 210 && hue <= 240) return 'dark';          // 파랑 (Blue)
-  if (hue >= 240 && hue <= 300) return 'dark';          // 보라 (Purple/Violet)
-  if (hue >= 0 && hue <= 20 || hue >= 300) return 'dark'; // 빨강-자주 (Red-Magenta)
-
-  return 'medium';
+  // BornBright 범위: 40°≤H≤190° (사용자 요구사항)
+  if (hue >= 40 && hue <= 190) {
+    return 'bright';
+  }
+  
+  return 'dark';
 }
 
 function assessColorRange(closestStep, baseColor) {
   var info = { isInherentlyBright: false, colorRange: 'medium' };
 
-  if (baseColor) {
+  // 사용자 요구사항: 밝은 범위 = Step≤300 OR L≥80% OR BornBright(40°≤H≤190°)
+  var isBrightRange = false;
+  
+  // 조건 1: Step ≤ 300
+  if (closestStep <= 300) {
+    isBrightRange = true;
+  }
+  
+  // 조건 2,3: L≥80% OR BornBright 체크
+  if (baseColor && !isBrightRange) {
     var hsl = hexToHsl(baseColor);
     var hue = hsl[0];
     var lightness = hsl[2];
     var hueBrightness = getHueBrightness(hue);
 
-    if (lightness >= 75) {
-      info.isInherentlyBright = true;
-    } else if (hueBrightness === 'very-bright' || hueBrightness === 'bright') {
-      info.isInherentlyBright = true;
+    // 조건 2: L ≥ 80%
+    if (lightness >= 80) {
+      isBrightRange = true;
+    }
+    // 조건 3: BornBright (40°≤H≤190°)
+    else if (hueBrightness === 'bright') {
+      isBrightRange = true;
     }
   }
 
-  if (info.isInherentlyBright) {
-    if (closestStep <= 400) {
-      info.colorRange = 'light';
-    } else if (closestStep >= 500 && closestStep <= 700) {
-      info.colorRange = 'medium';
-    } else {
-      info.colorRange = 'dark';
-    }
+  // 최종 색상 범위 결정
+  if (isBrightRange) {
+    info.colorRange = 'light';
+  } else if (closestStep >= 400 && closestStep <= 600) {
+    info.colorRange = 'medium';
   } else {
-    if (closestStep < 300) {
-      info.colorRange = 'light';
-    } else if (closestStep >= 300 && closestStep <= 700) {
-      info.colorRange = 'medium';
-    } else {
-      info.colorRange = 'dark';
-    }
+    info.colorRange = 'dark'; // Step 700-950
   }
 
   return info;
@@ -939,38 +933,110 @@ function getBackgroundStageOverrides(theme) {
   var overrides = {};
 
   if (colorRange === 'light') {
+    // 배경 관련
     overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
+    
+    // 텍스트 관련
+    overrides['semantic/text/primary'] = 'GRAY:900';
+    overrides['semantic/text/selected'] = 'GRAY:900';
+    overrides['semantic/text/secondary'] = 'GRAY-ALPHA:700';
+    overrides['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
+    overrides['semantic/text/disabled'] = 'GRAY-ALPHA:400';
+    
+    // Silent 버튼 관련
     overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
     overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    
+    // 보더 관련
     overrides['semantic/border/divider-strong'] = 'GRAY:950';
     overrides['semantic/border/line-selected'] = 'GRAY:950';
     overrides['semantic/border/divider'] = 'GRAY-ALPHA:200';
     overrides['semantic/border/line'] = 'GRAY-ALPHA:300';
     overrides['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
+    
+    // Accent 관련
+    overrides['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 6);
+    overrides['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 5);
+    overrides['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 5);
+    overrides['semantic/common/muted'] = 'GRAY-ALPHA:300';
+    
+    // Tertiary 버튼 관련
+    overrides['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
+    overrides['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+    overrides['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
+    overrides['semantic/fill/disabled'] = 'GRAY-ALPHA:100';
   } else if (colorRange === 'medium') {
+    // 배경 관련
     overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
+    
+    // 텍스트 관련
+    overrides['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
+    overrides['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
+    overrides['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
+    
+    // Silent 버튼 관련
     overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
     overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    
+    // 보더 관련
     overrides['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
     overrides['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
     overrides['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
     overrides['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
     overrides['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
+    
+    // Accent 관련
+    overrides['semantic/common/accent'] = 'REF:' + themeName + '100';
+    overrides['semantic/common/accent-pressed'] = 'REF:' + themeName + '200';
+    overrides['semantic/common/accent-hover'] = 'REF:' + themeName + '200';
+    overrides['semantic/common/muted'] = 'GRAY-ALPHA:400';
+    
+    // Tertiary 버튼 관련
+    overrides['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+    overrides['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
   } else {
+    // 배경 관련 (어두운 범위)
     overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
+    
+    // 텍스트 관련
+    overrides['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:800';
+    overrides['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:700';
+    overrides['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
+    
+    // Silent 버튼 관련
     overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
     overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
     overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+    
+    // 보더 관련
     overrides['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
     overrides['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
     overrides['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
     overrides['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
     overrides['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
+    
+    // Accent 관련
+    overrides['semantic/common/accent'] = 'REF:' + themeName + '100';
+    overrides['semantic/common/accent-pressed'] = 'REF:' + themeName + '200';
+    overrides['semantic/common/accent-hover'] = 'REF:' + themeName + '200';
+    overrides['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
+    
+    // Tertiary 버튼 관련
+    overrides['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
+    overrides['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
   }
 
   return overrides;

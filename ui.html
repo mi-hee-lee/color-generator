@@ -1523,12 +1523,6 @@
             padding: 8px 0 8px;
         }
 
-        .bg-extra-grid {
-            display: none;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 0;
-        }
 
         .bg-swatch {
             position: relative;
@@ -1735,7 +1729,6 @@
                                         <span class="bg-swatch-chip" id="recommendedBgPreview" style="--swatch-color: #F5F5F5;"></span>
                                     </button>
                                 </div>
-                                <div class="bg-extra-grid" id="recommendedExtraGrid"></div>
                             </div>
                         </div>
                     </div>
@@ -2939,15 +2932,60 @@
             return match ? match.hex : null;
         }
 
-        function renderRecommendedExtras(baseStep, steps) {
-            var container = document.getElementById('recommendedExtraGrid');
-            if (!container) return;
-            container.innerHTML = '';
-            if (!steps || !steps.length) {
-                container.style.display = 'none';
-                return;
+        function selectBackgroundOption(button) {
+            // 모든 bg-swatch에서 selected 클래스 제거
+            var swatches = document.querySelectorAll('.bg-swatch');
+            swatches.forEach(function(s) { s.classList.remove('selected'); });
+            
+            // 클릭된 버튼에 selected 클래스 추가
+            button.classList.add('selected');
+            
+            var stepAttr = button.getAttribute('data-step');
+            var modeAttr = button.getAttribute('data-mode');
+            var step = stepAttr ? parseInt(stepAttr, 10) : null;
+            
+            if (step !== null && !isNaN(step)) {
+                // 추천 인접 색상이 선택된 경우
+                recommendedSelection = { type: 'step', value: 'accent-on-bg-off', step: step };
+                if (currentTheme) {
+                    currentTheme.overrideRecommendedStep = step;
+                    currentTheme.applicationMode = 'accent-on-bg-off';
+                    // backgroundTheme으로 설정하여 semantic/background/default가 이 색상으로 매핑되게 함
+                    currentTheme.backgroundTheme = {
+                        themeName: currentTheme.themeName,
+                        scaleColors: currentTheme.scaleColors
+                    };
+                }
+                if (wizardThemeData) {
+                    wizardThemeData.applicationMode = 'accent-on-bg-off';
+                    wizardThemeData.closestStep = step;
+                }
+                console.log('추천 인접 색상 선택됨:', step, '색상:', getColorHexForStep(step));
+            } else if (modeAttr) {
+                // 기본 모드가 선택된 경우
+                recommendedSelection = { type: 'mode', value: modeAttr, step: null };
+                if (currentTheme) {
+                    currentTheme.overrideRecommendedStep = null;
+                    currentTheme.applicationMode = modeAttr;
+                    currentTheme.backgroundTheme = null; // 기본 모드는 backgroundTheme 사용 안함
+                }
+                if (wizardThemeData) {
+                    wizardThemeData.applicationMode = modeAttr;
+                }
+                console.log('기본 모드 선택됨:', modeAttr);
             }
-            container.style.display = 'flex';
+        }
+
+        function renderRecommendedExtras(baseStep, steps) {
+            // swatch-grid에서 기존 추천 색들 제거
+            var swatchGrid = document.querySelector('.bg-swatch-grid');
+            if (!swatchGrid) return;
+            
+            var existingRecommended = swatchGrid.querySelectorAll('.bg-swatch.recommended-extra');
+            existingRecommended.forEach(function(el) { el.remove(); });
+            
+            if (!steps || !steps.length) return;
+            
             steps.forEach(function(step) {
                 var color = getColorHexForStep(step);
                 if (!color) return;
@@ -2956,11 +2994,14 @@
                 button.className = 'bg-swatch recommended-extra';
                 button.dataset.step = step;
                 button.dataset.mode = 'accent-on-bg-off';
+                button.addEventListener('click', function() {
+                    selectBackgroundOption(this);
+                });
                 var chip = document.createElement('span');
                 chip.className = 'bg-swatch-chip';
                 chip.style.setProperty('--swatch-color', color);
                 button.appendChild(chip);
-                container.appendChild(button);
+                swatchGrid.appendChild(button);
             });
         }
 
@@ -4927,14 +4968,7 @@ window.addEventListener('message', (event) => {
             bgSwatches.forEach(swatch => {
                 swatch.addEventListener('click', () => {
                     openRecommendedAccordion();
-                    bgSwatches.forEach(s => s.classList.remove('selected'));
-                    swatch.classList.add('selected');
-                    if (currentTheme) {
-                        currentTheme.applicationMode = swatch.dataset.mode;
-                    }
-                    if (wizardThemeData) {
-                        wizardThemeData.applicationMode = swatch.dataset.mode;
-                    }
+                    selectBackgroundOption(swatch);
                 });
             });
 
