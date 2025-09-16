@@ -397,9 +397,10 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] =  'REF:' + themeName + '900';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '900';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + '400';
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + '300';
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + '300';
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-low'] = 'ORANGE-RED-50';
       mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
       
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
@@ -439,6 +440,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'ORANGE-RED-400';
       mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
       mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-low'] = 'ORANGE-RED-50';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
@@ -475,9 +477,10 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
       mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '150';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/accent'] = 'ORANGE-RED-300';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-200';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-200';
+      mappings['semantic/common/accent-low'] = 'ORANGE-RED-900';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
       mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';

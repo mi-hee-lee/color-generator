@@ -1480,7 +1480,7 @@
         }
 
         .bg-accordion-toggle.expanded .bg-accordion-caret svg {
-            transform: rotate(180deg);
+            transform: rotate(90deg);
         }
 
         .bg-accordion-panel {
@@ -1695,7 +1695,7 @@
                         <button type="button" class="bg-accordion-toggle expanded" id="recommendedBgToggle" aria-expanded="true">
                             <span class="bg-accordion-caret">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 10L11 6L5 6L8 10Z" fill="black"/>
+                                    <path d="M10.9999 7.99977L4.99988 3.99977V11.9998L10.9999 7.99977Z" fill="black"/>
                                 </svg>
                             </span>
                             <span class="bg-accordion-title">추천 컬러</span>
@@ -1721,7 +1721,7 @@
                         <button type="button" class="bg-accordion-toggle" id="customBgToggle" aria-expanded="false">
                             <span class="bg-accordion-caret">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 10L11 6L5 6L8 10Z" fill="black"/>
+                                    <path d="M10.9999 7.99977L4.99988 3.99977V11.9998L10.9999 7.99977Z" fill="black"/>
                                 </svg>
                             </span>
                             <span class="bg-accordion-title">배경색 직접 입력하기</span>
@@ -1735,6 +1735,27 @@
                                 </div>
                                 <div id="customBgHint" class="custom-bg-hint" style="display: none;"></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Accent Color 설정하기 -->
+                    <div class="accent-color-section">
+                        <div class="accent-color-header" style="display: flex; align-items: center; margin-bottom: 12px;">
+                            <div class="custom-checkbox" id="customAccentCheckbox" style="margin-right: 8px; cursor: pointer; width: 20px; height: 20px; border: 2px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M3.89453 11.9971L10.5525 19.0995L19.9044 5.4437" stroke="#19191A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="bg-accordion-title">Accent Color 설정하기</span>
+                        </div>
+                        <div class="custom-bg-color-input" id="customAccentColorContainer" style="display: none;">
+                            <div class="color-input-container">
+                                <input type="color" id="customAccentColor" class="color-picker" value="#ff4800">
+                                <input type="text" id="customAccentHex" class="hex-input" value="#FF4800" style="text-transform: uppercase;">
+                                <button type="button" id="customAccentCreateBtn" class="inline-input-btn">입력</button>
+                            </div>
+                            <div id="customAccentColorsContainer" class="recent-swatches" style="margin-top: 8px; display: none;"></div>
+                            <div id="customAccentHint" class="custom-bg-hint" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -2830,6 +2851,169 @@
             }
         }
 
+        // Accent Color 관련 함수들
+        let customAccentTheme = null;
+        let isAccentChecked = false;
+
+        function toggleCustomAccentColor(isEnabled) {
+            const colorContainer = document.getElementById('customAccentColorContainer');
+            if (colorContainer) {
+                colorContainer.style.display = isEnabled ? 'block' : 'none';
+            }
+        }
+
+        function createCustomAccentColors() {
+            if (!currentTheme) {
+                showMessage('먼저 Step 1에서 변수를 생성해주세요!');
+                return;
+            }
+
+            const hexInput = document.getElementById('customAccentHex');
+            if (!hexInput) {
+                showMessage('Accent 색상 입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+
+            const hex = hexInput.value.trim();
+            if (!/^#[0-9A-F]{6}$/i.test(hex)) {
+                showMessage('올바른 HEX 색상을 입력해주세요. 예: #FF4800');
+                return;
+            }
+
+            const themeName = 'custom-accent-theme';
+            const accentTheme = themeGenerator.generateTheme(hex, themeName, 'accent-on-bg-off', 0);
+            customAccentTheme = accentTheme;
+
+            // 인접 색상 3개까지 표시
+            displayAccentColorOptions(accentTheme);
+            showMessage('Accent 색상 옵션이 생성되었습니다!');
+        }
+
+        function displayAccentColorOptions(accentTheme) {
+            const container = document.getElementById('customAccentColorsContainer');
+            if (!container || !accentTheme.scaleColors) {
+                return;
+            }
+
+            const lightColors = accentTheme.scaleColors.light;
+            const closestStep = accentTheme.selectedStep || 500;
+            
+            // 인접 색상 찾기 (현재 step 기준으로 ±1, ±2 step)
+            const adjacentSteps = [];
+            const stepValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+            const currentIndex = stepValues.indexOf(closestStep);
+            
+            if (currentIndex !== -1) {
+                for (let i = Math.max(0, currentIndex - 2); i <= Math.min(stepValues.length - 1, currentIndex + 2); i++) {
+                    if (i !== currentIndex) {
+                        adjacentSteps.push(stepValues[i]);
+                    }
+                }
+            }
+
+            container.innerHTML = '';
+            
+            // 현재 선택된 색상
+            const currentColor = lightColors.find(c => c.step === closestStep);
+            if (currentColor) {
+                const swatch = createAccentColorSwatch(currentColor, true);
+                container.appendChild(swatch);
+            }
+
+            // 인접 색상들 (최대 3개까지)
+            adjacentSteps.slice(0, 3).forEach(step => {
+                const color = lightColors.find(c => c.step === step);
+                if (color) {
+                    const swatch = createAccentColorSwatch(color, false);
+                    container.appendChild(swatch);
+                }
+            });
+
+            container.style.display = 'block';
+        }
+
+        function createAccentColorSwatch(color, isSelected) {
+            const swatch = document.createElement('div');
+            swatch.className = `color-swatch ${isSelected ? 'selected' : ''}`;
+            swatch.style.cssText = `
+                background: ${color.hex};
+                width: 32px;
+                height: 32px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 8px;
+                border: ${isSelected ? '2px solid #000' : '1px solid #ddd'};
+                position: relative;
+            `;
+            
+            if (isSelected) {
+                swatch.innerHTML = '<div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #000; border-radius: 50%; color: white; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</div>';
+            }
+            
+            swatch.addEventListener('click', () => selectAccentColor(color));
+            return swatch;
+        }
+
+        function selectAccentColor(selectedColor) {
+            // 모든 swatch에서 선택 상태 제거
+            const container = document.getElementById('customAccentColorsContainer');
+            const swatches = container.querySelectorAll('.color-swatch');
+            swatches.forEach(s => {
+                s.classList.remove('selected');
+                s.style.border = '1px solid #ddd';
+                s.innerHTML = '';
+            });
+
+            // 선택된 swatch 표시
+            event.target.classList.add('selected');
+            event.target.style.border = '2px solid #000';
+            event.target.innerHTML = '<div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #000; border-radius: 50%; color: white; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</div>';
+
+            // Accent 색상 매핑 업데이트
+            updateAccentColorMappings(selectedColor);
+            showMessage(`Accent 색상이 선택되었습니다: ${selectedColor.hex}`);
+        }
+
+        function updateAccentColorMappings(selectedColor) {
+            if (!customAccentTheme) return;
+            
+            // 배경색 밝기 범위 확인
+            const backgroundBrightness = getCurrentBackgroundBrightness();
+            
+            // Accent 색상 매핑 생성
+            customAccentTheme.accentMappings = generateAccentMappings(selectedColor, backgroundBrightness);
+        }
+
+        function getCurrentBackgroundBrightness() {
+            // currentTheme의 colorRange 사용 (light/medium/dark)
+            return currentTheme?.colorRange || 'medium';
+        }
+
+        function generateAccentMappings(selectedColor, backgroundBrightness) {
+            const mappings = {};
+            const accentThemeName = customAccentTheme.themeName;
+            const selectedStep = selectedColor.step;
+            
+            if (backgroundBrightness === 'light') {
+                // 배경이 밝을 경우: 선택된 색상보다 한 단계 낮아짐
+                mappings['semantic/common/accent'] = `REF:${accentThemeName}700`;
+                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}600`;
+                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}600`;
+            } else if (backgroundBrightness === 'medium') {
+                // 중간 범위
+                mappings['semantic/common/accent'] = `REF:${accentThemeName}100`;
+                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}200`;
+                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}200`;
+            } else {
+                // 어두운 범위
+                mappings['semantic/common/accent'] = `REF:${accentThemeName}100`;
+                mappings['semantic/common/accent-pressed'] = `REF:${accentThemeName}200`;
+                mappings['semantic/common/accent-hover'] = `REF:${accentThemeName}200`;
+            }
+            
+            return mappings;
+        }
+
         function generateWizardTheme() {
             
             // currentTheme가 이미 생성되어 있다면 그것을 사용
@@ -3159,6 +3343,7 @@
             // 선택된 배경 모드 확인
             let selectedMode = 'accent-on-bg-off'; // 기본값 (Mode 1)
             let customBackgroundColor = null;
+            let useCustomAccent = false;
 
             const customBgPanel = document.getElementById('customBgPanel');
             const useCustomBackground = customBgPanel && customBgPanel.classList.contains('expanded');
@@ -3179,6 +3364,14 @@
                 if (selectedSwatch) {
                     selectedMode = selectedSwatch.dataset.mode;
                 }
+            }
+
+            // Custom Accent Color 체크
+            useCustomAccent = isAccentChecked;
+
+            if (useCustomAccent && !customAccentTheme) {
+                showMessage('먼저 Accent 색상을 입력하고 생성해주세요!');
+                return;
             }
 
             // currentTheme 업데이트 (wizardThemeData 대신 currentTheme 사용)
@@ -3203,6 +3396,7 @@
             console.log('🎨 테마 적용 시작');
             console.log('- 선택된 모드:', selectedMode);
             console.log('- 커스텀 배경:', customBackgroundColor);
+            console.log('- 커스텀 Accent:', useCustomAccent);
             console.log('- 테마 데이터:', currentTheme);
 
             // Figma로 테마 적용 메시지 전송 (성공/실패 스낵바는 message listener에서 처리)
@@ -3213,6 +3407,10 @@
 
             if (selectedMode === 'custom-background' && customBackgroundTheme) {
                 themeToApply.backgroundTheme = customBackgroundTheme;
+            }
+
+            if (useCustomAccent && customAccentTheme) {
+                themeToApply.customAccentTheme = customAccentTheme;
             }
 
             parent.postMessage({
@@ -4986,6 +5184,53 @@ window.addEventListener('message', (event) => {
 
             if (customBgCreateBtn) {
                 customBgCreateBtn.addEventListener('click', createCustomBackgroundVariables);
+            }
+
+            // Accent Color 설정 이벤트들
+            const customAccentCheckbox = document.getElementById('customAccentCheckbox');
+            const customAccentColor = document.getElementById('customAccentColor');
+            const customAccentHex = document.getElementById('customAccentHex');
+            const customAccentCreateBtn = document.getElementById('customAccentCreateBtn');
+
+            if (customAccentCheckbox) {
+                customAccentCheckbox.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isAccentChecked = !isAccentChecked;
+                    
+                    // 체크박스 시각적 상태 업데이트
+                    const svg = customAccentCheckbox.querySelector('svg');
+                    if (isAccentChecked) {
+                        svg.style.display = 'block';
+                        customAccentCheckbox.style.border = '2px solid #18A0FB';
+                        customAccentCheckbox.style.background = '#18A0FB';
+                        svg.querySelector('path').setAttribute('stroke', 'white');
+                    } else {
+                        svg.style.display = 'none';
+                        customAccentCheckbox.style.border = '2px solid #ddd';
+                        customAccentCheckbox.style.background = 'white';
+                    }
+                    
+                    // 체크박스 상태에 따라 accent color 기능 활성화/비활성화
+                    toggleCustomAccentColor(isAccentChecked);
+                });
+            }
+
+            if (customAccentColor && customAccentHex) {
+                customAccentColor.addEventListener('input', (e) => {
+                    const color = e.target.value.toUpperCase();
+                    customAccentHex.value = color;
+                });
+
+                customAccentHex.addEventListener('input', (e) => {
+                    const color = e.target.value.toUpperCase();
+                    if (/^#[0-9A-F]{6}$/i.test(color)) {
+                        customAccentColor.value = color;
+                    }
+                });
+            }
+
+            if (customAccentCreateBtn) {
+                customAccentCreateBtn.addEventListener('click', createCustomAccentColors);
             }
 
             // Mode 카드 클릭 이벤트
