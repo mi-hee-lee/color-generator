@@ -69,7 +69,7 @@
 
         body {
             font-family: var(--body-1-regular-font-family);
-            background: #f5f5f5;
+            background: #ffffff;
             color: var(--basicblack-8);
             font-size: var(--body-1-regular-font-size);
             line-height: var(--body-1-regular-line-height);
@@ -77,7 +77,7 @@
         }
 
         .container {
-            padding: 16px;
+            padding: 0;
             width: 100%;
             max-width: 100%;
             background: var(--basicwhite);
@@ -85,82 +85,82 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             margin: 0;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .tab-navigation {
+            position: sticky;
+            top: 0;
+            z-index: 20;
             display: flex;
+            flex-direction: row;
             align-items: flex-start;
-            gap: 4px;
-            padding: 4px;
-            position: relative;
-            background-color: var(--basicgray);
-            border-radius: 12px;
-            margin-bottom: 12px;
+            padding: 0 16px;
+            gap: 16px;
             width: 100%;
+            height: 40px;
+            background: #FFFFFF;
             box-sizing: border-box;
-        }
-        
-        .tab-navigation::before {
-            content: '';
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: calc((100% - 16px) / 3);
-            height: calc(100% - 8px);
-            background-color: var(--basicwhite);
-            border-radius: 8px;
-            box-shadow: 0px 2px 8px -4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
         }
 
         .tab-btn {
-            display: inline-flex;
+            display: flex;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 8px 16px;
-            position: relative;
-            flex: 1;
+            padding: 0;
+            gap: 4px;
+            height: 40px;
             border: none;
             background: transparent;
-            border-radius: 8px;
-            overflow: hidden;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: var(--body-1-semi-bold-font-family);
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--basicblack-3);
-            white-space: nowrap;
-            transform: scale(1);
-            z-index: 2;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 11px;
+            line-height: 16px;
+            letter-spacing: 0.005em;
+            color: rgba(0, 0, 0, 0.3);
+            flex: none;
+        }
+
+        .tab-btn:nth-child(1) {
+            width: fit-content;
+        }
+
+        .tab-btn:nth-child(2) {
+            width:  fit-content;
+        }
+
+        .tab-btn:nth-child(3) {
+            width:  fit-content;
         }
 
         .tab-btn.active {
-            background-color: transparent;
-            color: var(--basicblack);
-            transform: scale(1.02);
+            font-weight: 600;
+            color: #000000;
         }
-        
-        /* 두 번째 탭 활성화 */
-        .tab-navigation.second-active::before {
-            transform: translateX(calc(100% + 4px));
-        }
-        
-        /* 세 번째 탭 활성화 */
-        .tab-navigation.third-active::before {
-            transform: translateX(calc(200% + 8px));
-        }
-        
-        .tab-btn:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.5);
-            transform: scale(1.01);
-        }
-        
+
         .tab-btn:active {
             transform: scale(0.98);
+        }
+
+        .tab-home-btn {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .tab-home-btn svg {
+            width: 20px;
+            height: 20px;
         }
 
         .tab-content {
@@ -213,7 +213,7 @@
             padding: 0px 0px 0px 8px; /* inner left padding */
             gap: 8px;
 
-            width: 328px;
+            width: 100%;
             max-width: 100%;
             height: 32px;
 
@@ -226,14 +226,50 @@
             order: 0;
             align-self: stretch;
             flex-grow: 0;
-            margin-bottom: 8px;
+        }
+
+        .inline-input-btn {
+            border: none;
+            background: transparent;
+            color: #888;
+            font-size: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0 16px;
+            height: auto;
+        }
+
+        .inline-input-btn:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        .custom-bg-hint {
+            margin-top: 6px;
+            font-size: 10px;
+            color: #666;
+            line-height: 1.4;
         }
 
         /* Swatch (input[type=color]) */
-        .color-picker,
-        .color-swatch {
+        .color-picker {
             box-sizing: border-box;
             width: 20px;
+            height: 20px;
+            border: 1px solid #FFFFFF; /* Basic/White */
+            filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.08)); /* Shadow/Small */
+            border-radius: 3px;
+            cursor: pointer;
+            flex-shrink: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: none;
+            padding: 0;
+        }
+
+        .color-swatch {
+            box-sizing: border-box;
+            width: 40px;
             height: 20px;
             border: 1px solid #FFFFFF; /* Basic/White */
             filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.08)); /* Shadow/Small */
@@ -661,7 +697,7 @@
         .step-header {
             text-align: left;
             margin-bottom: 20px;
-            padding: 0px 8px 0px 8px;
+            padding: 0px;
         }
 
         .step-header .step-title {
@@ -685,9 +721,6 @@
             margin-bottom: 0px;
         }
 
-        .input-group {
-            margin-bottom: 16px;
-        }
 
         .input-group label {
             display: block;
@@ -759,7 +792,7 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 8px 6px 1px;
+            padding: 8px 8px 8px 1px;
             gap: 7px;
             width: 100%;
         }
@@ -775,9 +808,9 @@
             border: none; background: transparent; color: #888; font-size: 10px; cursor: pointer;
         }
         .recent-clear:hover { color: #333; text-decoration: underline; }
-        .recent-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 8px 0px; }
+        .recent-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding-left:2px;  }
         .recent-swatch {
-            width: 24px; height: 24px; border-radius: 4px;
+            width: 24px; height: 24px; border-radius: 20px;
             border: 0.5px solid rgba(0,0,0,0.2);
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             cursor: pointer;
@@ -1412,174 +1445,167 @@
             width: 100%;
         }
 
-        .bg-options-grid {
-            display: flex;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-            margin-bottom: 16px;
-        }
-
-        .bg-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 80px;
-            height: auto;
-            padding: 0;
+        .bg-accordion {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bg-accordion-toggle {
+            display: flex;
+            flex-direction: row;
             align-items: center;
-            justify-content: space-between;
-            position: relative;
-        }
-
-        .bg-card.selected {
-            border: 0px;
-            box-shadow: none;
-            border-radius: 10px;
-        }
-
-        .bg-card-content {
-            padding: 0px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .bg-card-header {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-        }
-        .bg-large-preview [data-mode="accent-on-bg-black"] {
-            background: #000000;
-        }
-        .bg-large-preview {
-            width: 64px;
-            height: 64px;
-            flex-shrink: 0;
-            background: #F5F5F5;
-            border: 1px solid #E5E5E5;
-            border-radius: 8px;
-        }
-
-        .bg-radio-button {
-            width: 16px;
-            height: 16px;
+            gap: 8px;
+            padding: 8px 1px;
+            width: 100%;
+            max-width: 212px;
+            height: 32px;
+            border: none;
+            background: #FFFFFF;
             cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            border: 1px solid #D1D1D6;
-            border-radius: 4px;
-            background: white;
-            margin: 0;
-        }
-
-        .bg-radio-button.selected,
-        .simple-checkbox-input:checked {
-            background: #007AFF;
-            border-color: #007AFF;
-        }
-
-        .bg-radio-button.white-circle {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(255, 255, 255, 0.9);
-        }
-
-        .bg-radio-button.white-circle.selected {
-            background: #007AFF;
-            border-color: #007AFF;
-        }
-
-        .bg-radio-button .radio-icon,
-        .simple-checkbox-input + .radio-icon {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .radio-circle {
-            display: none !important;
-        }
-
-        .radio-icon {
-            width: 16px;
-            height: 16px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 10;
-        }
-
-        .bg-card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 8px 0px 0px;
-        }
-
-        .bg-label {
-            font-size: 12px;
-            line-height: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
             font-weight: 400;
-            color: #000000;
+            color: rgba(0,0,0,0.8);
         }
 
-        .bg-hex-code {
-            font-size: 10px;
-            color: #0000002f;
-            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        .bg-accordion-toggle:focus {
+            outline: 2px solid rgba(24, 160, 251, 0.4);
+            outline-offset: 2px;
         }
 
-        /* Simple Checkbox Option */
-        .simple-checkbox-option {
-            margin-top: 16px;
-            margin-left: 12px;
-            cursor: pointer;
-        }
-
-        .simple-checkbox-label {
+        .bg-accordion-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            cursor: pointer;
+            pointer-events: none;
         }
 
-        .checkbox-wrapper {
+        .bg-accordion-caret {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .bg-accordion-toggle:not(.expanded) .bg-accordion-caret svg {
+            transform: rotate(0deg);
+        }
+
+        .bg-accordion-toggle.expanded .bg-accordion-caret svg {
+            transform: rotate(180deg);
+        }
+
+        .bg-accordion-panel {
+            display: none;
+            padding-left: 32px;
+        }
+
+        .bg-accordion-panel.expanded {
+            display: block;
+        }
+
+        .bg-swatch-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .bg-swatch-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 100%;
+            padding: 8px 0 8px;
+        }
+
+        .bg-extra-grid {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0;
+        }
+
+        .bg-swatch {
             position: relative;
-            width: 16px;
-            height: 16px;
-        }
-
-        .bg-card-header .checkbox-wrapper {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 16px;
-            height: 16px;
-        }
-
-        .simple-checkbox-input {
-            width: 16px;
-            height: 16px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
             cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            border: 1px solid #D1D1D6;
-            border-radius: 4px;
-            background: white;
-            margin: 0;
+            padding: 0;
         }
 
-        .simple-checkbox-text {
-            font-size: 12px;
-            color: rgba(0, 0, 0, 0.8);
-            user-select: none;
+        .bg-swatch::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 2.5px solid transparent;
+            border-radius: 999px;
+            pointer-events: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .bg-swatch.selected::after {
+            border-color: #18A0FB;
+        }
+
+        .bg-swatch-chip {
+            position: absolute;
+            inset: 0;
+            width: 32px;
+            height: 32px;
+            margin: auto;
+            border-radius: 999px;
+            border: 1px #0000001a solid;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+        }
+
+        .bg-swatch-chip::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(45deg, #f1f1f1 25%, transparent 25%),
+                              linear-gradient(-45deg, #f1f1f1 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #f1f1f1 75%),
+                              linear-gradient(-45deg, transparent 75%, #f1f1f1 75%);
+            background-size: 6px 6px;
+            background-position: 0 0, 0 3px, 3px -3px, -3px 0;
+            opacity: 0.5;
+        }
+
+        .bg-swatch-chip::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 100px;
+            background: var(--swatch-color, #ffffff);
+        }
+
+        .bg-swatch[data-mode="accent-on-bg-black"] .bg-swatch-chip::after {
+            --swatch-color: #000000;
+        }
+
+        .bg-swatch[data-mode="accent-on-bg-fixed"] .bg-swatch-chip::after {
+            --swatch-color: #ffffff;
+        }
+
+        .bg-extra-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.15);
+            background: var(--extra-color, #ffffff);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
         /* 커스텀 배경 컬러 입력 */
-        .custom-bg-color-input { padding-left: 24px; }
+        .custom-bg-color-input { padding-left: 0; }
 
         /* optional checkboard background for transparency preview (when using a custom swatch element) */
         .swatch-checkboard {
@@ -1616,6 +1642,11 @@
             <button class="tab-btn" id="toneMatchingTab">
                 Tone Matching
             </button>
+            <button type="button" class="tab-home-btn" id="tabHomeBtn" aria-label="Home">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.0707 3.45682L20.6442 12.0303C20.663 12.0491 20.6735 12.0745 20.6735 12.1011V20.5138C20.6735 20.5691 20.6288 20.6138 20.5735 20.6138H14.8912V16.7589C14.8912 15.1622 13.5968 13.8678 12 13.8678C10.4032 13.8678 9.10883 15.1622 9.10883 16.7589V20.6138H3.42648C3.37125 20.6138 3.32648 20.5691 3.32648 20.5138V12.1011C3.32648 12.0745 3.33701 12.0491 3.35577 12.0303L11.9293 3.45682C11.9683 3.41777 12.0317 3.41777 12.0707 3.45682Z" stroke="#19191A" stroke-width="1.8"/>
+                </svg>
+            </button>
         </div>
 
         <!-- Custom Theme 탭 -->
@@ -1639,14 +1670,14 @@
                     <div class="input-group">
                         <label>테마 이름</label>
                         <input type="text" id="wizardThemeNameInput" class="theme-name-input" 
-                               placeholder="예: custom-theme" value="custom-theme">
+                               placeholder="예: custom-theme" value="custom-theme-a" readonly>
                     </div>
                     
                     <div class="input-group">
                         <label>Key Color</label>
                         <div class="color-input-group">
-                            <input type="color" id="wizardThemeBaseColor" class="color-picker" value="#667eea">
-                            <input type="text" id="wizardThemeBaseHex" class="hex-input" value="#667EEA">
+                            <input type="color" id="wizardThemeBaseColor" class="color-picker" value="#ff4800">
+                            <input type="text" id="wizardThemeBaseHex" class="hex-input" value="#FF4800">
                         </div>
                         
                         <!-- 컬러 분류 표시 -->
@@ -1682,77 +1713,51 @@
                 </div>
 
                 <div class="step-content">
-                    <div class="bg-options-grid">
-                        <!-- 추천 색상 카드 -->
-                        <div class="bg-card selected" data-mode="accent-on-bg-off" id="recommendedBgCard">
-                            <div class="bg-card-header">
-                                <div class="bg-large-preview" id="recommendedBgPreview" style="background: #F5F5F5;"></div>
-                                <div class="checkbox-wrapper">
-                                    <input type="radio" name="backgroundMode" value="accent-on-bg-off" class="bg-radio-button selected" id="recommendedBgRadio" checked>
-                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="bg-card-info">
-                                <div class="bg-label">추천 색상</div>
-                                <div class="bg-hex-code" id="recommendedBgHex">#F5F5F5</div>
-                            </div>
-                        </div>
-
-                        <!-- White 카드 -->
-                        <div class="bg-card" data-mode="accent-on-bg-fixed">
-                            <div class="bg-card-header">
-                                <div class="bg-large-preview" style="background: #FFFFFF;"></div>
-                                <div class="checkbox-wrapper">
-                                    <input type="radio" name="backgroundMode" value="accent-on-bg-fixed" class="bg-radio-button">
-                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="bg-card-info">
-                                <div class="bg-label">White</div>
-                                <div class="bg-hex-code">#FFFFFF</div>
-                            </div>
-                        </div>
-
-                        <!-- Black 카드 -->
-                        <div class="bg-card" data-mode="accent-on-bg-black">
-                            <div class="bg-card-header">
-                                <div class="bg-large-preview" style="background: #000000;"></div>
-                                <div class="checkbox-wrapper">
-                                    <input type="radio" name="backgroundMode" value="accent-on-bg-black" class="bg-radio-button white-circle">
-                                    <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                                        <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="bg-card-info">
-                                <div class="bg-label">Black</div>
-                                <div class="bg-hex-code">#000000</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 배경 색 직접 설정하기 체크박스 -->
-                    <div class="simple-checkbox-option" data-mode="custom-background" id="customBgOption">
-                        <label class="simple-checkbox-label">
-                            <div class="checkbox-wrapper">
-                                <input type="checkbox" class="simple-checkbox-input" id="customBgCheckbox">
-                                <svg class="radio-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                                    <path d="M3.2332 8.0227L6.95951 12.0004L12.7589 4.03613" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <div class="bg-accordion">
+                        <button type="button" class="bg-accordion-toggle expanded" id="recommendedBgToggle" aria-expanded="true">
+                            <span class="bg-accordion-caret">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 10L11 6L5 6L8 10Z" fill="black"/>
                                 </svg>
+                            </span>
+                            <span class="bg-accordion-title">추천 컬러</span>
+                        </button>
+                        <div class="bg-accordion-panel expanded" id="recommendedBgPanel">
+                            <div class="bg-swatch-row">
+                                <div class="bg-swatch-grid">
+                                    <button type="button" class="bg-swatch selected" data-mode="accent-on-bg-fixed">
+                                        <span class="bg-swatch-chip" style="--swatch-color: #FFFFFF;"></span>
+                                    </button>
+                                    <button type="button" class="bg-swatch" data-mode="accent-on-bg-black">
+                                        <span class="bg-swatch-chip" style="--swatch-color: #000000;"></span>
+                                    </button>
+                                    <button type="button" class="bg-swatch" data-mode="accent-on-bg-off" id="recommendedBgCard">
+                                        <span class="bg-swatch-chip" id="recommendedBgPreview" style="--swatch-color: #F5F5F5;"></span>
+                                    </button>
+                                </div>
+                                <div class="bg-extra-grid" id="recommendedExtraGrid"></div>
                             </div>
-                            <span class="simple-checkbox-text">배경 색 직접 설정하기</span>
-                        </label>
+                        </div>
                     </div>
 
-                    <!-- 커스텀 배경 색상 입력 (숨김 상태) -->
-                    <div class="custom-bg-color-input" id="customBgColorContainer" style="display: none; margin-top: 16px;">
-                        <div class="color-input-container">
-                            <input type="color" id="customBgColor" class="color-swatch" value="#F5F5F5">
-                            <input type="text" id="customBgHex" class="hex-input" value="#F5F5F5" style="text-transform: uppercase;">
+                    <div class="bg-accordion">
+                        <button type="button" class="bg-accordion-toggle" id="customBgToggle" aria-expanded="false">
+                            <span class="bg-accordion-caret">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 10L11 6L5 6L8 10Z" fill="black"/>
+                                </svg>
+                            </span>
+                            <span class="bg-accordion-title">배경 색 직접 설정하기</span>
+                        </button>
+                        <div class="bg-accordion-panel" id="customBgPanel">
+                            <div class="custom-bg-color-input" id="customBgColorContainer" style="margin-top: 12px;">
+                                <div class="color-input-container">
+                                    <input type="color" id="customBgColor" class="color-swatch" value="#ff4800">
+                                    <input type="text" id="customBgHex" class="hex-input" value="#FF4800" style="text-transform: uppercase;">
+                                    <button type="button" id="customBgCreateBtn" class="inline-input-btn">입력</button>
+                                </div>
+                                <div id="customBgHint" class="custom-bg-hint" style="display: none;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1930,8 +1935,8 @@
             <div class="section">
                 <div class="section-title">Base Color Input</div>
                 <div class="color-input-group">
-                    <input type="color" id="baseColor" class="color-picker" value="#667eea">
-                    <input type="text" id="hexInput" class="hex-input" value="#667EEA">
+                    <input type="color" id="baseColor" class="color-picker" value="#ff4800">
+                    <input type="text" id="hexInput" class="hex-input" value="#FF4800">
                 </div>
                 
                 <!-- 컬러 분류 표시 -->
@@ -2005,17 +2010,26 @@
 
             <!-- 기준 색상 설정 -->
             <div class="section">
+                <div class="step-header">
                 <div class="section-title">Step 1. 기준 색상 정하기</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">기준이 될 색상을 선택하세요</p>
-                
+                <p>기준이 될 색상을 선택하세요</p>
+                </div>
                 <div class="color-input-group">
-                    <input type="color" id="referenceColorPicker" class="color-picker" value="#667eea">
-                    <input type="text" id="referenceColorHex" class="hex-input" value="#667EEA">
+                    <input type="color" id="referenceColorPicker" class="color-picker" value="#ff4800">
+                    <input type="text" id="referenceColorHex" class="hex-input" value="#FF4800">
                 </div>
                 
                 <div class="button-group">
                     <button id="setRefBtn" class="action-btn btn-primary">Set Reference</button>
                     <button id="clearRefBtn" class="action-btn btn-secondary">Clear</button>
+                </div>
+
+                <div id="toneRecentColorsSection" class="recent-colors" style="display: none; margin-top: 12px;">
+                    <div class="recent-header">
+                        <span class="recent-title">최근 사용한 컬러</span>
+                        <button id="clearToneRecentBtn" class="recent-clear" type="button" title="목록 비우기">지우기</button>
+                    </div>
+                    <div id="toneRecentColorsContainer" class="recent-swatches"></div>
                 </div>
                 
                 <div id="referenceStatus" style="color: #666; font-size: 10px; margin: 8px 0px 8px 0px;">현재 설정된 기준 컬러가 없습니다.</div>
@@ -2024,13 +2038,14 @@
             
             <!-- 새 색상 입력 -->
             <div class="section">
+                <div class="step-header">
                 <div class="section-title">Step 2. 새로운 컬러 입력하기</div>
-                <p style="color: #666; margin-bottom: 8px; font-size: 10px;">원하는 색상을 입력하면 톤 매칭이 제공됩니다</p>
-                
+                <p>원하는 색상을 입력하면 톤 매칭이 제공됩니다</p>
+                </div>
                 <div class="tone-input-area">
                     <div class="color-input-group">
-                        <input type="color" id="newColorPicker" class="color-picker" value="#ff0000">
-                        <input type="text" id="newColorHex" class="hex-input" value="#FF0000">
+                        <input type="color" id="newColorPicker" class="color-picker" value="#ff4800">
+                        <input type="text" id="newColorHex" class="hex-input" value="#FF4800">
                     </div>
                     <button id="getSuggestionsBtn" class="action-btn btn-success">추천받기</button>
                     <p style="font-size: 10px; color: #666; margin-top: 4px;">이 색상은 기준 톤에 맞게 조정됩니다.</p>
@@ -2051,6 +2066,8 @@
         let generatedColors = [];
         let referenceColor = null;
         let currentTheme = null;
+        let customBackgroundTheme = null;
+        let recommendedSelection = { type: 'mode', value: 'accent-on-bg-fixed', step: null };
 
         // 색상 유틸리티
         class ColorUtils {
@@ -2595,16 +2612,45 @@
         }
         
         function createCustomThemeVariablesAndProceed() {
-            const themeName = document.getElementById('wizardThemeNameInput').value;
+            const themeNameInput = document.getElementById('wizardThemeNameInput');
+            const themeName = 'custom-theme-a';
+            if (themeNameInput) {
+                themeNameInput.value = themeName;
+            }
             const baseColor = document.getElementById('wizardThemeBaseHex').value;
             
             if (!themeName || !baseColor) {
                 showMessage('테마 이름과 색상을 입력해주세요!');
                 return;
             }
-            
+
             // 최근 사용한 컬러 업데이트 (중복 제거, 최대 10개)
-            try { addRecentColor(baseColor.toUpperCase()); } catch (e) { console.warn('최근 컬러 업데이트 실패', e); }
+            try { addCustomRecentColor(baseColor.toUpperCase()); } catch (e) { console.warn('최근 컬러 업데이트 실패', e); }
+
+            customBackgroundTheme = null;
+            try {
+                const recommendedToggle = document.getElementById('recommendedBgToggle');
+                const recommendedPanel = document.getElementById('recommendedBgPanel');
+                const customBgToggle = document.getElementById('customBgToggle');
+                const customBgPanel = document.getElementById('customBgPanel');
+                const customBgContainer = document.getElementById('customBgColorContainer');
+                if (recommendedToggle && recommendedPanel) {
+                    recommendedPanel.classList.add('expanded');
+                    recommendedPanel.style.display = 'block';
+                    recommendedToggle.classList.add('expanded');
+                    recommendedToggle.setAttribute('aria-expanded', 'true');
+                }
+                if (customBgToggle && customBgPanel) {
+                    customBgPanel.classList.remove('expanded');
+                    customBgPanel.style.display = 'none';
+                    customBgToggle.classList.remove('expanded');
+                    customBgToggle.setAttribute('aria-expanded', 'false');
+                }
+                if (customBgContainer) customBgContainer.style.display = 'none';
+                const recSwatch = document.getElementById('recommendedBgCard');
+                document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('selected'));
+                if (recSwatch) recSwatch.classList.add('selected');
+            } catch {}
 
             // 테마 생성
             const tuningValue = 0; // 기본값
@@ -2615,6 +2661,7 @@
                 if (typeof updateRecommendedBackground === 'function') {
                     updateRecommendedBackground(currentTheme.baseColor || baseColor);
                 }
+                updateCustomBgHint();
             } catch (e) { console.warn('추천 배경 초기 업데이트 실패:', e); }
             
             // 모드 카드 미리보기 업데이트
@@ -2641,49 +2688,87 @@
                     if (typeof updateRecommendedBackground === 'function') {
                         updateRecommendedBackground(currentTheme.baseColor || baseColor);
                     }
+                    updateCustomBgHint();
                 } catch (e) { console.warn('추천 배경 재업데이트 실패:', e); }
                 showMessage('테마 변수가 생성되었습니다!');
             }, 1000);
         }
 
-        // 최근 사용한 컬러 - 저장/표시/상호작용
-        // 최근 컬러 저장소 (localStorage 실패 시 메모리 폴백)
-        window.recentColorsMem = window.recentColorsMem || [];
-        function getRecentColors() {
+        function createCustomBackgroundVariables() {
+            if (!currentTheme) {
+                showMessage('먼저 Step 1에서 변수를 생성해주세요!');
+                return;
+            }
+
+            const hexInput = document.getElementById('customBgHex');
+            if (!hexInput) {
+                showMessage('배경 색상 입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+
+            const hex = (hexInput.value || '').trim().toUpperCase();
+            if (!/^#[0-9A-F]{6}$/i.test(hex)) {
+                showMessage('유효한 HEX 색상을 입력해주세요 (예: #F5F5F5)');
+                return;
+            }
+
+            if (!themeGenerator) {
+                showMessage('테마 생성기를 초기화할 수 없습니다.');
+                return;
+            }
+
+            const themeName = 'custom-theme-b';
+            const backgroundTheme = themeGenerator.generateTheme(hex, themeName, 'accent-off-bg-on', 0);
+            backgroundTheme.applicationMode = 'accent-off-bg-on';
+
+            customBackgroundTheme = backgroundTheme;
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'create-custom-theme',
+                    theme: backgroundTheme
+                }
+            }, '*');
+
+            showMessage('custom-theme-b 변수를 생성 중...');
+        }
+
+        // 최근 사용한 컬러 - Custom Theme용 저장/표시/상호작용
+        window.customRecentColorsMem = window.customRecentColorsMem || [];
+        function getCustomRecentColors() {
             try {
-                const raw = localStorage.getItem('recentColors');
-                if (!raw) return window.recentColorsMem;
+                const raw = localStorage.getItem('recentColorsCustom');
+                if (!raw) return window.customRecentColorsMem;
                 const arr = JSON.parse(raw);
-                return Array.isArray(arr) ? arr : window.recentColorsMem;
+                return Array.isArray(arr) ? arr : window.customRecentColorsMem;
             } catch {
-                return window.recentColorsMem;
+                return window.customRecentColorsMem;
             }
         }
-        function setRecentColors(list) {
-            window.recentColorsMem = Array.isArray(list) ? list.slice() : [];
-            try { localStorage.setItem('recentColors', JSON.stringify(window.recentColorsMem)); } catch {}
+        function setCustomRecentColors(list) {
+            window.customRecentColorsMem = Array.isArray(list) ? list.slice() : [];
+            try { localStorage.setItem('recentColorsCustom', JSON.stringify(window.customRecentColorsMem)); } catch {}
         }
-        function addRecentColor(hex) {
+        function addCustomRecentColor(hex) {
             if (!hex || !/^#[0-9A-F]{6}$/i.test(hex)) return;
             const up = hex.toUpperCase();
-            let list = getRecentColors().filter(c => c !== up);
+            let list = getCustomRecentColors().filter(c => c !== up);
             list.unshift(up);
             if (list.length > 10) list = list.slice(0,10);
-            setRecentColors(list);
+            setCustomRecentColors(list);
             renderRecentColors();
             const section = document.getElementById('recentColorsSection');
             if (section) {
                 section.style.display = 'block';
-                try { section.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch {}
             }
             try { showMessage(`최근 컬러에 추가됨: ${up}`); } catch {}
         }
-        function clearRecentColors() { setRecentColors([]); renderRecentColors(); }
+        function clearRecentColors() { setCustomRecentColors([]); renderRecentColors(); }
         function renderRecentColors() {
             const section = document.getElementById('recentColorsSection');
             const container = document.getElementById('recentColorsContainer');
             if (!section || !container) return;
-            const list = getRecentColors();
+            const list = getCustomRecentColors();
             if (!list.length) { section.style.display = 'none'; return; }
             section.style.display = 'block';
             container.innerHTML = '';
@@ -2699,12 +2784,72 @@
                     if (input) input.value = hex;
                     if (typeof optimizedPreviewUpdate === 'function') optimizedPreviewUpdate(hex);
                     try { updateRecommendedBackground(hex); } catch {}
+                    updateCustomBgHint();
                 });
                 container.appendChild(sw);
             });
             const clearBtn = document.getElementById('clearRecentBtn');
             if (clearBtn) {
                 clearBtn.onclick = clearRecentColors;
+            }
+        }
+
+        // 최근 사용한 컬러 - Tone Matching용
+        window.toneRecentColorsMem = window.toneRecentColorsMem || [];
+        function getToneRecentColors() {
+            try {
+                const raw = localStorage.getItem('recentColorsTone');
+                if (!raw) return window.toneRecentColorsMem;
+                const arr = JSON.parse(raw);
+                return Array.isArray(arr) ? arr : window.toneRecentColorsMem;
+            } catch {
+                return window.toneRecentColorsMem;
+            }
+        }
+        function setToneRecentColors(list) {
+            window.toneRecentColorsMem = Array.isArray(list) ? list.slice() : [];
+            try { localStorage.setItem('recentColorsTone', JSON.stringify(window.toneRecentColorsMem)); } catch {}
+        }
+        function addToneRecentColor(hex) {
+            if (!hex || !/^#[0-9A-F]{6}$/i.test(hex)) return;
+            const up = hex.toUpperCase();
+            let list = getToneRecentColors().filter(c => c !== up);
+            list.unshift(up);
+            if (list.length > 10) list = list.slice(0,10);
+            setToneRecentColors(list);
+            renderToneRecentColors();
+            const section = document.getElementById('toneRecentColorsSection');
+            if (section) section.style.display = 'block';
+        }
+        function clearToneRecentColors() {
+            setToneRecentColors([]);
+            renderToneRecentColors();
+        }
+        function renderToneRecentColors() {
+            const section = document.getElementById('toneRecentColorsSection');
+            const container = document.getElementById('toneRecentColorsContainer');
+            if (!section || !container) return;
+            const list = getToneRecentColors();
+            if (!list.length) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+            container.innerHTML = '';
+            list.forEach(hex => {
+                const sw = document.createElement('div');
+                sw.className = 'recent-swatch';
+                sw.title = hex;
+                sw.style.background = hex;
+                sw.addEventListener('click', () => {
+                    const picker = document.getElementById('referenceColorPicker');
+                    const input = document.getElementById('referenceColorHex');
+                    if (picker) picker.value = hex;
+                    if (input) input.value = hex;
+                    setReferenceColorFromHex(hex);
+                });
+                container.appendChild(sw);
+            });
+            const clearBtn = document.getElementById('clearToneRecentBtn');
+            if (clearBtn) {
+                clearBtn.onclick = () => { clearToneRecentColors(); };
             }
         }
 
@@ -2722,25 +2867,164 @@
                     themeName: themeName,
                     baseColor: currentTheme.baseColor,
                     closestStep: closestStep,
-                    applicationMode: currentTheme.applicationMode || 'accent-on-bg-off'
+                    applicationMode: currentTheme.applicationMode || 'accent-on-bg-off',
+                    colorRange: currentTheme.colorRange || null
                 };
             } else {
                 // 기존 로직 (fallback)
-                const themeName = document.getElementById('wizardThemeNameInput').value;
+                const themeName = 'custom-theme-a';
+                const nameInput = document.getElementById('wizardThemeNameInput');
+                if (nameInput) {
+                    nameInput.value = themeName;
+                }
                 const baseColor = document.getElementById('wizardThemeBaseHex').value;
                 
                 // Scale Generator와 동일한 로직 사용
                 const closestStep = ColorUtils.findClosestStep(baseColor, 'light');
-                
+                let colorRange = 'medium';
+                try {
+                    colorRange = themeGenerator.getColorClassification(baseColor, closestStep);
+                } catch (e) {
+                    console.warn('colorRange 계산 실패:', e);
+                }
+
 
                 wizardThemeData = {
                     themeName: themeName,
                     baseColor: baseColor,
                     closestStep: closestStep,
-                    applicationMode: 'accent-on-bg-off'
+                    applicationMode: 'accent-on-bg-off',
+                    colorRange: colorRange
                 };
             }
 
+        }
+
+        function getRecommendedNeighborSteps(baseStep) {
+            var results = [];
+            if (!baseStep || !colorGenerator || !Array.isArray(colorGenerator.steps)) return results;
+            var steps = colorGenerator.steps;
+            var index = steps.indexOf(baseStep);
+            if (index === -1) return results;
+
+            function addByIndex(idx) {
+                if (idx >= 0 && idx < steps.length) {
+                    var candidate = steps[idx];
+                    if (candidate !== baseStep && results.indexOf(candidate) === -1) {
+                        results.push(candidate);
+                    }
+                }
+            }
+
+            if (index > 0) addByIndex(index - 1);
+
+            if (baseStep < 500) {
+                [index + 2, index + 3, index + 1, index + 4, index + 5].forEach(addByIndex);
+            } else {
+                [index - 2, index - 3, index - 4, index - 5, index - 6].forEach(addByIndex);
+            }
+
+            if (results.length < 3) {
+                [index + 1, index + 2, index - 1, index - 2, index + 3, index - 3].forEach(addByIndex);
+            }
+
+            return results.slice(0, 3);
+        }
+
+        function getColorHexForStep(step) {
+            if (!step || !currentTheme || !currentTheme.scaleColors || !Array.isArray(currentTheme.scaleColors.light)) {
+                return null;
+            }
+            var match = currentTheme.scaleColors.light.find(function(c) { return c.step === step; });
+            return match ? match.hex : null;
+        }
+
+        function renderRecommendedExtras(baseStep, steps) {
+            var container = document.getElementById('recommendedExtraGrid');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!steps || !steps.length) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'flex';
+            steps.forEach(function(step) {
+                var color = getColorHexForStep(step);
+                if (!color) return;
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'bg-swatch recommended-extra';
+                button.dataset.step = step;
+                button.dataset.mode = 'accent-on-bg-off';
+                var chip = document.createElement('span');
+                chip.className = 'bg-swatch-chip';
+                chip.style.setProperty('--swatch-color', color);
+                button.appendChild(chip);
+                container.appendChild(button);
+            });
+        }
+
+        function applyRecommendedSelectionUI() {
+            var swatches = document.querySelectorAll('#recommendedBgPanel .bg-swatch');
+            swatches.forEach(function(s) { s.classList.remove('selected'); });
+
+            var target = null;
+            if (recommendedSelection.type === 'mode') {
+                target = document.querySelector('#recommendedBgPanel .bg-swatch[data-mode="' + recommendedSelection.value + '"]');
+            } else if (recommendedSelection.type === 'step') {
+                target = document.querySelector('#recommendedBgPanel .bg-swatch[data-step="' + recommendedSelection.step + '"]');
+                if (!target) {
+                    target = document.querySelector('#recommendedBgPanel .bg-swatch[data-mode="accent-on-bg-off"]');
+                }
+            }
+
+            if (!target) {
+                target = document.querySelector('#recommendedBgPanel .bg-swatch[data-mode="accent-on-bg-fixed"]');
+                recommendedSelection = { type: 'mode', value: 'accent-on-bg-fixed', step: null };
+            }
+
+            if (target) {
+                target.classList.add('selected');
+            }
+        }
+
+        function handleRecommendedSwatchSelection(button) {
+            var stepAttr = button.getAttribute('data-step');
+            var modeAttr = button.getAttribute('data-mode');
+            var step = stepAttr ? parseInt(stepAttr, 10) : null;
+
+            if (step !== null && !isNaN(step)) {
+                recommendedSelection = { type: 'step', value: 'accent-on-bg-off', step: step };
+                if (currentTheme) {
+                    currentTheme.overrideRecommendedStep = step;
+                    currentTheme.applicationMode = 'accent-on-bg-off';
+                }
+                if (wizardThemeData) {
+                    wizardThemeData.applicationMode = 'accent-on-bg-off';
+                    wizardThemeData.closestStep = step;
+                }
+            } else if (modeAttr) {
+                recommendedSelection = { type: 'mode', value: modeAttr, step: null };
+                if (currentTheme) {
+                    currentTheme.overrideRecommendedStep = null;
+                    currentTheme.applicationMode = modeAttr;
+                }
+                if (wizardThemeData) {
+                    wizardThemeData.applicationMode = modeAttr;
+                }
+            }
+
+            applyRecommendedSelectionUI();
+            customBackgroundTheme = null;
+            updateCustomBgHint();
+        }
+
+        function handleRecommendedPanelClick(event) {
+            var panel = document.getElementById('recommendedBgPanel');
+            if (!panel) return;
+            var button = event.target.closest('.bg-swatch');
+            if (!button || !panel.contains(button)) return;
+            handleRecommendedSwatchSelection(button);
         }
 
         // 추천 배경색 업데이트 함수
@@ -2772,16 +3056,77 @@
 
             // 추천 배경색 프리뷰 업데이트
             const recommendedBgPreview = document.getElementById('recommendedBgPreview');
-            const recommendedBgHex = document.getElementById('recommendedBgHex');
 
             if (recommendedBgPreview) {
-                recommendedBgPreview.style.background = recommendedBg;
-            }
-            if (recommendedBgHex) {
-                recommendedBgHex.textContent = (recommendedBg || '').toUpperCase();
+                recommendedBgPreview.style.setProperty('--swatch-color', recommendedBg);
             }
 
+            var recommendedStep = null;
+            if (currentTheme && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
+                recommendedStep = findClosestStepFromColors(currentTheme.scaleColors.light, recommendedBg);
+            }
+            var extraSteps = getRecommendedNeighborSteps(recommendedStep);
+            renderRecommendedExtras(recommendedStep, extraSteps);
+
             console.log('추천 배경색 업데이트:', recommendedBg);
+        }
+
+        function getKeyColorInfo() {
+            let step = null;
+            let range = null;
+
+            if (currentTheme) {
+                step = currentTheme.selectedStep || currentTheme.closestStep || step;
+                range = currentTheme.colorRange || range;
+            }
+
+            if (!step && wizardThemeData && wizardThemeData.closestStep) {
+                step = wizardThemeData.closestStep;
+            }
+
+            if (!range && wizardThemeData && wizardThemeData.colorRange) {
+                range = wizardThemeData.colorRange;
+            }
+
+            if (!range && step) {
+                if (step < 300) range = 'light';
+                else if (step >= 300 && step <= 700) range = 'medium';
+                else range = 'dark';
+            }
+
+            return { step, range };
+        }
+
+        function rangeToKoreanLabel(range) {
+            switch(range) {
+                case 'light': return '밝은 단계';
+                case 'dark': return '어두운 단계';
+                default: return '중간 단계';
+            }
+        }
+
+        function updateCustomBgHint() {
+            const hint = document.getElementById('customBgHint');
+            const panel = document.getElementById('customBgPanel');
+            if (!hint || !panel) return;
+
+            const isVisible = panel.classList.contains('expanded');
+            if (!isVisible) {
+                hint.style.display = 'none';
+                hint.textContent = '';
+                return;
+            }
+
+            const info = getKeyColorInfo();
+            if (!info.step) {
+                hint.style.display = 'none';
+                hint.textContent = '';
+                return;
+            }
+
+            const label = rangeToKoreanLabel(info.range);
+            hint.textContent = `현재 Key Color가 Step ${info.step}이니 ${label}의 배경색을 추천드려요.`;
+            hint.style.display = 'block';
         }
 
         // Step 2에서 배경 선택 후 테마 적용
@@ -2790,9 +3135,9 @@
             let selectedMode = 'accent-on-bg-off'; // 기본값 (Mode 1)
             let customBackgroundColor = null;
 
-            // 체크박스가 선택되었는지 확인
-            const customBgCheckbox = document.getElementById('customBgCheckbox');
-            if (customBgCheckbox && customBgCheckbox.checked) {
+            const customBgPanel = document.getElementById('customBgPanel');
+            const useCustomBackground = customBgPanel && customBgPanel.classList.contains('expanded');
+            if (useCustomBackground) {
                 selectedMode = 'custom-background';
                 const customBgHex = document.getElementById('customBgHex');
                 if (customBgHex) {
@@ -2805,9 +3150,9 @@
                 }
             } else {
                 // 선택된 카드 확인
-                const selectedCard = document.querySelector('.bg-card.selected');
-                if (selectedCard) {
-                    selectedMode = selectedCard.dataset.mode;
+                const selectedSwatch = document.querySelector('.bg-swatch.selected');
+                if (selectedSwatch) {
+                    selectedMode = selectedSwatch.dataset.mode;
                 }
             }
 
@@ -2816,6 +3161,13 @@
                 currentTheme.applicationMode = selectedMode;
                 if (customBackgroundColor) {
                     currentTheme.customBackgroundColor = customBackgroundColor;
+                } else {
+                    delete currentTheme.customBackgroundColor;
+                }
+                if (selectedMode === 'custom-background' && customBackgroundTheme) {
+                    currentTheme.backgroundTheme = customBackgroundTheme;
+                } else {
+                    delete currentTheme.backgroundTheme;
                 }
             } else {
                 showMessage('먼저 테마를 생성해주세요!');
@@ -2829,10 +3181,19 @@
             console.log('- 테마 데이터:', currentTheme);
 
             // Figma로 테마 적용 메시지 전송 (성공/실패 스낵바는 message listener에서 처리)
+            const themeToApply = {
+                ...currentTheme,
+                applicationMode: selectedMode
+            };
+
+            if (selectedMode === 'custom-background' && customBackgroundTheme) {
+                themeToApply.backgroundTheme = customBackgroundTheme;
+            }
+
             parent.postMessage({
                 pluginMessage: {
                     type: 'apply-theme-colors-to-frame',
-                    theme: currentTheme
+                    theme: themeToApply
                 }
             }, '*');
 
@@ -3629,21 +3990,15 @@
             });
             
             // 슬라이딩 애니메이션을 위한 클래스 제거
-            tabNavigation.classList.remove('second-active', 'third-active');
-            
             if (tabName === 'generator') {
                 document.getElementById('generatorTab').classList.add('active');
                 document.getElementById('generatorContent').classList.add('active');
-                tabNavigation.classList.add('second-active');
             } else if (tabName === 'tone-matching') {
                 document.getElementById('toneMatchingTab').classList.add('active');
                 document.getElementById('toneMatchingContent').classList.add('active');
-                tabNavigation.classList.add('third-active');
             } else if (tabName === 'custom-theme') {
                 document.getElementById('customThemeTab').classList.add('active');
                 document.getElementById('customThemeContent').classList.add('active');
-                // 첫 번째 탭이므로 기본 위치 (클래스 추가 안 함)
-                
                 // Custom Theme 탭 전환 시 색상 동기화 리스너 다시 설정
                 setTimeout(() => {
                     setupWizardColorSync();
@@ -3692,6 +4047,7 @@
                         if (typeof updateRecommendedBackground === 'function') {
                             updateRecommendedBackground(initialColor);
                         }
+                        updateCustomBgHint();
                         // 최근 컬러 렌더링
                         renderRecentColors();
                     }, 100);
@@ -3724,6 +4080,7 @@
                 if (typeof updateRecommendedBackground === 'function') {
                     updateRecommendedBackground(newColorValue);
                 }
+                updateCustomBgHint();
                 
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
@@ -3750,6 +4107,7 @@
                     if (typeof updateRecommendedBackground === 'function') {
                         updateRecommendedBackground(hexValue);
                     }
+                    updateCustomBgHint();
                     
                 } else if (hexValue.length >= 3) { // 최소 3자리 이상일 때만 경고
                     console.warn('⚠️ Invalid hex format:', hexValue);
@@ -4193,12 +4551,25 @@ window.addEventListener('message', (event) => {
         function setReferenceColor() {
             var picker = document.getElementById('referenceColorPicker');
             var hex = document.getElementById('referenceColorHex');
-            
+            setReferenceColorFromHex(picker.value);
+            if (hex) {
+                hex.value = picker.value.toUpperCase();
+            }
+        }
+
+        function setReferenceColorFromHex(hexValue) {
+            if (!hexValue || !/^#[0-9A-F]{6}$/i.test(hexValue)) return;
+            var picker = document.getElementById('referenceColorPicker');
+            var hexInput = document.getElementById('referenceColorHex');
+            if (picker) picker.value = hexValue.toUpperCase();
+            if (hexInput) hexInput.value = hexValue.toUpperCase();
+
             referenceColor = {
-                hex: picker.value.toUpperCase(),
-                hsl: ColorUtils.hexToHsl(picker.value)
+                hex: hexValue.toUpperCase(),
+                hsl: ColorUtils.hexToHsl(hexValue)
             };
-            
+
+            addToneRecentColor(hexValue);
             updateReferenceDisplay();
             showMessage('기준 색상이 설정되었습니다!');
         }
@@ -4506,76 +4877,86 @@ window.addEventListener('message', (event) => {
             // Step 1 색상 입력 동기화
             setupWizardColorSync();
 
-            // Step 2 배경 카드 클릭 이벤트
-            document.querySelectorAll('.bg-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    // 모든 카드에서 selected 제거
-                    document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
-                    // 클릭된 카드에 selected 추가
-                    card.classList.add('selected');
-
-                    // 라디오 버튼 업데이트 - 모든 아이콘 숨기기
-                    document.querySelectorAll('.bg-radio-button').forEach(radio => {
-                        radio.classList.remove('selected');
-                    });
-                    document.querySelectorAll('.bg-card .radio-icon').forEach(icon => {
-                        icon.style.display = 'none';
-                    });
-
-                    const radioButton = card.querySelector('.bg-radio-button');
-                    const icon = card.querySelector('.radio-icon');
-                    if (radioButton) {
-                        radioButton.classList.add('selected');
-                        radioButton.checked = true;
-                        console.log('라디오 버튼 선택됨:', radioButton);
-                        console.log('아이콘 찾음:', icon);
-                        if (icon) {
-                            icon.style.display = 'block';
-                            icon.style.visibility = 'visible';
-                            icon.style.opacity = '1';
-                            console.log('아이콘 표시됨 - display:', icon.style.display);
-                        }
-                    }
-
-                    // 카드 선택 시 커스텀 체크 해제 및 입력 숨김 (상호 배타)
-                    const cb = document.getElementById('customBgCheckbox');
-                    const cbIcon = cb ? cb.nextElementSibling : null;
-                    if (cb) cb.checked = false;
-                    if (cbIcon) cbIcon.style.display = 'none';
-                    if (customBgColorContainer) customBgColorContainer.style.display = 'none';
-                });
-            });
-
-            // 체크박스 이벤트
-            const customBgCheckbox = document.getElementById('customBgCheckbox');
+            // Step 2 배경 아코디언/스와치 제어
+            const bgSwatches = document.querySelectorAll('.bg-swatch');
+            const recommendedToggle = document.getElementById('recommendedBgToggle');
+            const recommendedPanel = document.getElementById('recommendedBgPanel');
+            const customBgToggle = document.getElementById('customBgToggle');
+            const customBgPanel = document.getElementById('customBgPanel');
             const customBgColorContainer = document.getElementById('customBgColorContainer');
             const customBgColor = document.getElementById('customBgColor');
             const customBgHex = document.getElementById('customBgHex');
+            const customBgCreateBtn = document.getElementById('customBgCreateBtn');
 
-            if (customBgCheckbox) {
-                customBgCheckbox.addEventListener('change', (e) => {
-                    const icon = e.target.nextElementSibling;
-                    if (e.target.checked) {
-                        // 커스텀 활성화: 카드/라디오 선택 해제, 아이콘 숨김
-                        customBgColorContainer.style.display = 'block';
-                        document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
-                        document.querySelectorAll('.bg-radio-button').forEach(r => { r.classList.remove('selected'); r.checked = false; });
-                        document.querySelectorAll('.bg-card .radio-icon').forEach(i => { i.style.display = 'none'; });
-                        if (icon) icon.style.display = 'block';
+            const setAccordionState = (toggle, panel, expanded) => {
+                if (!toggle || !panel) return;
+                panel.classList.toggle('expanded', expanded);
+                panel.style.display = expanded ? 'block' : 'none';
+                toggle.classList.toggle('expanded', expanded);
+                toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            };
+
+            const openRecommendedAccordion = () => {
+                setAccordionState(recommendedToggle, recommendedPanel, true);
+                setAccordionState(customBgToggle, customBgPanel, false);
+                if (customBgColorContainer) customBgColorContainer.style.display = 'none';
+                customBackgroundTheme = null;
+                if (!document.querySelector('.bg-swatch.selected')) {
+                    const recDefault = document.getElementById('recommendedBgCard');
+                    if (recDefault) recDefault.classList.add('selected');
+                }
+                updateCustomBgHint();
+            };
+
+            const openCustomAccordion = () => {
+                setAccordionState(customBgToggle, customBgPanel, true);
+                setAccordionState(recommendedToggle, recommendedPanel, false);
+                bgSwatches.forEach(s => s.classList.remove('selected'));
+                if (customBgColorContainer) customBgColorContainer.style.display = 'block';
+                if (currentTheme) currentTheme.applicationMode = 'custom-background';
+                if (wizardThemeData) wizardThemeData.applicationMode = 'custom-background';
+                customBackgroundTheme = null;
+                updateCustomBgHint();
+            };
+
+            setAccordionState(recommendedToggle, recommendedPanel, true);
+            setAccordionState(customBgToggle, customBgPanel, false);
+            if (customBgColorContainer) customBgColorContainer.style.display = 'none';
+            openRecommendedAccordion();
+
+            bgSwatches.forEach(swatch => {
+                swatch.addEventListener('click', () => {
+                    openRecommendedAccordion();
+                    bgSwatches.forEach(s => s.classList.remove('selected'));
+                    swatch.classList.add('selected');
+                    if (currentTheme) {
+                        currentTheme.applicationMode = swatch.dataset.mode;
+                    }
+                    if (wizardThemeData) {
+                        wizardThemeData.applicationMode = swatch.dataset.mode;
+                    }
+                });
+            });
+
+            if (recommendedToggle) {
+                recommendedToggle.addEventListener('click', () => {
+                    const expanded = recommendedPanel.classList.contains('expanded');
+                    if (expanded) {
+                        setAccordionState(recommendedToggle, recommendedPanel, false);
                     } else {
-                        // 커스텀 비활성화: 추천 카드 기본 선택
-                        customBgColorContainer.style.display = 'none';
-                        if (icon) icon.style.display = 'none';
-                        const rec = document.getElementById('recommendedBgCard');
-                        const recRadio = document.getElementById('recommendedBgRadio');
-                        document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
-                        if (rec) rec.classList.add('selected');
-                        if (recRadio) { recRadio.classList.add('selected'); recRadio.checked = true; }
-                        document.querySelectorAll('.bg-card .radio-icon').forEach(i => { i.style.display = 'none'; });
-                        if (rec) {
-                            const recIcon = rec.querySelector('.radio-icon');
-                            if (recIcon) { recIcon.style.display = 'block'; recIcon.style.visibility = 'visible'; recIcon.style.opacity = '1'; }
-                        }
+                        openRecommendedAccordion();
+                    }
+                });
+            }
+
+            if (customBgToggle) {
+                customBgToggle.addEventListener('click', () => {
+                    const expanded = customBgPanel.classList.contains('expanded');
+                    if (expanded) {
+                        setAccordionState(customBgToggle, customBgPanel, false);
+                        openRecommendedAccordion();
+                    } else {
+                        openCustomAccordion();
                     }
                 });
             }
@@ -4593,6 +4974,10 @@ window.addEventListener('message', (event) => {
                         customBgColor.value = color;
                     }
                 });
+            }
+
+            if (customBgCreateBtn) {
+                customBgCreateBtn.addEventListener('click', createCustomBackgroundVariables);
             }
 
             // Mode 카드 클릭 이벤트
@@ -4676,8 +5061,15 @@ window.addEventListener('message', (event) => {
                 const themeFromMsg = msg?.theme || msg?.themeData || msg?.payload || null;
                 const semantics = msg?.semanticColors || themeFromMsg?.semanticColors || null;
                 if (!semantics) return;
-                if (!currentTheme) currentTheme = {};
-                currentTheme.semanticColors = semantics;
+
+                const targetName = themeFromMsg?.themeName || msg?.themeName || null;
+
+                if (targetName && customBackgroundTheme && customBackgroundTheme.themeName === targetName) {
+                    customBackgroundTheme.semanticColors = semantics;
+                } else {
+                    if (!currentTheme) currentTheme = {};
+                    currentTheme.semanticColors = semantics;
+                }
             } catch (e) {
                 console.warn('semanticColors 동기화 실패:', e);
             }
@@ -4703,7 +5095,10 @@ window.addEventListener('message', (event) => {
             setTimeout(() => {
                 setupWizardColorSync();
                 // 최근 컬러는 저장된 내역이 있으면 즉시 표시
-                try { renderRecentColors(); } catch {}
+                try {
+                    renderRecentColors();
+                    renderToneRecentColors();
+                } catch {}
             }, 200);
             
         }

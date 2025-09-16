@@ -2,7 +2,7 @@
 
 // UI 표시
 figma.showUI(__html__, { 
-  width: 360, 
+  width: 440, 
   height: 700,
   themeColors: true 
 });
@@ -292,6 +292,61 @@ function adjustStep(currentStep, adjustment) {
   return steps[newIndex];
 }
 
+function getHueBrightness(hue) {
+  if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑 (Yellow)
+  if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록 (Cyan)
+
+  if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록 (Yellow-Green to Green)
+  if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계 (Green-Cyan)
+  if (hue >= 30 && hue <= 50) return 'bright';          // 주황 (Orange)
+
+  if (hue >= 190 && hue <= 210) return 'medium';        // 청록-파랑 경계 (Cyan-Blue)
+  if (hue >= 20 && hue <= 30) return 'medium';          // 주황-빨강 경계
+
+  if (hue >= 210 && hue <= 240) return 'dark';          // 파랑 (Blue)
+  if (hue >= 240 && hue <= 300) return 'dark';          // 보라 (Purple/Violet)
+  if (hue >= 0 && hue <= 20 || hue >= 300) return 'dark'; // 빨강-자주 (Red-Magenta)
+
+  return 'medium';
+}
+
+function assessColorRange(closestStep, baseColor) {
+  var info = { isInherentlyBright: false, colorRange: 'medium' };
+
+  if (baseColor) {
+    var hsl = hexToHsl(baseColor);
+    var hue = hsl[0];
+    var lightness = hsl[2];
+    var hueBrightness = getHueBrightness(hue);
+
+    if (lightness >= 75) {
+      info.isInherentlyBright = true;
+    } else if (hueBrightness === 'very-bright' || hueBrightness === 'bright') {
+      info.isInherentlyBright = true;
+    }
+  }
+
+  if (info.isInherentlyBright) {
+    if (closestStep <= 400) {
+      info.colorRange = 'light';
+    } else if (closestStep >= 500 && closestStep <= 700) {
+      info.colorRange = 'medium';
+    } else {
+      info.colorRange = 'dark';
+    }
+  } else {
+    if (closestStep < 300) {
+      info.colorRange = 'light';
+    } else if (closestStep >= 300 && closestStep <= 700) {
+      info.colorRange = 'medium';
+    } else {
+      info.colorRange = 'dark';
+    }
+  }
+
+  return info;
+}
+
 // =====================================
 // 동적 매핑 함수들
 // =====================================
@@ -302,78 +357,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   
   console.log('[Backend] getDynamicMappings 호출됨 - closestStep:', closestStep, 'applicationMode:', applicationMode, 'baseColor:', baseColor);
   
-  // 1단계: Hue의 본질적 밝기 판단
-  function getHueBrightness(hue) {
-    // Hue 범위별 본질적 밝기 분류
-    
-    // 매우 밝은 색상군
-    if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑 (Yellow)
-    if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록 (Cyan)
-    
-    // 밝은 색상군  
-    if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록 (Yellow-Green to Green)
-    if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계 (Green-Cyan)
-    if (hue >= 30 && hue <= 50) return 'bright';          // 주황 (Orange)
-    
-    // 중간 색상군
-    if (hue >= 190 && hue <= 210) return 'medium';        // 청록-파랑 경계 (Cyan-Blue)
-    if (hue >= 20 && hue <= 30) return 'medium';          // 주황-빨강 경계
-    
-    // 어두운 색상군
-    if (hue >= 210 && hue <= 240) return 'dark';          // 파랑 (Blue)
-    if (hue >= 240 && hue <= 300) return 'dark';          // 보라 (Purple/Violet)
-    if (hue >= 0 && hue <= 20 || hue >= 300) return 'dark'; // 빨강-자주 (Red-Magenta)
-    
-    return 'medium'; // 기본값
-  }
-  
-  // 본질적 밝기 판단
-  var isInherentlyBright = false;
-  if (baseColor) {
-    var hsl = hexToHsl(baseColor);
-    var hue = hsl[0]; // Already in degrees
-    var saturation = hsl[1]; // Already in percentage
-    var lightness = hsl[2]; // Already in percentage
-    var hueBrightness = getHueBrightness(hue);
-    
-    
-    // 1) Lightness가 75% 이상이면 무조건 밝은 색상으로 분류
-    if (lightness >= 75) {
-      isInherentlyBright = true;
-    } 
-    // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
-    else {
-      // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
-      isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
-    }
-    
-  }
-  
-  // 2단계: 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
-  var colorRange;
+  var colorInfo = assessColorRange(closestStep, baseColor);
+  var isInherentlyBright = colorInfo.isInherentlyBright;
+  var colorRange = colorInfo.colorRange;
   
   console.log('[Backend] 본질적 밝기 판단 - isInherentlyBright:', isInherentlyBright);
-  
-  if (isInherentlyBright) {
-    // 태생이 밝은 색상
-    if (closestStep <= 400) {
-      colorRange = 'light';
-    } else if (closestStep >= 500 && closestStep <= 700) {
-      colorRange = 'medium';
-    } else {
-      colorRange = 'dark';  // 800-950
-    }
-  } else {
-    // 태생이 어두운 색상
-    if (closestStep < 300) {
-      colorRange = 'light';
-    } else if (closestStep >= 300 && closestStep <= 700) {
-      colorRange = 'medium';
-    } else {
-      colorRange = 'dark';  // 800-950
-    }
-  }
-  
   console.log('[Backend] 결정된 색상 범위 - colorRange:', colorRange, 'closestStep:', closestStep);
   
   
@@ -391,9 +379,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/primary'] = 'GRAY:50';
       mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
 
-      mappings['semantic/text/secondary'] = 'GRAY:300';
-      mappings['semantic/text/tertiary'] = 'GRAY:400';
-      mappings['semantic/text/disabled'] = 'GRAY:600';
+      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:600';
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '950';
@@ -933,6 +921,61 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   return mappings;
 }
 
+function getBackgroundStageOverrides(theme) {
+  if (!theme || !theme.scaleColors || !Array.isArray(theme.scaleColors.light) || theme.scaleColors.light.length === 0) return null;
+
+  var baseColor = theme.baseColor;
+  var themeName = theme.themeName;
+  if (!themeName) return null;
+
+  var baseHex = baseColor;
+  if (!baseHex && theme.scaleColors.light.length > 0) {
+    baseHex = theme.scaleColors.light[0].hex;
+  }
+
+  var closestStep = findClosestStep(theme.scaleColors.light, baseHex || '#FFFFFF');
+  var colorInfo = assessColorRange(closestStep, baseColor);
+  var colorRange = colorInfo.colorRange;
+  var overrides = {};
+
+  if (colorRange === 'light') {
+    overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/surface-contents'] = 'GRAY-ALPHA:150';
+    overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    overrides['semantic/border/divider-strong'] = 'GRAY:950';
+    overrides['semantic/border/line-selected'] = 'GRAY:950';
+    overrides['semantic/border/divider'] = 'GRAY-ALPHA:200';
+    overrides['semantic/border/line'] = 'GRAY-ALPHA:300';
+    overrides['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
+  } else if (colorRange === 'medium') {
+    overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
+    overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+    overrides['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
+    overrides['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
+  } else {
+    overrides['semantic/background/default'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
+    overrides['semantic/fill/silent'] = 'REF:' + themeName + closestStep;
+    overrides['semantic/fill/silent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+    overrides['semantic/fill/silent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+    overrides['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
+    overrides['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
+    overrides['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
+    overrides['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
+  }
+
+  return overrides;
+}
+
 
 // =====================================
 // 톤 매칭 함수
@@ -1232,16 +1275,32 @@ function calculateTokenColor(mappingValue, theme, mode) {
   
   if (mappingValue.startsWith('REF:')) {
     var refString = mappingValue.replace('REF:', '');
-    var step;
-    
-    if (refString.startsWith(theme.themeName)) {
-      var stepString = refString.substring(theme.themeName.length);
-      step = parseInt(stepString);
+    var refThemeName = theme.themeName;
+    var step = NaN;
+
+    if (/^\d+$/.test(refString)) {
+      step = parseInt(refString, 10);
     } else {
-      step = parseInt(refString);
+      var matchDigits = refString.match(/(\d{1,3})$/);
+      if (matchDigits) {
+        step = parseInt(matchDigits[1], 10);
+        var namePart = refString.slice(0, refString.length - matchDigits[1].length);
+        if (namePart) {
+          refThemeName = namePart.endsWith('-') ? namePart.slice(0, -1) : namePart;
+        }
+      }
     }
-    
-    var colorObj = scaleColors.find(function(c) { return c.step == step; });
+
+    if (isNaN(step)) return null;
+
+    var targetScale = scaleColors;
+    if (refThemeName !== theme.themeName && theme.backgroundTheme && theme.backgroundTheme.themeName === refThemeName) {
+      targetScale = (mode === 'light') ? theme.backgroundTheme.scaleColors.light : theme.backgroundTheme.scaleColors.dark;
+    }
+
+    if (!targetScale) return null;
+
+    var colorObj = targetScale.find(function(c) { return c.step == step; });
     return colorObj ? colorObj.hex : null;
   } 
   else if (mappingValue.startsWith('GRAY:')) {
@@ -1320,9 +1379,17 @@ async function handleApplyThemeColorsToFrame(msg) {
   var effectiveMode = (applicationMode === 'custom-background') ? 'accent-on-bg-off' : applicationMode;
   var mappings = getDynamicMappings(closestStep, theme.themeName, effectiveMode, theme.baseColor);
 
-  // 커스텀 배경 모드: 변수 생성 없이 배경만 특수 토큰으로 치환 (silent는 스킵)
-  if (applicationMode === 'custom-background' && theme.customBackgroundColor) {
-    mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+  if (applicationMode === 'custom-background') {
+    if (theme.backgroundTheme) {
+      var backgroundOverrides = getBackgroundStageOverrides(theme.backgroundTheme);
+      if (backgroundOverrides) {
+        Object.keys(backgroundOverrides).forEach(function(key) {
+          mappings[key] = backgroundOverrides[key];
+        });
+      }
+    } else if (theme.customBackgroundColor) {
+      mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+    }
   }
   console.log('[Backend] 생성된 매핑:', mappings);
   
@@ -1338,23 +1405,37 @@ async function handleApplyThemeColorsToFrame(msg) {
     
     if (mappingValue.startsWith('REF:')) {
       var refString = mappingValue.replace('REF:', '');
-      
-      var step;
-      
-      if (refString.startsWith(theme.themeName)) {
-        var stepString = refString.substring(theme.themeName.length);
-        step = parseInt(stepString);
+      var refThemeName = theme.themeName;
+      var step = NaN;
+
+      if (/^\d+$/.test(refString)) {
+        step = parseInt(refString, 10);
       } else {
-        step = parseInt(refString);
+        var matchDigits = refString.match(/(\d{1,3})$/);
+        if (matchDigits) {
+          step = parseInt(matchDigits[1], 10);
+          var namePart = refString.slice(0, refString.length - matchDigits[1].length);
+          if (namePart && namePart !== '') {
+            refThemeName = namePart;
+            if (refThemeName.endsWith('-')) {
+              refThemeName = refThemeName.slice(0, -1);
+            }
+          }
+        }
       }
-      
-      
-      if (step) {
-        var scaleVarName = 'scale/' + theme.themeName + '-' + step;
+
+      if (!isNaN(step)) {
+        var scaleVarName = 'scale/' + refThemeName + '-' + step;
         var foundVar = allVariables.find(function(v) {
           return v.name === scaleVarName && v.variableCollectionId === collection.id;
         });
-        return foundVar;
+        if (!foundVar && refThemeName !== theme.themeName) {
+          var fallbackVarName = 'scale/' + theme.themeName + '-' + step;
+          foundVar = allVariables.find(function(v) {
+            return v.name === fallbackVarName && v.variableCollectionId === collection.id;
+          });
+        }
+        return foundVar || null;
       }
     } else if (mappingValue.startsWith('GRAY:')) {
       var grayStep = parseInt(mappingValue.replace('GRAY:', ''));
