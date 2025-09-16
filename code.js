@@ -877,9 +877,10 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + '950';
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '900';
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '900';
+      // silent는 커스텀 배경 기반으로 UI에서 직접 계산하도록 특수 토큰 사용
+      mappings['semantic/fill/silent'] = 'CUSTOM_SILENT';
+      mappings['semantic/fill/silent-hover'] = 'CUSTOM_SILENT_HOVER';
+      mappings['semantic/fill/silent-pressed'] = 'CUSTOM_SILENT_PRESSED';
       
       mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, -2);
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -913,9 +914,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
       
-      mappings['semantic/fill/silent'] = 'REF:' + themeName + '100';
-      mappings['semantic/fill/silent-hover'] = 'REF:' + themeName + '150';
-      mappings['semantic/fill/silent-pressed'] = 'REF:' + themeName + '150';
+      mappings['semantic/fill/silent'] = 'CUSTOM_SILENT';
+      mappings['semantic/fill/silent-hover'] = 'CUSTOM_SILENT_HOVER';
+      mappings['semantic/fill/silent-pressed'] = 'CUSTOM_SILENT_PRESSED';
       
       mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
       mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -1297,6 +1298,9 @@ async function handleApplyThemeColorsToFrame(msg) {
   
   if (selection.length === 0) {
     figma.notify('Frame을 선택해주세요');
+    try {
+      figma.ui.postMessage({ type: 'error', message: 'Frame을 선택해주세요' });
+    } catch (e) {}
     return;
   }
   
@@ -1312,7 +1316,14 @@ async function handleApplyThemeColorsToFrame(msg) {
   var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
   console.log('[Backend] Closest step:', closestStep);
   
-  var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
+  // custom-background 선택 시, 매핑은 foreground 중심 로직을 사용하고 배경만 사용자 정의로 대체
+  var effectiveMode = (applicationMode === 'custom-background') ? 'accent-on-bg-off' : applicationMode;
+  var mappings = getDynamicMappings(closestStep, theme.themeName, effectiveMode, theme.baseColor);
+
+  // 커스텀 배경 모드: 변수 생성 없이 배경만 특수 토큰으로 치환 (silent는 스킵)
+  if (applicationMode === 'custom-background' && theme.customBackgroundColor) {
+    mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+  }
   console.log('[Backend] 생성된 매핑:', mappings);
   
   // 모든 변수 가져오기
@@ -1387,9 +1398,30 @@ async function handleApplyThemeColorsToFrame(msg) {
         return v.name === staticBlackVarName && v.variableCollectionId === collection.id;
       });
     } else if (mappingValue === 'CUSTOM_BACKGROUND') {
-      // Custom Background는 변수 대신 직접 색상값을 사용
-      console.log('[Backend] Custom Background 토큰 감지');
-      return 'CUSTOM_BACKGROUND';
+      // 배경 HEX에서 가장 가까운 스텝 변수 반환
+      if (!theme.customBackgroundColor) return null;
+      var nearest = findClosestStep(theme.scaleColors.light, theme.customBackgroundColor);
+      var varNameBg = 'scale/' + theme.themeName + '-' + nearest;
+      return allVariables.find(function(v){ return v.name === varNameBg && v.variableCollectionId === collection.id; }) || null;
+    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
+      // 배경 HEX를 기준으로 근접 스텝 변수로 매핑
+      if (!theme.customBackgroundColor) return null;
+      var bgHsl = hexToHsl(theme.customBackgroundColor);
+      var L = bgHsl[2];
+      var group = (L >= 80) ? 'light' : (L < 35 ? 'dark' : 'medium');
+      var delta;
+      if (group === 'light') {
+        delta = (mappingValue === 'CUSTOM_SILENT') ? -6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
+      } else if (group === 'medium') {
+        delta = (mappingValue === 'CUSTOM_SILENT') ? +6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
+      } else {
+        delta = (mappingValue === 'CUSTOM_SILENT') ? +8 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+      }
+      var adjL = Math.max(0, Math.min(100, L + delta));
+      var targetHex = hslToHex(bgHsl[0], bgHsl[1], adjL);
+      var nearestStep = findClosestStep(theme.scaleColors.light, targetHex);
+      var varName = 'scale/' + theme.themeName + '-' + nearestStep;
+      return allVariables.find(function(v){ return v.name === varName && v.variableCollectionId === collection.id; }) || null;
     }
     
     return null;
@@ -1486,6 +1518,27 @@ async function handleApplyThemeColorsToFrame(msg) {
                 node.fills = newFills;
                 appliedCount++;
                 
+              } else if ((newToken === 'CUSTOM_SILENT' || newToken === 'CUSTOM_SILENT_HOVER' || newToken === 'CUSTOM_SILENT_PRESSED') && theme.customBackgroundColor) {
+                // 커스텀 배경 명도에 따라 silent 계열 직접 계산
+                var hsl = hexToHsl(theme.customBackgroundColor);
+                var L = hsl[2];
+                var group = (L >= 80) ? 'light' : (L < 35 ? 'dark' : 'medium');
+                var delta;
+                if (group === 'light') {
+                  delta = (newToken === 'CUSTOM_SILENT') ? -6 : (newToken === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
+                } else if (group === 'medium') {
+                  delta = (newToken === 'CUSTOM_SILENT') ? +6 : (newToken === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
+                } else {
+                  delta = (newToken === 'CUSTOM_SILENT') ? +8 : (newToken === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+                }
+                var adjL = Math.max(0, Math.min(100, L + delta));
+                var outHex = hslToHex(hsl[0], hsl[1], adjL);
+                var outRgb = hexToFigmaRGB(outHex);
+                var newFills2 = node.fills.slice();
+                newFills2[f] = { type: 'SOLID', color: outRgb };
+                node.fills = newFills2;
+                appliedCount++;
+
               } else if (newToken) {
                 var fallbackColor = getFallbackColor(mappedValue);
                 
@@ -1605,6 +1658,15 @@ async function handleApplyThemeColorsToFrame(msg) {
   }
   
   figma.notify('테마 토큰이 ' + appliedCount + '개 요소에 적용되었어요!');
+  try {
+    figma.ui.postMessage({
+      type: 'custom-mode-applied',
+      success: true,
+      count: appliedCount,
+      cleared: 0,
+      modeName: applicationMode
+    });
+  } catch (e) {}
 }
 
 // Semantic 토큰을 프레임에 적용하는 핸들러 - handleApplyThemeColorsToFrame과 동일한 방식 사용
@@ -1672,7 +1734,13 @@ async function handleApplySemanticToFrame(msg) {
   
   // 동적 매핑 계산
   var closestStep = findClosestStep(theme.scaleColors.light, theme.baseColor);
-  var mappings = getDynamicMappings(closestStep, theme.themeName, applicationMode, theme.baseColor);
+  var effectiveMode2 = (applicationMode === 'custom-background') ? 'accent-on-bg-off' : applicationMode;
+  var mappings = getDynamicMappings(closestStep, theme.themeName, effectiveMode2, theme.baseColor);
+  
+  // 커스텀 배경 모드: 변수 생성 없이 배경만 특수 토큰으로 치환 (silent는 스킵)
+  if (applicationMode === 'custom-background' && theme.customBackgroundColor) {
+    mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+  }
   
   // 모든 변수 가져오기
   var allVariables = await figma.variables.getLocalVariablesAsync('COLOR');
@@ -1741,6 +1809,29 @@ async function handleApplySemanticToFrame(msg) {
       return allVariables.find(function(v) {
         return v.name === staticBlackVarName && v.variableCollectionId === collection.id;
       });
+    } else if (mappingValue === 'CUSTOM_BACKGROUND') {
+      if (!theme.customBackgroundColor) return null;
+      var nearestBg2 = findClosestStep(theme.scaleColors.light, theme.customBackgroundColor);
+      var varNameBg2 = 'scale/' + theme.themeName + '-' + nearestBg2;
+      return allVariables.find(function(v){ return v.name === varNameBg2 && v.variableCollectionId === collection.id; }) || null;
+    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
+      if (!theme.customBackgroundColor) return null;
+      var bgHsl2 = hexToHsl(theme.customBackgroundColor);
+      var L2 = bgHsl2[2];
+      var group2 = (L2 >= 80) ? 'light' : (L2 < 35 ? 'dark' : 'medium');
+      var delta2;
+      if (group2 === 'light') {
+        delta2 = (mappingValue === 'CUSTOM_SILENT') ? -6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
+      } else if (group2 === 'medium') {
+        delta2 = (mappingValue === 'CUSTOM_SILENT') ? +6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
+      } else {
+        delta2 = (mappingValue === 'CUSTOM_SILENT') ? +8 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+      }
+      var adjL2 = Math.max(0, Math.min(100, L2 + delta2));
+      var targetHex2 = hslToHex(bgHsl2[0], bgHsl2[1], adjL2);
+      var nearest2 = findClosestStep(theme.scaleColors.light, targetHex2);
+      var varName2 = 'scale/' + theme.themeName + '-' + nearest2;
+      return allVariables.find(function(v){ return v.name === varName2 && v.variableCollectionId === collection.id; }) || null;
     }
     
     return null;
@@ -1767,19 +1858,44 @@ async function handleApplySemanticToFrame(msg) {
             if (mappedValue) {
               var newToken = findTokenFromMapping(mappedValue);
               if (newToken) {
-                var newFills = node.fills.slice();
-                newFills[f] = {
-                  type: 'SOLID',
-                  boundVariables: {
-                    'color': {
-                      type: 'VARIABLE_ALIAS',
-                      id: newToken.id
-                    }
+                if (typeof newToken === 'string' && theme.customBackgroundColor && (newToken === 'CUSTOM_BACKGROUND' || newToken.indexOf('CUSTOM_SILENT') === 0)) {
+                  // Special direct-color handling
+                  if (newToken === 'CUSTOM_BACKGROUND') {
+                    var cRgb = hexToFigmaRGB(theme.customBackgroundColor);
+                    var nf = node.fills.slice();
+                    nf[f] = { type: 'SOLID', color: cRgb };
+                    node.fills = nf;
+                    appliedCount++;
+                  } else {
+                    var hslBg = hexToHsl(theme.customBackgroundColor);
+                    var Lb = hslBg[2];
+                    var grp = (Lb >= 80) ? 'light' : (Lb < 35 ? 'dark' : 'medium');
+                    var dlt;
+                    if (grp === 'light') dlt = (newToken === 'CUSTOM_SILENT') ? -6 : (newToken === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
+                    else if (grp === 'medium') dlt = (newToken === 'CUSTOM_SILENT') ? +6 : (newToken === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
+                    else dlt = (newToken === 'CUSTOM_SILENT') ? +8 : (newToken === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+                    var adj = Math.max(0, Math.min(100, Lb + dlt));
+                    var hx = hslToHex(hslBg[0], hslBg[1], adj);
+                    var rg = hexToFigmaRGB(hx);
+                    var nf2 = node.fills.slice();
+                    nf2[f] = { type: 'SOLID', color: rg };
+                    node.fills = nf2;
+                    appliedCount++;
                   }
-                };
-                node.fills = newFills;
-                
-                appliedCount++;
+                } else {
+                  var newFills = node.fills.slice();
+                  newFills[f] = {
+                    type: 'SOLID',
+                    boundVariables: {
+                      'color': {
+                        type: 'VARIABLE_ALIAS',
+                        id: newToken.id
+                      }
+                    }
+                  };
+                  node.fills = newFills;
+                  appliedCount++;
+                }
               } else {
               }
             } else {
@@ -2159,4 +2275,3 @@ setTimeout(function() {
     message: 'Plugin initialized successfully' 
   });
 }, 100);
-
