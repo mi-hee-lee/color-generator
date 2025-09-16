@@ -379,6 +379,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:900';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '950';
+      mappings['semantic-background-gradient-start'] = 'REF:' + themeName + '950';
+      mappings['semantic-background-gradient-end'] = 'REF:' + themeName + '950' + '-0%';
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -416,6 +418,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '100';
+      mappings['semantic-background-gradient-start'] = 'REF:' + themeName + '100';
+      mappings['semantic-background-gradient-end'] = 'REF:' + themeName + '100' + '-0%';
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -453,6 +457,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '100';
+      mappings['semantic-background-gradient-start'] = 'REF:' + themeName + '100';
+      mappings['semantic-background-gradient-end'] = 'REF:' + themeName + '100' + '-0%';
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
