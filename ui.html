@@ -34,16 +34,6 @@
             --primary-800: #1e40af;
             --primary-900: #1e3a8a;
             
-            /* Ruler v2 Colors */
-            --ruler-v2-scale-custom-theme-150: #dbeafe;
-            --ruler-v2-scale-custom-theme-500: #3b82f6;
-            --ruler-v2-scale-gray-50: #f9fafb;
-            --ruler-v2-scale-gray-800: #1f2937;
-            --ruler-v2-scale-gray-950: #030712;
-            --ruler-v2-semantic-border-line-selected: #3b82f6;
-            --ruler-v2-semantic-fill-primary: #3b82f6;
-            --ruler-v2-semantic-fill-surface-contents: #f1f5f9;
-            
             /* Typography */
             --body-1-regular-font-family: 'Bricolage Grotesque', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', Helvetica, Arial, sans-serif;
             --body-1-regular-font-size: 12px;
@@ -82,7 +72,6 @@
             max-width: 100%;
             background: var(--basicwhite);
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             margin: 0;
             box-sizing: border-box;
             overflow: visible;
@@ -95,7 +84,7 @@
             display: flex;
             flex-direction: row;
             align-items: flex-start;
-            padding: 0 16px;
+            padding: 0 8px 0 12px;
             gap: 16px;
             width: 100%;
             height: 40px;
@@ -114,8 +103,6 @@
             border: none;
             background: transparent;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-style: normal;
             font-weight: 400;
             font-size: 11px;
             line-height: 16px;
@@ -159,8 +146,8 @@
         }
 
         .tab-home-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
         }
 
         .tab-content {
@@ -195,9 +182,8 @@
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 8px;
             color: #333;
         }
 
@@ -211,11 +197,11 @@
             justify-content: flex-start;
             align-items: center;
             padding: 0px 0px 0px 8px; /* inner left padding */
-            gap: 8px;
 
             width: 100%;
             max-width: 100%;
             height: 32px;
+            gap: 8px;
 
             background: #FFFFFF; /* Basic/White */
             border: 1px solid rgba(0, 0, 0, 0.1); /* Special/Black 1 */
@@ -277,7 +263,6 @@
 
         .color-picker::-webkit-color-swatch {
             border: none;
-            border-radius: 4px;
         }
 
         /* Text (HEX) */
@@ -290,7 +275,6 @@
             border: none; /* sits inside bordered container */
             background: transparent;
             font-family: var(--body-1-regular-font-family);
-            font-style: normal;
             font-weight: 400;
             font-size: 11px;
             line-height: 16px;
@@ -299,31 +283,6 @@
         }
 
         .hex-input:focus { outline: none; }
-
-        .mode-buttons {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 6px 8px;
-            border: 1px solid var(--specialblack-1);
-            border-radius: 4px;
-            background: var(--basicwhite);
-            color: var(--basicblack-3);
-            font-size: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mode-btn.active {
-            background: var(--basicblack);
-            color: var(--basicwhite);
-            border-color: var(--basicblack);
-        }
 
         .action-btn {
             /* Layout */
@@ -344,7 +303,6 @@
             border-radius: 3px;
             cursor: pointer;
             transition: background-color 0.2s ease, color 0.2s ease;
-            margin-top: 2px;
 
             /* Typography */
             font-family: var(--body-1-semi-bold-font-family);
@@ -359,14 +317,17 @@
             color: rgba(0, 0, 0, 0.8);
         }
 
-        .btn-primary,
+        .btn-primary {
+            background: #000;
+            color: #fff;
+        }
         .btn-success {
             background: #18A0FB; /* Accent/Blue */
             color: #FFFFFF; /* Basic/White */
         }
 
-        .btn-primary:hover,
-        .btn-success:hover { background: #18A0FB; color: #FFFFFF; }
+        .btn-primary:hover { background: #CCC; color:#FFF; }
+        .btn-success:hover { background: #008be7; color: #FFFFFF; }
 
         .color-grid {
             flex-direction: column;
@@ -376,18 +337,16 @@
 
         .color-row {
             display: flex;
-            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             font-size: 10px;
         }
 
         .color-row.closest {
-            border: 2px solid #000000;
+            background-color: #18A0FB10;
         }
 
         .color-swatch {
-            width: 40px;
+            width: 64px;
             height: 28px;
             display: flex;
             align-items: center;
@@ -399,7 +358,6 @@
 
         .color-info {
             flex: 1;
-            background: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -494,7 +452,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 12Px;
+            gap: 8px;
 
         }
         
@@ -661,9 +619,6 @@
         }
         #customThemeContent #wizardStep1 .step-header .step-title,
         #customThemeContent #wizardStep2 .step-header .step-title {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
             color: #333;
             background: none;
             -webkit-background-clip: initial;
@@ -680,12 +635,13 @@
 
         .step-header {
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             padding: 0px;
         }
 
+        .section-title,
         .step-header .step-title {
-            font-size: 14px;
+            font-size: 13px;
             color: #1a202c;
             margin-bottom: 4px;
             font-weight: 600;
@@ -701,17 +657,12 @@
             margin: 0;
         }
 
-        .step-content {
-            margin-bottom: 0px;
-        }
-
 
         .input-group label {
             display: block;
             font-size: 11px;
             font-weight: 500;
             color: #333;
-            margin-bottom: 4px;
         }
 
         .color-preview {
@@ -1113,7 +1064,6 @@
             display: flex;
             justify-content: space-between;
             gap: 8px;
-            padding-top: 12px;
         }
 
         .step-actions button {
@@ -1177,7 +1127,7 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             font-size: 11px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             background: white;
             max-width: 100%;
             height: 32px;
@@ -1189,61 +1139,7 @@
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
 
-        /* Radio Button 스타일 */
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 8px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
 
-        .radio-option {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .radio-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-
-        .radio-option input[type="radio"] {
-            margin-top: 2px;
-        }
-
-        .radio-option.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
-            border-width: 2px;
-        }
-
-        .radio-content {
-            flex: 1;
-        }
-
-        .radio-label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 2px;
-            display: block;
-        }
-
-        .radio-hint {
-            font-size: 8px;
-            color: #666;
-            line-height: 1.3;
-        }
 
         .step-indicator {
             display: inline-block;
@@ -1251,7 +1147,6 @@
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
-            margin-left: 6px;
         }
 
         .step-light {
@@ -1421,8 +1316,6 @@
         .bg-accordion {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 12px;
         }
 
         .bg-accordion-toggle {
@@ -1441,11 +1334,6 @@
             font-size: 11px;
             font-weight: 400;
             color: rgba(0,0,0,0.8);
-        }
-
-        .bg-accordion-toggle:focus {
-            outline: 2px solid rgba(24, 160, 251, 0.4);
-            outline-offset: 2px;
         }
 
         .bg-accordion-title {
@@ -1474,7 +1362,7 @@
 
         .bg-accordion-panel {
             display: none;
-            padding-left: 8px;
+            padding-left: 24px;
         }
 
         .bg-accordion-panel.expanded {
@@ -1510,8 +1398,8 @@
         .bg-swatch::after {
             content: '';
             position: absolute;
-            inset: -3px;
-            border: 2.5px solid transparent;
+            inset: -2px;
+            border: 2px solid transparent;
             border-radius: 999px;
             pointer-events: none;
             transition: border-color 0.15s ease;
@@ -1662,9 +1550,6 @@
             color: #64748b;
         }
 
-        /* 커스텀 배경 컬러 입력 */
-        .custom-bg-color-input { padding-left: 0; }
-
         /* optional checkboard background for transparency preview (when using a custom swatch element) */
         .swatch-checkboard {
             position: relative;
@@ -1721,7 +1606,7 @@
             <div id="wizardStep1" class="wizard-step active">
                 <div class="step-header">
                     <div class="step-title">Step 1. Key Color 선택</div>
-                    <p>선택한 Key Color를 기반으로 완전한 semantic 토큰 시스템을 생성합니다.</p>
+                    <p>Theme을 구성할 주요 색상을 선택하세요.</p>
                 </div>
                 
                 <div class="step-content">
@@ -1739,7 +1624,7 @@
                         </div>
                         
                         <!-- 컬러 분류 표시 -->
-                        <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                        <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
                             <span id="wizardStepIndicator" class="step-indicator">Step: 500</span>
                             <span id="wizardClassificationBadge" class="classification-badge classification-medium">중간</span>
                         </div>
@@ -1759,7 +1644,7 @@
                 </div>
                 
                 <div class="step-actions">
-                    <button class="action-btn btn-success" onclick="goToStep(2)">변수 생성 후 계속</button>
+                    <button class="action-btn btn-success" style="margin-top:8px;" onclick="goToStep(2)">변수 생성 후 계속</button>
                 </div>
             </div>
 
@@ -1767,7 +1652,6 @@
             <div id="wizardStep2" class="wizard-step">
                 <div class="step-header">
                     <div class="step-title">Step 2. Background 선택</div>
-                    <p>선택한 Key Color에 맞는 Background를 선택하거나 직접 지정하세요.</p>
                 </div>
 
                 <div class="step-content">
@@ -1807,7 +1691,7 @@
                             <span class="bg-accordion-title">배경색 직접 입력하기</span>
                         </button>
                         <div class="bg-accordion-panel" id="customBgPanel">
-                            <div class="custom-bg-color-input" id="customBgColorContainer" style="margin-top: 12px;">
+                            <div class="custom-bg-color-input" id="customBgColorContainer">
                                 <div class="color-input-container">
                                     <input type="color" id="customBgColor" class="color-picker" value="#ff4800">
                                     <input type="text" id="customBgHex" class="hex-input" value="#FF4800" style="text-transform: uppercase;">
@@ -1819,8 +1703,9 @@
                     </div>
                 </div>
 
-                <div class="step-actions">
+                <div class="step-actions" style="display: block;">
                     <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
+                    <div style="padding: 8px; background: #18a0fb0c; text-align: center; font-size: 10px; color: #18A0FB; border-radius: 4px; margin-top: 8px;">Frame을 선택하고 적용하기 버튼을 클릭하세요.</div>
                     <button class="action-btn btn-success" onclick="applyCustomThemeWithBackground()">적용하기</button>
                 </div>
 
@@ -1977,7 +1862,10 @@
         <!-- Scale Generator 탭 부분 수정 -->
         <div id="generatorContent" class="tab-content">
             <div class="section">
+                <div class="step-header">
                 <div class="section-title">Base Color Input</div>
+                <p>팔레트를 생성할 색상을 입력하세요.</p>
+                </div>
                 <div class="color-input-group">
                     <input type="color" id="baseColor" class="color-picker" value="#ff4800">
                     <input type="text" id="hexInput" class="hex-input" value="#FF4800">
@@ -4845,11 +4733,11 @@ window.addEventListener('message', (event) => {
             var container = document.getElementById('toneMatchingResults');
             
             container.innerHTML = `
-                <div style="background: white; border: 2px solid #17a2b8; border-radius: 6px; padding: 12px; margin: 8px 0;">
-                    <h4 style="color: #17a2b8; margin-bottom: 8px; font-size: 11px;">🎨 Tone Matching Results</h4>
+                <div style="background: #18A0FB12; border-radius: 6px; padding: 12px; margin: 8px 0;">
+                    <h4 style="color: #18A0FB; font-size: 11px;">톤 매칭 결과</h4>
                     <p style="margin-bottom: 8px; font-size: 9px;">
                         Original: <strong>${originalHex.toUpperCase()}</strong><br>
-                        → Adjusted to match reference tone:
+                        색상을 선택하면 팔레트가 생성돼요.
                     </p>
                     
                     <div class="tone-suggestions">
@@ -4862,13 +4750,6 @@ window.addEventListener('message', (event) => {
                             </div>
                         `).join('')}
                     </div>
-                </div>
-                
-                <div class="info-box">
-                    <h5>💡 Tone Matching:</h5>
-                    <p>• 제안은 기준 색상의 톤과 매칭됩니다.<br>
-                    • 색상을 클릭하면 Scale Generator에 적용됩니다.<br>
-                    • 일관된 브랜드 톤으로 13단계 스케일 생성이 가능합니다.</p>
                 </div>
             `;
         }
