@@ -2027,6 +2027,24 @@
                 return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
             }
 
+            static getPerceptualLuminance(hex) {
+                const rgb = this.hexToRgb(hex);
+                if (!rgb) return 0;
+
+                const toLinear = (value) => {
+                    const normalized = value / 255;
+                    return normalized <= 0.03928
+                        ? normalized / 12.92
+                        : Math.pow((normalized + 0.055) / 1.055, 2.4);
+                };
+
+                const r = toLinear(rgb.r);
+                const g = toLinear(rgb.g);
+                const b = toLinear(rgb.b);
+
+                return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            }
+
             static hexToHsl(hex) {
                 var rgb = this.hexToRgb(hex);
                 return this.rgbToHsl(rgb.r / 255, rgb.g / 255, rgb.b / 255);
@@ -3630,20 +3648,54 @@
             return ColorUtils.hslToHex ? ColorUtils.hslToHex(hsl[0], reducedSaturation, lighterLightness) : hslToHex(hsl[0], reducedSaturation, lighterLightness);
         }
 
+        function evaluateHueBrightness(hue, saturation, lightness) {
+            if (saturation < 20) {
+                if (lightness >= 70) return 'very-bright';
+                if (lightness >= 50) return 'bright';
+                if (lightness >= 30) return 'medium';
+                return 'dark';
+            }
+
+            if (lightness >= 80) return 'very-bright';
+            if (lightness <= 20) return 'dark';
+
+            let base;
+            if ((hue >= 50 && hue <= 70) || (hue >= 170 && hue <= 190)) {
+                base = 'very-bright';
+            } else if ((hue >= 30 && hue <= 50) || (hue >= 70 && hue <= 170)) {
+                base = 'bright';
+            } else if ((hue >= 210 && hue <= 270) || (hue >= 0 && hue <= 20) || hue >= 300) {
+                base = 'dark';
+            } else {
+                base = 'medium';
+            }
+
+            if (saturation > 80) {
+                if (base === 'dark') base = 'medium';
+                else if (base === 'medium') base = 'bright';
+            } else if (saturation < 40) {
+                if (base === 'very-bright') base = 'bright';
+                else if (base === 'bright') base = 'medium';
+            }
+
+            if (lightness > 65 && base === 'medium') return 'bright';
+            if (lightness < 35 && base === 'medium') return 'dark';
+
+            return base;
+        }
+
         // 밝은 색상 판단 함수 (코드베이스의 isLightRange와 동일한 로직)
         function isLightColor(hex) {
             if (!hex || !hex.startsWith('#')) return false;
             
             const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
-            const lightness = hsl[2];
-            const hue = hsl[0];
-            
-            // 1) HSL 밝기 기준: 80% 이상
-            if (lightness >= 80) return true;
-            
-            // 2) BornBright 색상: Hue 40°-190° (노랑~청록 계열)
-            if (hue >= 40 && hue <= 190) return true;
-            
+            const luminance = ColorUtils.getPerceptualLuminance ? ColorUtils.getPerceptualLuminance(hex) : 0;
+            const hueBrightness = evaluateHueBrightness(hsl[0], hsl[1], hsl[2]);
+
+            if (luminance > 0.5) return true;
+            if (luminance > 0.3) {
+                return hueBrightness === 'very-bright' || hueBrightness === 'bright';
+            }
             return false;
         }
 
@@ -3654,12 +3706,15 @@
             const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
             const lightness = hsl[2];
             const hue = hsl[0];
-            const isLight = isLightColor(hex);
+            const luminance = ColorUtils.getPerceptualLuminance ? ColorUtils.getPerceptualLuminance(hex) : 0;
+            const hueBrightness = evaluateHueBrightness(hue, hsl[1], lightness);
+            const inherentlyBright = luminance > 0.5 || (luminance > 0.3 && (hueBrightness === 'very-bright' || hueBrightness === 'bright'));
+            const isLight = inherentlyBright;
             
             let reasons = [];
-            if (lightness >= 80) reasons.push(`밝기 ${Math.round(lightness)}%`);
-            if (hue >= 40 && hue <= 190) reasons.push('본질적 밝은 색상 (노랑~청록 계열)');
-            
+            reasons.push(`지각 밝기 ${(luminance * 100).toFixed(1)}%`);
+            reasons.push(`Hue 분류: ${hueBrightness}`);
+
             return {
                 isLight: isLight,
                 lightness: Math.round(lightness),
@@ -3887,64 +3942,39 @@
                 var hue = hsl[0];
                 var saturation = hsl[1];
                 var lightness = hsl[2];
-                
-                var isInherentlyBright = false;
-                
-                // Hue의 본질적 밝기 판단
-                function getHueBrightness(hue) {
-                    // 매우 밝은 색상군
-                    if (hue >= 50 && hue <= 70) return 'very-bright';     // 노랑
-                    if (hue >= 170 && hue <= 190) return 'very-bright';   // 청록
-                    
-                    // 밝은 색상군  
-                    if (hue >= 70 && hue <= 150) return 'bright';         // 연두-초록
-                    if (hue >= 150 && hue <= 170) return 'bright';        // 청록-초록 경계
-                    if (hue >= 30 && hue <= 50) return 'bright';          // 주황
-                    
-                    // 중간 색상군
-                    if (hue >= 0 && hue <= 30) return 'medium';           // 빨강
-                    if (hue >= 330 && hue <= 360) return 'medium';        // 빨강
-                    if (hue >= 190 && hue <= 250) return 'medium';        // 파랑
-                    
-                    // 어두운 색상군
-                    return 'dark';  // 보라 (250-330)
-                }
-                
-                if (saturation < 20) {
-                    // 회색조는 lightness로만 판단
-                    isInherentlyBright = (lightness >= 50);
+                var luminance = ColorUtils.getPerceptualLuminance ? ColorUtils.getPerceptualLuminance(baseHex) : 0;
+                var hueBrightness = evaluateHueBrightness(hue, saturation, lightness);
+
+                var isInherentlyBright;
+                if (luminance > 0.5) {
+                    isInherentlyBright = true;
+                } else if (luminance > 0.3) {
+                    isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
                 } else {
-                    if (lightness >= 75) {
-                        isInherentlyBright = true;
-                    } else {
-                        var hueBrightness = getHueBrightness(hue);
-                        isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
-                    }
+                    isInherentlyBright = false;
                 }
-                
-                // 색상 범위 결정
+
                 var colorRange;
                 if (isInherentlyBright) {
-                    // 태생이 밝은 색상
                     if (closestStep <= 400) {
                         colorRange = 'light';
                     } else if (closestStep >= 500 && closestStep <= 700) {
                         colorRange = 'medium';
+                    } else if (closestStep > 700) {
+                        colorRange = 'dark';
                     } else {
-                        colorRange = 'dark';  // 800-950
+                        colorRange = 'light';
                     }
                 } else {
-                    // 태생이 어두운 색상
                     if (closestStep < 300) {
                         colorRange = 'light';
                     } else if (closestStep >= 300 && closestStep <= 700) {
                         colorRange = 'medium';
                     } else {
-                        colorRange = 'dark';  // 800-950
+                        colorRange = 'dark';
                     }
                 }
-                
-                
+
                 return colorRange;
             }
         }

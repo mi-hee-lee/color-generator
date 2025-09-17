@@ -311,57 +311,104 @@ function adjustStep(currentStep, adjustment) {
   return steps[newIndex];
 }
 
-function getHueBrightness(hue) {
-  // UI와 동일한 Hue 기반 본질적 밝기 분류
-  if (hue >= 50 && hue <= 70) return 'very-bright';      // Yellow
-  if (hue >= 170 && hue <= 190) return 'very-bright';    // Cyan
+function getPerceptualLuminance(hex) {
+  var rgb = hexToRgb(hex);
+  if (!rgb) return 0;
 
-  if (hue >= 70 && hue <= 150) return 'bright';          // Yellow-Green to Green
-  if (hue >= 150 && hue <= 170) return 'bright';         // Green-Cyan boundary
-  if (hue >= 30 && hue <= 50) return 'bright';           // Orange
+  function toLinear(value) {
+    var normalized = value / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  }
 
-  if (hue >= 190 && hue <= 210) return 'medium';         // Cyan-Blue boundary
-  if (hue >= 20 && hue <= 30) return 'medium';           // Orange-Red boundary
+  var r = toLinear(rgb.r);
+  var g = toLinear(rgb.g);
+  var b = toLinear(rgb.b);
 
-  if (hue >= 210 && hue <= 240) return 'dark';           // Blue
-  if (hue >= 240 && hue <= 300) return 'dark';           // Purple/Violet
-  if ((hue >= 0 && hue <= 20) || hue >= 300) return 'dark'; // Red-Magenta
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
 
-  return 'medium';
+function getHueBrightness(hue, saturation, lightness) {
+  if (saturation < 20) {
+    if (lightness >= 70) return 'very-bright';
+    if (lightness >= 50) return 'bright';
+    if (lightness >= 30) return 'medium';
+    return 'dark';
+  }
+
+  if (lightness >= 80) return 'very-bright';
+  if (lightness <= 20) return 'dark';
+
+  var base;
+
+  if ((hue >= 50 && hue <= 70) || (hue >= 170 && hue <= 190)) {
+    base = 'very-bright';
+  } else if ((hue >= 30 && hue <= 50) || (hue >= 70 && hue <= 170)) {
+    base = 'bright';
+  } else if ((hue >= 210 && hue <= 270) || (hue >= 0 && hue <= 20) || hue >= 300) {
+    base = 'dark';
+  } else {
+    base = 'medium';
+  }
+
+  if (saturation > 80) {
+    if (base === 'dark') base = 'medium';
+    else if (base === 'medium') base = 'bright';
+  } else if (saturation < 40) {
+    if (base === 'very-bright') base = 'bright';
+    else if (base === 'bright') base = 'medium';
+  }
+
+  if (lightness > 65 && base === 'medium') return 'bright';
+  if (lightness < 35 && base === 'medium') return 'dark';
+
+  return base;
 }
 
 function assessColorRange(closestStep, baseColor) {
-  var info = { isInherentlyBright: false, colorRange: 'medium' };
+  var info = {
+    isInherentlyBright: false,
+    colorRange: 'medium',
+    luminance: 0,
+    hueBrightness: 'medium'
+  };
+
+  if (!baseColor) {
+    return info;
+  }
+
+  var hsl = hexToHsl(baseColor);
+  var hue = hsl[0];
+  var saturation = hsl[1];
+  var lightness = hsl[2];
+  var luminance = getPerceptualLuminance(baseColor);
+  var hueBrightness = getHueBrightness(hue, saturation, lightness);
+
+  info.luminance = luminance;
+  info.hueBrightness = hueBrightness;
 
   var isInherentlyBright = false;
 
-  if (baseColor) {
-    var hsl = hexToHsl(baseColor);
-    var hue = hsl[0];
-    var saturation = hsl[1];
-    var lightness = hsl[2];
-    var hueBrightness = getHueBrightness(hue);
-
-    if (saturation < 20) {
-      // 회색조는 명도로만 판단
-      isInherentlyBright = (lightness >= 50);
-    } else if (lightness >= 75) {
-      isInherentlyBright = true;
-    } else {
-      isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
-    }
+  if (luminance > 0.5) {
+    isInherentlyBright = true;
+  } else if (luminance > 0.3) {
+    isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
+  } else {
+    isInherentlyBright = false;
   }
 
   info.isInherentlyBright = isInherentlyBright;
 
-  // UI의 getColorRangeFromStep와 동일한 범위 결정 로직
   if (isInherentlyBright) {
     if (closestStep <= 400) {
       info.colorRange = 'light';
     } else if (closestStep >= 500 && closestStep <= 700) {
       info.colorRange = 'medium';
-    } else {
+    } else if (closestStep > 700) {
       info.colorRange = 'dark';
+    } else {
+      info.colorRange = 'light';
     }
   } else {
     if (closestStep < 300) {
