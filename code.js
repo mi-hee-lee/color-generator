@@ -2,7 +2,7 @@
 
 // UI 표시
 figma.showUI(__html__, { 
-  width: 440, 
+  width: 360, 
   height: 700,
   themeColors: true 
 });
@@ -152,6 +152,25 @@ function hexToFigmaRGB(hex) {
     g: parseInt(result[2], 16) / 255,
     b: parseInt(result[3], 16) / 255
   };
+}
+
+function figmaRGBComponentTo255(value) {
+  if (typeof value !== 'number' || isNaN(value)) return 0;
+  if (value > 1) {
+    return Math.max(0, Math.min(255, Math.round(value)));
+  }
+  return Math.max(0, Math.min(255, Math.round(value * 255)));
+}
+
+function figmaRGBToHex(color) {
+  if (!color) return '#000000';
+  var r = figmaRGBComponentTo255(color.r);
+  var g = figmaRGBComponentTo255(color.g);
+  var b = figmaRGBComponentTo255(color.b);
+  return '#' + [r, g, b].map(function(component) {
+    var hex = component.toString(16).toUpperCase();
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
 }
 
 // HSL 변환 함수들
@@ -2309,6 +2328,58 @@ figma.ui.onmessage = async function(msg) {
       await handleAnnotationControl(msg);
     } else if (msg.type === 'check-frame-selection') {
       await handleCheckFrameSelection(msg);
+    } else if (msg.type === 'activate-eyedropper') {
+      if (typeof figma.pickColorAsync !== 'function') {
+        figma.ui.postMessage({
+          type: 'eyedropper-error',
+          targetId: msg.targetId,
+          message: 'pickColorAsync is not supported in this Figma version.'
+        });
+        return;
+      }
+
+      try {
+        var pickedOptions = null;
+        if (msg.currentColor && /^#[0-9A-F]{6}$/i.test(msg.currentColor)) {
+          pickedOptions = {
+            color: hexToFigmaRGB(msg.currentColor),
+            mode: 'RGB'
+          };
+        }
+
+        var pickResult = pickedOptions ? await figma.pickColorAsync(pickedOptions) : await figma.pickColorAsync();
+        if (!pickResult) {
+          figma.ui.postMessage({
+            type: 'eyedropper-cancelled',
+            targetId: msg.targetId
+          });
+          return;
+        }
+
+        var pickedColor = pickResult.color || pickResult;
+        var opacity = typeof pickResult.opacity === 'number'
+          ? pickResult.opacity
+          : (typeof pickedColor.a === 'number' ? pickedColor.a : 1);
+
+        figma.ui.postMessage({
+          type: 'eyedropper-picked',
+          targetId: msg.targetId,
+          hex: figmaRGBToHex(pickedColor),
+          rgba: {
+            r: pickedColor.r,
+            g: pickedColor.g,
+            b: pickedColor.b,
+            a: opacity
+          }
+        });
+      } catch (error) {
+        console.error('pickColorAsync error:', error);
+        figma.ui.postMessage({
+          type: 'eyedropper-error',
+          targetId: msg.targetId,
+          message: error && error.message ? error.message : String(error)
+        });
+      }
     }
   } catch (error) {
     console.error('Error handling message:', error);
@@ -2324,6 +2395,7 @@ figma.ui.onmessage = async function(msg) {
 setTimeout(function() {
   figma.ui.postMessage({ 
     type: 'plugin-ready', 
-    message: 'Plugin initialized successfully' 
+    message: 'Plugin initialized successfully',
+    eyedropperSupported: typeof figma.pickColorAsync === 'function'
   });
 }, 100);

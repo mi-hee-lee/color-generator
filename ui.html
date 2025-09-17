@@ -1571,6 +1571,97 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
+        /* UI Preview Card */
+        .ui-preview-section {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ui-preview-title-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .ui-preview-card {
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .ui-preview-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ui-preview-badge {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(59,130,246,0.15);
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        .ui-preview-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ui-preview-primary-text {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .ui-preview-secondary-text {
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .ui-preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ui-preview-btn {
+            flex: 0 0 auto;
+            min-width: 92px;
+            height: 30px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .ui-preview-btn.primary {
+            border: none;
+            color: #ffffff;
+        }
+
+        .ui-preview-btn.secondary {
+            background: transparent;
+            border: 1px solid rgba(59,130,246,0.4);
+            color: #1d4ed8;
+        }
+
+        .ui-preview-hint {
+            font-size: 10px;
+            color: #64748b;
+        }
+
         /* 커스텀 배경 컬러 입력 */
         .custom-bg-color-input { padding-left: 0; }
 
@@ -1731,6 +1822,25 @@
                 <div class="step-actions">
                     <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
                     <button class="action-btn btn-success" onclick="applyCustomThemeWithBackground()">적용하기</button>
+                </div>
+
+                <div class="ui-preview-section" style="display: none;">
+                    <div class="ui-preview-title-label">미리보기</div>
+                    <div id="themePreviewContainer" class="ui-preview-card">
+                        <div class="ui-preview-card-header">
+                            <span>UI Preview</span>
+                            <span class="ui-preview-badge">New</span>
+                        </div>
+                        <div class="ui-preview-body">
+                            <div class="ui-preview-primary-text">Primary text content</div>
+                            <div class="ui-preview-secondary-text">Step 2에서 테마를 생성하면 이곳에서 미리보기 색상을 확인할 수 있어요.</div>
+                        </div>
+                        <div class="ui-preview-actions">
+                            <button class="ui-preview-btn primary" type="button">Action</button>
+                            <button class="ui-preview-btn secondary" type="button">Cancel</button>
+                        </div>
+                    </div>
+                    <div class="ui-preview-hint" id="uiPreviewHint">현재 선택된 모드에 맞춰 기본 프리뷰를 표시하고 있어요.</div>
                 </div>
             </div>
 
@@ -2002,6 +2112,10 @@
         let currentTheme = null;
         let customBackgroundTheme = null;
         let recommendedSelection = { type: 'mode', value: 'accent-on-bg-fixed', step: null };
+        let eyedropperState = { active: false, targetId: null };
+        let eyedropperSupported = false;
+        const EYEDROPPER_PROMPT_MESSAGE = '스포이드 모드: 캔버스에서 색상을 선택하세요!';
+        const EYEDROPPER_CANCEL_MESSAGE = '스포이드가 취소되었습니다.';
 
         function normalizeThemeName(name) {
             if (!name) return '';
@@ -2933,6 +3047,8 @@
                 }
                 console.log('기본 모드 선택됨:', modeAttr);
             }
+
+            displayThemePreview(currentTheme);
         }
 
         function renderRecommendedExtras(baseStep, steps) {
@@ -4025,6 +4141,7 @@
                         updateCustomBgHint();
                         // 최근 컬러 렌더링
                         renderRecentColors();
+                        displayThemePreview(currentTheme);
                     }, 100);
                 }
                 
@@ -4056,6 +4173,7 @@
                     updateRecommendedBackground(newColorValue);
                 }
                 updateCustomBgHint();
+                displayThemePreview(currentTheme);
                 
             } else {
                 console.error('❌ Elements not found in handleColorPickerChange');
@@ -4083,6 +4201,7 @@
                         updateRecommendedBackground(hexValue);
                     }
                     updateCustomBgHint();
+                    displayThemePreview(currentTheme);
                     
                 } else if (hexValue.length >= 3) { // 최소 3자리 이상일 때만 경고
                     console.warn('⚠️ Invalid hex format:', hexValue);
@@ -4289,39 +4408,168 @@
             showMessage(`${themeName} 테마가 생성되었습니다!`);
         }
 
-            function displayThemePreview(theme) {
-                var container = document.getElementById('themePreviewContainer');
-                
-                let modeDescription = '';
-                if (theme.applicationMode === 'accent-on-bg-off') {
-                    modeDescription = 'Mode 1: 강조 요소 ON / 배경 요소 OFF';
-                } else if (theme.applicationMode === 'accent-on-bg-fixed') {
-                    modeDescription = 'Mode 2: 강조 요소 ON / 배경 Light 고정';
-                } else if (theme.applicationMode === 'accent-on-bg-black') {
-                    modeDescription = 'Mode 3: 강조 요소 ON / 배경 Dark 고정';
-                } else if (theme.applicationMode === 'custom-background') {
-                    modeDescription = 'Custom Background Mode';
-                }
-                
-                container.innerHTML = `
-                    <div style="background: #e8f5e8; border: 1px solid #d4edda; border-radius: 4px; padding: 8px; margin-top: 8px;">
-                        <p style="font-size: 10px; color: #155724; margin: 0;">
-                            <strong>적용된 Mode:</strong> ${modeDescription}<br>
-                            <strong>Closest Step:</strong> Light: ${theme.selectedStep || 'N/A'}, Dark: ${theme.selectedStep || 'N/A'}
-                        </p>
-                    </div>
-                    
-                    <button class="action-btn btn-success" onclick="createCustomThemeVariables()">
-                        모든 테마 변수 생성
-                    </button>
-                    
-                    <div style="margin-top: 8px;">
-                        <button class="action-btn btn-secondary" onclick="applyCustomMode('CustomLight')" style="width: 100%;">
-                            Custom Theme 적용하기
-                        </button>
-                    </div>
-                `;
+        function displayThemePreview(theme) {
+            const container = document.getElementById('themePreviewContainer');
+            const hint = document.getElementById('uiPreviewHint');
+            if (!container) return;
+
+            const baseColorInput = document.getElementById('wizardThemeBaseHex');
+            const baseColor = (theme && theme.baseColor) || (baseColorInput ? baseColorInput.value : null) || '#3B82F6';
+
+            const previewSelection = getPreviewSelection(theme);
+            const tokens = buildUIPreviewTokens(baseColor, previewSelection, theme);
+
+            const titleEl = container.querySelector('.ui-preview-card-header span:first-child');
+            const badgeEl = container.querySelector('.ui-preview-badge');
+            const primaryTextEl = container.querySelector('.ui-preview-primary-text');
+            const secondaryTextEl = container.querySelector('.ui-preview-secondary-text');
+            const actionBtn = container.querySelector('.ui-preview-btn.primary');
+            const cancelBtn = container.querySelector('.ui-preview-btn.secondary');
+
+            container.style.background = tokens.background;
+            container.style.color = tokens.textPrimary;
+            container.style.borderColor = convertToBorderColor(tokens.background);
+
+            if (titleEl) {
+                titleEl.textContent = 'UI Preview';
             }
+
+            if (badgeEl) {
+                badgeEl.style.backgroundColor = applyAlpha(tokens.fillPrimary, 0.18);
+                badgeEl.style.color = tokens.fillPrimary;
+            }
+
+            const secondaryColor = applyAlpha(tokens.textPrimary, 0.65);
+
+            if (primaryTextEl) {
+                primaryTextEl.textContent = 'Primary text content';
+                primaryTextEl.style.color = tokens.textPrimary;
+            }
+
+            if (secondaryTextEl) {
+                secondaryTextEl.textContent = 'Secondary description text';
+                secondaryTextEl.style.color = secondaryColor;
+            }
+
+            if (actionBtn) {
+                actionBtn.style.backgroundColor = tokens.fillPrimary;
+                actionBtn.style.color = getContrastTextColor(tokens.fillPrimary);
+                actionBtn.style.boxShadow = '0 4px 10px rgba(15,23,42,0.18)';
+            }
+
+            if (cancelBtn) {
+                cancelBtn.style.borderColor = applyAlpha(tokens.fillPrimary, 0.65);
+                cancelBtn.style.color = tokens.fillPrimary;
+                cancelBtn.style.backgroundColor = tokens.fillSurfaceContents;
+            }
+
+            if (hint) {
+                hint.textContent = getModeDescription(previewSelection);
+            }
+        }
+
+        function getPreviewSelection(theme) {
+            const customBgPanel = document.getElementById('customBgPanel');
+            const customBgHex = document.getElementById('customBgHex');
+            if (customBgPanel && customBgPanel.classList.contains('expanded')) {
+                const customColorRaw = customBgHex ? customBgHex.value.trim() : '';
+                const customColor = /^#[0-9A-F]{6}$/i.test(customColorRaw) ? customColorRaw.toUpperCase() : null;
+                return { mode: 'custom-background', customColor: customColor };
+            }
+
+            const selectedSwatch = document.querySelector('.bg-swatch.selected');
+            if (selectedSwatch) {
+                const modeAttr = selectedSwatch.dataset.mode || 'accent-on-bg-off';
+                const stepAttr = selectedSwatch.dataset.step;
+                const step = stepAttr ? parseInt(stepAttr, 10) : null;
+                const backgroundColor = (step && theme) ? getColorHexForStep(step) : null;
+                return { mode: modeAttr, step: step, backgroundColor: backgroundColor };
+            }
+
+            const fallbackMode = (theme && theme.applicationMode) ? theme.applicationMode : 'accent-on-bg-off';
+            return { mode: fallbackMode };
+        }
+
+        function buildUIPreviewTokens(baseColor, selection, theme) {
+            const mode = selection.mode || 'accent-on-bg-off';
+            const baseMode = mode === 'custom-background' ? 'accent-on-bg-off' : mode;
+
+            let tokens = calculatePreviewTokensForMode(baseColor, baseMode) || calculateBasicPreviewTokens(baseColor, baseMode);
+            if (!tokens) {
+                tokens = {
+                    background: '#f5f6f8',
+                    textPrimary: '#1f2937',
+                    fillPrimary: baseColor,
+                    fillSurfaceContents: '#ffffff'
+                };
+            }
+
+            if (mode === 'custom-background') {
+                const customColor = selection.customColor || (theme && theme.customBackgroundColor) || tokens.background;
+                if (customColor) {
+                    tokens.background = customColor;
+                    tokens.textPrimary = getContrastTextColor(customColor);
+                    const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(customColor) : hexToHsl(customColor);
+                    const offset = tokens.textPrimary === '#000000' ? -12 : 18;
+                    const adjusted = Math.max(4, Math.min(hsl[2] + offset, 96));
+                    tokens.fillSurfaceContents = adjustColorLightness(customColor, adjusted);
+                }
+            } else if (selection.backgroundColor) {
+                const bg = selection.backgroundColor;
+                tokens.background = bg;
+                tokens.textPrimary = getContrastTextColor(bg);
+                const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(bg) : hexToHsl(bg);
+                const offset = tokens.textPrimary === '#000000' ? -12 : 18;
+                const adjusted = Math.max(4, Math.min(hsl[2] + offset, 96));
+                tokens.fillSurfaceContents = adjustColorLightness(bg, adjusted);
+            }
+
+            tokens.fillPrimary = tokens.fillPrimary || baseColor;
+            if (!tokens.fillSurfaceContents) {
+                tokens.fillSurfaceContents = applyAlpha(tokens.textPrimary, 0.08);
+            }
+            tokens.textPrimary = tokens.textPrimary || '#1f2937';
+
+            return tokens;
+        }
+
+        function getModeDescription(selection) {
+            switch (selection.mode) {
+                case 'accent-on-bg-fixed':
+                    return '화이트 배경에 맞춘 미리보기를 표시하고 있어요.';
+                case 'accent-on-bg-black':
+                    return '다크 배경 모드 미리보기예요.';
+                case 'custom-background':
+                    return selection.customColor ? `커스텀 배경 (${selection.customColor}) 기준 미리보기예요.` : '커스텀 배경 미리보기예요.';
+                default:
+                    return '컬러 배경 모드 미리보기를 표시하고 있어요.';
+            }
+        }
+
+        function convertToBorderColor(backgroundHex) {
+            try {
+                const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(backgroundHex) : hexToHsl(backgroundHex);
+                const lightness = hsl[2];
+                const borderLightness = lightness > 50 ? lightness - 12 : lightness + 12;
+                const adjusted = Math.max(6, Math.min(borderLightness, 88));
+                return ColorUtils.hslToHex ? ColorUtils.hslToHex(hsl[0], Math.min(hsl[1], 25), adjusted) : backgroundHex;
+            } catch (e) {
+                return 'rgba(15,23,42,0.08)';
+            }
+        }
+
+        function applyAlpha(color, alpha) {
+            if (!color) return `rgba(15,23,42, ${Math.min(Math.max(alpha || 0.1, 0), 1)})`;
+            if (color.startsWith('rgba') || color.startsWith('rgb')) {
+                return color;
+            }
+            if (!/^#[0-9A-F]{6}$/i.test(color) || !ColorUtils.hexToRgb) {
+                return color;
+            }
+            const rgb = ColorUtils.hexToRgb(color);
+            const safeAlpha = Math.min(Math.max(alpha || 0.1, 0), 1);
+            return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${safeAlpha})`;
+        }
 
         function createCustomThemeVariables() {
             if (!currentTheme) {
@@ -4648,6 +4896,109 @@ window.addEventListener('message', (event) => {
             }
         }
 
+        function finishEyedropperSession() {
+            eyedropperState.active = false;
+            eyedropperState.targetId = null;
+        }
+
+        function startEyedropperForPicker(picker) {
+            if (!eyedropperSupported) return;
+            if (!picker || !picker.id) return;
+            if (eyedropperState.active) return;
+
+            eyedropperState = { active: true, targetId: picker.id };
+
+            if (typeof picker.blur === 'function') {
+                picker.blur();
+            }
+
+            const currentValue = picker.value && /^#[0-9A-F]{6}$/i.test(picker.value)
+                ? picker.value.toUpperCase()
+                : null;
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'activate-eyedropper',
+                    targetId: picker.id,
+                    currentColor: currentValue
+                }
+            }, '*');
+
+            showMessage(EYEDROPPER_PROMPT_MESSAGE);
+        }
+
+        function attachEyedropperToPicker(picker) {
+            if (!picker || picker.dataset.eyedropperBound === 'true') return;
+
+            const handlePointerDown = (event) => {
+                if (event.button !== undefined && event.button !== 0) return;
+                event.preventDefault();
+                event.stopPropagation();
+                if (!eyedropperState.active) {
+                    startEyedropperForPicker(picker);
+                }
+            };
+
+            const suppressClick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            };
+
+            const handleKeyDown = (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                event.stopPropagation();
+                if (!eyedropperState.active) {
+                    startEyedropperForPicker(picker);
+                }
+            };
+
+            picker.addEventListener('pointerdown', handlePointerDown);
+            picker.addEventListener('click', suppressClick);
+            picker.addEventListener('keydown', handleKeyDown);
+
+            picker.dataset.eyedropperBound = 'true';
+        }
+
+        function setupEyedropperTriggers() {
+            if (!eyedropperSupported) return;
+            document.querySelectorAll('input.color-picker').forEach(attachEyedropperToPicker);
+        }
+
+        function applyEyedropperResult(targetId, hex, rgba) {
+            finishEyedropperSession();
+
+            if (!targetId || !hex) return;
+
+            const picker = document.getElementById(targetId);
+            if (!picker) {
+                console.warn('Eyedropper target not found:', targetId);
+                return;
+            }
+
+            const normalizedHex = hex.toUpperCase();
+            picker.value = normalizedHex;
+
+            picker.dispatchEvent(new Event('input', { bubbles: true }));
+            picker.dispatchEvent(new Event('change', { bubbles: true }));
+
+            showMessage(`스포이드 색상이 적용되었습니다: ${normalizedHex}`);
+        }
+
+        function handleEyedropperCancelled() {
+            finishEyedropperSession();
+            showMessage(EYEDROPPER_CANCEL_MESSAGE);
+        }
+
+        function handleEyedropperError(message) {
+            finishEyedropperSession();
+            console.error('Eyedropper error:', message);
+            if (message && message.toLowerCase().includes('not supported')) {
+                eyedropperSupported = false;
+            }
+            showMessage(message || '스포이드 사용 중 오류가 발생했습니다.');
+        }
+
         // 이벤트 리스너 설정
         function setupEventListeners() {
 
@@ -4871,6 +5222,7 @@ window.addEventListener('message', (event) => {
                     if (recDefault) recDefault.classList.add('selected');
                 }
                 updateCustomBgHint();
+                displayThemePreview(currentTheme);
             };
 
             const openCustomAccordion = () => {
@@ -4882,6 +5234,7 @@ window.addEventListener('message', (event) => {
                 if (wizardThemeData) wizardThemeData.applicationMode = 'custom-background';
                 customBackgroundTheme = null;
                 updateCustomBgHint();
+                displayThemePreview(currentTheme);
             };
 
             setAccordionState(recommendedToggle, recommendedPanel, true);
@@ -4924,12 +5277,14 @@ window.addEventListener('message', (event) => {
                 customBgColor.addEventListener('input', (e) => {
                     const color = e.target.value.toUpperCase();
                     customBgHex.value = color;
+                    displayThemePreview(currentTheme);
                 });
 
                 customBgHex.addEventListener('input', (e) => {
                     const color = e.target.value.toUpperCase();
                     if (/^#[0-9A-F]{6}$/i.test(color)) {
                         customBgColor.value = color;
+                        displayThemePreview(currentTheme);
                     }
                 });
             }
@@ -4946,6 +5301,9 @@ window.addEventListener('message', (event) => {
                 });
             });
 
+            setupEyedropperTriggers();
+            displayThemePreview(currentTheme);
+
             // 초기화 완료
         }
 
@@ -4957,7 +5315,11 @@ window.addEventListener('message', (event) => {
                     
             switch(msg.type) {
                 case 'plugin-ready':
-                            break;
+                    eyedropperSupported = !!msg.eyedropperSupported;
+                    if (eyedropperSupported) {
+                        setupEyedropperTriggers();
+                    }
+                    break;
                 case 'variable-created':
                     if (msg.success) {
                         showMessage(`Variables 생성 완료! (${msg.count || 0}개)`);
@@ -4999,6 +5361,15 @@ window.addEventListener('message', (event) => {
                     } else {
                         showMessage('모드 적용 에러: ' + msg.error);
                     }
+                    break;
+                case 'eyedropper-picked':
+                    applyEyedropperResult(msg.targetId, msg.hex, msg.rgba);
+                    break;
+                case 'eyedropper-cancelled':
+                    handleEyedropperCancelled();
+                    break;
+                case 'eyedropper-error':
+                    handleEyedropperError(msg.message);
                     break;
                 case 'tone-matching-complete':
                     displayToneMatchingSuggestions(msg.originalColor, msg.suggestions);
