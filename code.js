@@ -401,7 +401,7 @@ function assessColorRange(closestStep, baseColor) {
   info.isInherentlyBright = isInherentlyBright;
 
   if (isInherentlyBright) {
-    if (closestStep <= 400) {
+    if (closestStep <= 300) {
       info.colorRange = 'light';
     } else if (closestStep >= 500 && closestStep <= 700) {
       info.colorRange = 'medium';
@@ -411,7 +411,7 @@ function assessColorRange(closestStep, baseColor) {
       info.colorRange = 'light';
     }
   } else {
-    if (closestStep < 300) {
+    if (closestStep < 200) {
       info.colorRange = 'light';
     } else if (closestStep >= 300 && closestStep <= 700) {
       info.colorRange = 'medium';
@@ -573,13 +573,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+      mappings['semantic/text/selected'] = 'REF:' + themeName + 500;
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:900';
 
-      mappings['semantic/background/gradient-default'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/background/gradient-default'] = 'REF:' + themeName + 500;
       mappings['semantic/background/low'] = 'REF:' + themeName + 50;
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -587,7 +587,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/border/divider-strong'] = 'GRAY:950';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+      mappings['semantic/border/line-selected'] = 'REF:' + themeName + 500;
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
