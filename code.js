@@ -401,9 +401,9 @@ function assessColorRange(closestStep, baseColor) {
   info.isInherentlyBright = isInherentlyBright;
 
   if (isInherentlyBright) {
-    if (closestStep <= 200) {
+    if (closestStep <= 300) {
       info.colorRange = 'light';
-    } else if (closestStep >= 500 && closestStep <= 700) {
+    } else if (closestStep >= 400 && closestStep <= 700) {
       info.colorRange = 'medium';
     } else if (closestStep > 700) {
       info.colorRange = 'dark';

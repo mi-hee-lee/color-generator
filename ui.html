@@ -2301,9 +2301,9 @@
             // 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
             if (isInherentlyBright) {
                 // 태생이 밝은 색상
-                if (closestStep <= 400) {
+                if (closestStep <= 300) {
                     return 'light';
-                } else if (closestStep >= 500 && closestStep <= 700) {
+                } else if (closestStep >= 400 && closestStep <= 700) {
                     return 'medium';
                 } else {
                     return 'dark';  // 800-950
@@ -3492,8 +3492,8 @@
                     // 색상 범위 결정
                     let colorRange;
                     if (isInherentlyBright) {
-                        if (closestStep <= 400) colorRange = 'light';
-                        else if (closestStep >= 500 && closestStep <= 700) colorRange = 'medium';
+                        if (closestStep <= 300) colorRange = 'light';
+                        else if (closestStep >= 400 && closestStep <= 700) colorRange = 'medium';
                         else colorRange = 'dark';
                     } else {
                         if (closestStep < 300) colorRange = 'light';
@@ -3956,9 +3956,9 @@
 
                 var colorRange;
                 if (isInherentlyBright) {
-                    if (closestStep <= 200) {
+                    if (closestStep <= 300) {
                         colorRange = 'light';
-                    } else if (closestStep >= 500 && closestStep <= 700) {
+                    } else if (closestStep >= 400 && closestStep <= 700) {
                         colorRange = 'medium';
                     } else if (closestStep > 700) {
                         colorRange = 'dark';
