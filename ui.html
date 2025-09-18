@@ -2667,14 +2667,21 @@
                     customBgToggle.setAttribute('aria-expanded', 'false');
                 }
                 if (customBgContainer) customBgContainer.style.display = 'none';
-                const recSwatch = document.getElementById('recommendedBgCard');
                 document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('selected'));
-                if (recSwatch) recSwatch.classList.add('selected');
             } catch {}
 
             // 테마 생성
             const tuningValue = 0; // 기본값
             currentTheme = themeGenerator.generateTheme(baseColor, themeName, 'accent-on-bg-off', tuningValue);
+
+            try {
+                const defaultWhiteSwatch = document.querySelector('.bg-swatch[data-mode="accent-on-bg-fixed"]');
+                if (defaultWhiteSwatch) {
+                    selectBackgroundOption(defaultWhiteSwatch);
+                }
+            } catch (e) {
+                console.warn('기본 배경 선택 초기화 실패:', e);
+            }
             
             // Mode 1의 semantic-background-default 기반 추천 배경 미리보기 즉시 업데이트
             try {
@@ -3142,6 +3149,45 @@
                 recommendedStep = findClosestStepFromColors(currentTheme.scaleColors.light, recommendedBg);
             }
             var extraSteps = getRecommendedNeighborSteps(recommendedStep);
+
+            // 밝은 Key Color의 경우 한 단계 밝고 어두운 톤도 함께 제안
+            try {
+                var keyInfo = getKeyColorInfo();
+                if (keyInfo && keyInfo.range === 'light' && keyInfo.step && colorGenerator && Array.isArray(colorGenerator.steps)) {
+                    var stepsList = colorGenerator.steps;
+                    var currentIndex = stepsList.indexOf(keyInfo.step);
+                    if (currentIndex !== -1) {
+                        var extraSet = new Set(extraSteps);
+
+                        function pushUnique(stepValue, prioritizeFront) {
+                            if (typeof stepValue !== 'number') return;
+                            if (stepValue === keyInfo.step) return;
+                            if (!stepsList.includes(stepValue)) return;
+                            if (extraSet.has(stepValue)) return;
+                            if (!getColorHexForStep(stepValue)) return;
+
+                            if (prioritizeFront) {
+                                extraSteps.unshift(stepValue);
+                            } else {
+                                extraSteps.push(stepValue);
+                            }
+                            extraSet.add(stepValue);
+                        }
+
+                        var brighterStep = stepsList[Math.min(currentIndex + 1, stepsList.length - 1)];
+                        if (brighterStep > keyInfo.step) {
+                            pushUnique(brighterStep, true);
+                        }
+
+                        var darkerStep = stepsList[Math.max(currentIndex - 1, 0)];
+                        if (darkerStep < keyInfo.step) {
+                            pushUnique(darkerStep, false);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('추천 배경 확장 처리 실패:', e);
+            }
             renderRecommendedExtras(recommendedStep, extraSteps);
 
             console.log('추천 배경색 업데이트:', recommendedBg);
@@ -5183,8 +5229,15 @@ window.addEventListener('message', (event) => {
                 if (customBgColorContainer) customBgColorContainer.style.display = 'none';
                 customBackgroundTheme = null;
                 if (!document.querySelector('.bg-swatch.selected')) {
-                    const recDefault = document.getElementById('recommendedBgCard');
-                    if (recDefault) recDefault.classList.add('selected');
+                    const whiteDefault = document.querySelector('.bg-swatch[data-mode="accent-on-bg-fixed"]');
+                    if (whiteDefault) {
+                        selectBackgroundOption(whiteDefault);
+                    } else {
+                        const recDefault = document.getElementById('recommendedBgCard');
+                        if (recDefault) {
+                            selectBackgroundOption(recDefault);
+                        }
+                    }
                 }
                 updateCustomBgHint();
                 displayThemePreview(currentTheme);

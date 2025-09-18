@@ -285,7 +285,7 @@ function findClosestStep(scaleColors, inputHex) {
 function adjustStep(currentStep, adjustment) {
   var steps = [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950];
   var currentIndex = steps.indexOf(currentStep);
-  
+
   if (currentIndex === -1) {
     // 현재 단계를 찾을 수 없으면 가장 가까운 단계 찾기
     var minDiff = Infinity;
@@ -307,8 +307,123 @@ function adjustStep(currentStep, adjustment) {
   if (newIndex >= steps.length) {
     return steps[steps.length - 1]; // 950
   }
-  
+
   return steps[newIndex];
+}
+
+function getCustomBackgroundScaleInfo(theme) {
+  if (!theme) {
+    return { scaleColors: [], themeName: '' };
+  }
+
+  if (
+    theme.backgroundTheme &&
+    theme.backgroundTheme.scaleColors &&
+    Array.isArray(theme.backgroundTheme.scaleColors.light) &&
+    theme.backgroundTheme.scaleColors.light.length > 0
+  ) {
+    return {
+      scaleColors: theme.backgroundTheme.scaleColors.light,
+      themeName: theme.backgroundTheme.themeName || theme.themeName
+    };
+  }
+
+  if (theme.scaleColors && Array.isArray(theme.scaleColors.light)) {
+    return {
+      scaleColors: theme.scaleColors.light,
+      themeName: theme.themeName
+    };
+  }
+
+  return { scaleColors: [], themeName: theme.themeName };
+}
+
+function resolveCustomSilentColor(theme, mappingValue) {
+  if (!theme || !theme.customBackgroundColor) return null;
+
+  var scaleInfo = getCustomBackgroundScaleInfo(theme);
+  var scale = scaleInfo.scaleColors;
+  var baseHex = theme.customBackgroundColor;
+  var result = {
+    hex: baseHex,
+    step: null,
+    themeName: scaleInfo.themeName
+  };
+
+  if (Array.isArray(scale) && scale.length > 0) {
+    var baseStep = findClosestStep(scale, baseHex);
+    if (typeof baseStep === 'number' && !isNaN(baseStep)) {
+      result.step = baseStep;
+    }
+
+    if (mappingValue !== 'CUSTOM_SILENT' && result.step !== null) {
+      var luminance = getPerceptualLuminance(baseHex);
+      var direction = luminance >= 0.5 ? -1 : 1;
+      var magnitude = (mappingValue === 'CUSTOM_SILENT_PRESSED') ? 2 : 1;
+      var targetStep = adjustStep(result.step, direction * magnitude);
+      var entry = scale.find(function(color) { return color.step === targetStep; });
+
+      if (entry && entry.hex) {
+        result.hex = entry.hex;
+        result.step = targetStep;
+      } else {
+        var hsl = hexToHsl(baseHex);
+        var adjL = Math.max(0, Math.min(100, hsl[2] + direction * magnitude * 5));
+        result.hex = hslToHex(hsl[0], hsl[1], adjL);
+        result.step = targetStep;
+      }
+    }
+  } else if (mappingValue !== 'CUSTOM_SILENT') {
+    var hslBase = hexToHsl(baseHex);
+    var luminanceBase = getPerceptualLuminance(baseHex);
+    var dir = luminanceBase >= 0.5 ? -1 : 1;
+    var mag = (mappingValue === 'CUSTOM_SILENT_PRESSED') ? 2 : 1;
+    var adjustedL = Math.max(0, Math.min(100, hslBase[2] + dir * mag * 5));
+    result.hex = hslToHex(hslBase[0], hslBase[1], adjustedL);
+  }
+
+  return result;
+}
+
+function resolveCustomBackgroundLowColor(theme, mappingValue) {
+  if (!theme || !theme.customBackgroundColor) return null;
+
+  var scaleInfo = getCustomBackgroundScaleInfo(theme);
+  var scale = scaleInfo.scaleColors;
+  var result = {
+    hex: theme.customBackgroundColor,
+    step: null,
+    themeName: scaleInfo.themeName
+  };
+
+  if (!mappingValue) {
+    return result;
+  }
+
+  var parts = mappingValue.split(':');
+  var targetStep = null;
+  if (parts.length > 1) {
+    var parsed = parseInt(parts[1], 10);
+    if (!isNaN(parsed)) {
+      targetStep = parsed;
+    }
+  }
+
+  if (Array.isArray(scale) && scale.length > 0 && targetStep) {
+    var entry = scale.find(function(color) { return color.step === targetStep; });
+    if (!entry) {
+      entry = scale.reduce(function(prev, curr) {
+        if (!prev) return curr;
+        return Math.abs(curr.step - targetStep) < Math.abs(prev.step - targetStep) ? curr : prev;
+      }, null);
+    }
+    if (entry && entry.hex) {
+      result.hex = entry.hex;
+      result.step = entry.step;
+    }
+  }
+
+  return result;
 }
 
 function getPerceptualLuminance(hex) {
@@ -573,13 +688,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + 500;
+      mappings['semantic/text/selected'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:900';
 
-      mappings['semantic/background/gradient-default'] = 'REF:' + themeName + 500;
+      mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/background/low'] = 'REF:' + themeName + 50;
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -587,7 +702,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/border/divider-strong'] = 'GRAY:950';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + 500;
+      mappings['semantic/border/line-selected'] = 'GRAY:900';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -606,7 +721,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else if (colorRange === 'medium') {
       // 중간 범위 (Step 400-600)
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
@@ -620,7 +735,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
       mappings['semantic/border/divider-strong'] = 'GRAY:950';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'GRAY:900';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -677,7 +792,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     if (colorRange === 'light') {
       // 밝은 범위
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
@@ -692,7 +807,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/border/divider-strong'] =  'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/border/line-selected'] =  'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] =  'STATIC-WHITE-ALPHA:900';
       mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
       mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
@@ -701,9 +816,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'GRAY:900';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:900';
       
-      mappings['semantic/common/accent'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-400';
-      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-300';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-300';
       mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
 
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
@@ -713,7 +828,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
     } else if (colorRange === 'medium') {
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
@@ -728,7 +843,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + closestStep;
       
       mappings['semantic/border/divider-strong'] =  'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/border/line-selected'] =  'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] =  'STATIC-WHITE-ALPHA:900';
       mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
       mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
@@ -737,9 +852,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'GRAY:900';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:900';
       
-      mappings['semantic/common/accent'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-400';
-      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-300';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-300';
       mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
 
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
@@ -750,7 +865,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     } else {
       // 어두운 범위 (Step 700-950)
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + '200';
+      mappings['semantic/text/selected'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
@@ -766,7 +881,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + closestStep;
       
       mappings['semantic/border/divider-strong'] =  'STATIC-WHITE-ALPHA:900';
-      mappings['semantic/border/line-selected'] =  'REF:' + themeName + '200';
+      mappings['semantic/border/line-selected'] =  'STATIC-WHITE-ALPHA:900';
       mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
       mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
@@ -775,9 +890,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'GRAY:900';
       mappings['semantic/fill/silent-pressed'] = 'GRAY:900';
       
-      mappings['semantic/common/accent'] = 'ORANGE-RED-500';
-      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-400';
-      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-300';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-300';
       mappings['semantic/common/muted'] = 'STATIC-WHITE-ALPHA:400';
 
       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:400';
@@ -795,7 +910,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
     // 기본적으로 accent-on-bg-off 매핑을 사용하되, 배경만 사용자 지정
     if (colorRange === 'light') {
       mappings['semantic/text/primary'] = 'GRAY:50';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/text/selected'] = 'GRAY:50';
       mappings['semantic/text/secondary'] = 'GRAY:300';
       mappings['semantic/text/tertiary'] = 'GRAY:400';
       mappings['semantic/text/disabled'] = 'GRAY:600';
@@ -803,6 +918,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       // 배경은 CUSTOM으로 표시 (나중에 handleApplyThemeColorsToFrame에서 처리)
       mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+      mappings['semantic/background/low'] = 'CUSTOM_BACKGROUND_LOW:900';
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -810,44 +926,45 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       
       mappings['semantic/border/divider-strong'] = 'GRAY:50';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
-      mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
-      mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
+      mappings['semantic/border/line-selected'] = 'GRAY:50';
+      mappings['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
+      mappings['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
+      mappings['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
       
       // silent는 커스텀 배경 기반으로 UI에서 직접 계산하도록 특수 토큰 사용
       mappings['semantic/fill/silent'] = 'CUSTOM_SILENT';
       mappings['semantic/fill/silent-hover'] = 'CUSTOM_SILENT_HOVER';
       mappings['semantic/fill/silent-pressed'] = 'CUSTOM_SILENT_PRESSED';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, -2);
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-300';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-300';
       mappings['semantic/common/muted'] = 'GRAY:700';
       
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
-      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
-      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
+       mappings['semantic/fill/tertiary'] = 'STATIC-WHITE-ALPHA:200';
+      mappings['semantic/fill/tertiary-hover'] = 'STATIC-WHITE-ALPHA:100';
+      mappings['semantic/fill/tertiary-pressed'] = 'STATIC-WHITE-ALPHA:100'
+      mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:100';
       
     } else {
       // 어두운 범위도 accent-on-bg-off 로직을 재사용
       mappings['semantic/text/primary'] = 'GRAY:900';
-      mappings['semantic/text/selected'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
-      mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
-      mappings['semantic/text/disabled'] = 'GRAY-ALPHA:400';
+      mappings['semantic/text/selected'] = 'GRAY:900';
+      mappings['semantic/text/secondary'] = 'GRAY:700';
+      mappings['semantic/text/tertiary'] = 'GRAY:600';
+      mappings['semantic/text/disabled'] = 'GRAY:400';
       mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/default'] = 'CUSTOM_BACKGROUND';
+      mappings['semantic/background/low'] = 'CUSTOM_BACKGROUND_LOW:50';
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:100';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
 
-      mappings['semantic/border/divider-strong'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/divider-strong'] = 'GRAY:900';
+      mappings['semantic/border/line-selected'] = 'GRAY:900';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:200';
       mappings['semantic/border/line'] = 'GRAY-ALPHA:300';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -856,15 +973,15 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/silent-hover'] = 'CUSTOM_SILENT_HOVER';
       mappings['semantic/fill/silent-pressed'] = 'CUSTOM_SILENT_PRESSED';
       
-      mappings['semantic/common/accent'] = 'REF:' + themeName + adjustStep(closestStep, 2);
-      mappings['semantic/common/accent-pressed'] = 'REF:' + themeName + adjustStep(closestStep, 1);
-      mappings['semantic/common/accent-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
+      mappings['semantic/common/accent'] = 'ORANGE-RED-400';
+      mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
+      mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
       mappings['semantic/common/muted'] = 'GRAY:300';
       
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:100';
       mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
       mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
-      mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/disabled'] = 'GRAY:150';
     }
   }
   
@@ -1517,32 +1634,53 @@ async function handleApplyThemeColorsToFrame(msg) {
         return v.name === staticBlackVarName && v.variableCollectionId === collection.id;
       });
     } else if (mappingValue === 'CUSTOM_BACKGROUND') {
-      // 배경 HEX에서 가장 가까운 스텝 변수 반환
       if (!theme.customBackgroundColor) return null;
-      var nearest = findClosestStep(theme.scaleColors.light, theme.customBackgroundColor);
-      var varNameBg = 'scale/' + theme.themeName + '-' + nearest;
-      return allVariables.find(function(v){ return v.name === varNameBg && v.variableCollectionId === collection.id; }) || null;
-    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
-      // 배경 HEX를 기준으로 근접 스텝 변수로 매핑
-      if (!theme.customBackgroundColor) return null;
-      var bgHsl = hexToHsl(theme.customBackgroundColor);
-      var L = bgHsl[2];
-      var group = (L >= 80) ? 'light' : (L < 35 ? 'dark' : 'medium');
-      var delta;
-      if (group === 'light') {
-        delta = (mappingValue === 'CUSTOM_SILENT') ? -6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
-      } else if (group === 'medium') {
-        delta = (mappingValue === 'CUSTOM_SILENT') ? +6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
-      } else {
-        delta = (mappingValue === 'CUSTOM_SILENT') ? +8 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+      var baseInfo = getCustomBackgroundScaleInfo(theme);
+      if (!baseInfo.scaleColors || baseInfo.scaleColors.length === 0) return null;
+      var nearest = findClosestStep(baseInfo.scaleColors, theme.customBackgroundColor);
+      var varNameBg = 'scale/' + baseInfo.themeName + '-' + nearest;
+      var bgVar = allVariables.find(function(v){ return v.name === varNameBg && v.variableCollectionId === collection.id; }) || null;
+      if (!bgVar && baseInfo.themeName !== theme.themeName) {
+        var fallbackName = 'scale/' + theme.themeName + '-' + nearest;
+        bgVar = allVariables.find(function(v){ return v.name === fallbackName && v.variableCollectionId === collection.id; }) || null;
       }
-      var adjL = Math.max(0, Math.min(100, L + delta));
-      var targetHex = hslToHex(bgHsl[0], bgHsl[1], adjL);
-      var nearestStep = findClosestStep(theme.scaleColors.light, targetHex);
-      var varName = 'scale/' + theme.themeName + '-' + nearestStep;
-      return allVariables.find(function(v){ return v.name === varName && v.variableCollectionId === collection.id; }) || null;
+      return bgVar;
+    } else if (mappingValue.startsWith('CUSTOM_BACKGROUND_LOW')) {
+      var lowInfo = resolveCustomBackgroundLowColor(theme, mappingValue);
+      if (!lowInfo || lowInfo.step === null) return null;
+      var lowThemeName = lowInfo.themeName || theme.themeName;
+      var lowVarName = 'scale/' + lowThemeName + '-' + lowInfo.step;
+      var lowVar = allVariables.find(function(v) {
+        return v.name === lowVarName && v.variableCollectionId === collection.id;
+      });
+      if (!lowVar && lowThemeName !== theme.themeName) {
+        var fallbackLow = 'scale/' + theme.themeName + '-' + lowInfo.step;
+        lowVar = allVariables.find(function(v) {
+          return v.name === fallbackLow && v.variableCollectionId === collection.id;
+        });
+      }
+      return lowVar || null;
+    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
+      var silentInfo = resolveCustomSilentColor(theme, mappingValue);
+      if (!silentInfo) return null;
+      if (mappingValue === 'CUSTOM_SILENT') {
+        return null;
+      }
+      if (silentInfo.step === null) return null;
+      var silentThemeName = silentInfo.themeName || theme.themeName;
+      var silentVarName = 'scale/' + silentThemeName + '-' + silentInfo.step;
+      var silentVar = allVariables.find(function(v) {
+        return v.name === silentVarName && v.variableCollectionId === collection.id;
+      });
+      if (!silentVar && silentThemeName !== theme.themeName) {
+        var fallbackSilent = 'scale/' + theme.themeName + '-' + silentInfo.step;
+        silentVar = allVariables.find(function(v) {
+          return v.name === fallbackSilent && v.variableCollectionId === collection.id;
+        });
+      }
+      return silentVar || null;
     }
-    
+
     return null;
   }
   
@@ -1591,9 +1729,16 @@ async function handleApplyThemeColorsToFrame(msg) {
     } else if (mappingValue.startsWith('STATIC-BLACK-ALPHA:')) {
       // 정적 검은색 알파의 경우 검은색 기본값 반환
       return { r: 0, g: 0, b: 0 };
-    } else if (mappingValue === 'CUSTOM_BACKGROUND') {
-      // Custom Background의 경우 실제 색상은 별도 처리되므로 임시 색상 반환
-      return { r: 0.96, g: 0.96, b: 0.96 }; // #F5F5F5
+    } else if (mappingValue === 'CUSTOM_BACKGROUND' && theme.customBackgroundColor) {
+      return hexToFigmaRGB(theme.customBackgroundColor);
+    } else if (mappingValue.startsWith('CUSTOM_SILENT') && theme.customBackgroundColor) {
+      var silentFallback = resolveCustomSilentColor(theme, mappingValue);
+      var silentHex = (silentFallback && silentFallback.hex) ? silentFallback.hex : theme.customBackgroundColor;
+      return hexToFigmaRGB(silentHex);
+    } else if (mappingValue.startsWith('CUSTOM_BACKGROUND_LOW') && theme.customBackgroundColor) {
+      var lowFallback = resolveCustomBackgroundLowColor(theme, mappingValue);
+      var lowHex = (lowFallback && lowFallback.hex) ? lowFallback.hex : theme.customBackgroundColor;
+      return hexToFigmaRGB(lowHex);
     }
     
     // 기본 fallback 컬러
@@ -1621,47 +1766,42 @@ async function handleApplyThemeColorsToFrame(msg) {
             // 매핑에서 대응하는 토큰 찾기
             var mappedValue = mappings[currentVar.name];
             if (mappedValue) {
-              var newToken = findTokenFromMapping(mappedValue);
-              
-              // Custom Background 처리
-              if (newToken === 'CUSTOM_BACKGROUND' && theme.customBackgroundColor) {
-                console.log('[Backend] Custom Background 색상 적용:', theme.customBackgroundColor, '토큰:', currentVar.name);
-                var customColor = hexToFigmaRGB(theme.customBackgroundColor);
-                
-                // Custom 색상으로 직접 설정 (변수 바인딩 없이)
-                var newFills = node.fills.slice();
-                newFills[f] = {
-                  type: 'SOLID',
-                  color: customColor
-                };
-                node.fills = newFills;
+              if (mappedValue === 'CUSTOM_BACKGROUND' && theme.customBackgroundColor) {
+                var directBgColor = hexToFigmaRGB(theme.customBackgroundColor);
+                var updatedFills = node.fills.slice();
+                updatedFills[f] = { type: 'SOLID', color: directBgColor };
+                node.fills = updatedFills;
                 appliedCount++;
-                
-              } else if ((newToken === 'CUSTOM_SILENT' || newToken === 'CUSTOM_SILENT_HOVER' || newToken === 'CUSTOM_SILENT_PRESSED') && theme.customBackgroundColor) {
-                // 커스텀 배경 명도에 따라 silent 계열 직접 계산
-                var hsl = hexToHsl(theme.customBackgroundColor);
-                var L = hsl[2];
-                var group = (L >= 80) ? 'light' : (L < 35 ? 'dark' : 'medium');
-                var delta;
-                if (group === 'light') {
-                  delta = (newToken === 'CUSTOM_SILENT') ? -6 : (newToken === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
-                } else if (group === 'medium') {
-                  delta = (newToken === 'CUSTOM_SILENT') ? +6 : (newToken === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
-                } else {
-                  delta = (newToken === 'CUSTOM_SILENT') ? +8 : (newToken === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
-                }
-                var adjL = Math.max(0, Math.min(100, L + delta));
-                var outHex = hslToHex(hsl[0], hsl[1], adjL);
-                var outRgb = hexToFigmaRGB(outHex);
-                var newFills2 = node.fills.slice();
-                newFills2[f] = { type: 'SOLID', color: outRgb };
-                node.fills = newFills2;
-                appliedCount++;
+                continue;
+              }
 
-              } else if (newToken) {
+              if (mappedValue.startsWith('CUSTOM_SILENT') && theme.customBackgroundColor) {
+                var silentData = resolveCustomSilentColor(theme, mappedValue);
+                var silentHex = (silentData && silentData.hex) ? silentData.hex : theme.customBackgroundColor;
+                var silentRgb = hexToFigmaRGB(silentHex);
+                var silentFills = node.fills.slice();
+                silentFills[f] = { type: 'SOLID', color: silentRgb };
+                node.fills = silentFills;
+                appliedCount++;
+                continue;
+              }
+
+              if (mappedValue.startsWith('CUSTOM_BACKGROUND_LOW') && theme.customBackgroundColor) {
+                var lowData = resolveCustomBackgroundLowColor(theme, mappedValue);
+                var lowHex = (lowData && lowData.hex) ? lowData.hex : theme.customBackgroundColor;
+                var lowRgb = hexToFigmaRGB(lowHex);
+                var lowFills = node.fills.slice();
+                lowFills[f] = { type: 'SOLID', color: lowRgb };
+                node.fills = lowFills;
+                appliedCount++;
+                continue;
+              }
+
+              var newToken = findTokenFromMapping(mappedValue);
+
+              if (newToken) {
                 var fallbackColor = getFallbackColor(mappedValue);
-                
-                // 토큰 교체 - fills 배열 전체 복사 후 수정
+
                 var newFills = node.fills.slice();
                 newFills[f] = {
                   type: 'SOLID',
@@ -1674,7 +1814,7 @@ async function handleApplyThemeColorsToFrame(msg) {
                   }
                 };
                 node.fills = newFills;
-                
+
                 appliedCount++;
               } else {
               }
@@ -1703,8 +1843,6 @@ async function handleApplyThemeColorsToFrame(msg) {
               var newStrokeToken = findTokenFromMapping(strokeMappedValue);
               if (newStrokeToken) {
                 var strokeFallbackColor = getFallbackColor(strokeMappedValue);
-                
-                // 토큰 교체 - strokes 배열 전체 복사 후 수정
                 var newStrokes = node.strokes.slice();
                 newStrokes[s] = {
                   type: 'SOLID',
@@ -1717,7 +1855,7 @@ async function handleApplyThemeColorsToFrame(msg) {
                   }
                 };
                 node.strokes = newStrokes;
-                
+
                 appliedCount++;
               } else {
               }
@@ -1937,27 +2075,42 @@ async function handleApplySemanticToFrame(msg) {
       });
     } else if (mappingValue === 'CUSTOM_BACKGROUND') {
       if (!theme.customBackgroundColor) return null;
-      var nearestBg2 = findClosestStep(theme.scaleColors.light, theme.customBackgroundColor);
-      var varNameBg2 = 'scale/' + theme.themeName + '-' + nearestBg2;
-      return allVariables.find(function(v){ return v.name === varNameBg2 && v.variableCollectionId === collection.id; }) || null;
-    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
-      if (!theme.customBackgroundColor) return null;
-      var bgHsl2 = hexToHsl(theme.customBackgroundColor);
-      var L2 = bgHsl2[2];
-      var group2 = (L2 >= 80) ? 'light' : (L2 < 35 ? 'dark' : 'medium');
-      var delta2;
-      if (group2 === 'light') {
-        delta2 = (mappingValue === 'CUSTOM_SILENT') ? -6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
-      } else if (group2 === 'medium') {
-        delta2 = (mappingValue === 'CUSTOM_SILENT') ? +6 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
-      } else {
-        delta2 = (mappingValue === 'CUSTOM_SILENT') ? +8 : (mappingValue === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
+      var baseInfo2 = getCustomBackgroundScaleInfo(theme);
+      if (!baseInfo2.scaleColors || baseInfo2.scaleColors.length === 0) return null;
+      var nearestBg2 = findClosestStep(baseInfo2.scaleColors, theme.customBackgroundColor);
+      var varNameBg2 = 'scale/' + baseInfo2.themeName + '-' + nearestBg2;
+      var bgVar2 = allVariables.find(function(v){ return v.name === varNameBg2 && v.variableCollectionId === collection.id; }) || null;
+      if (!bgVar2 && baseInfo2.themeName !== theme.themeName) {
+        var fallbackBg2 = 'scale/' + theme.themeName + '-' + nearestBg2;
+        bgVar2 = allVariables.find(function(v){ return v.name === fallbackBg2 && v.variableCollectionId === collection.id; }) || null;
       }
-      var adjL2 = Math.max(0, Math.min(100, L2 + delta2));
-      var targetHex2 = hslToHex(bgHsl2[0], bgHsl2[1], adjL2);
-      var nearest2 = findClosestStep(theme.scaleColors.light, targetHex2);
-      var varName2 = 'scale/' + theme.themeName + '-' + nearest2;
-      return allVariables.find(function(v){ return v.name === varName2 && v.variableCollectionId === collection.id; }) || null;
+      return bgVar2;
+    } else if (mappingValue.startsWith('CUSTOM_BACKGROUND_LOW')) {
+      var lowInfo2 = resolveCustomBackgroundLowColor(theme, mappingValue);
+      if (!lowInfo2 || lowInfo2.step === null) return null;
+      var lowThemeName2 = lowInfo2.themeName || theme.themeName;
+      var lowVarName2 = 'scale/' + lowThemeName2 + '-' + lowInfo2.step;
+      var lowVar2 = allVariables.find(function(v){ return v.name === lowVarName2 && v.variableCollectionId === collection.id; });
+      if (!lowVar2 && lowThemeName2 !== theme.themeName) {
+        var fallbackLow2 = 'scale/' + theme.themeName + '-' + lowInfo2.step;
+        lowVar2 = allVariables.find(function(v){ return v.name === fallbackLow2 && v.variableCollectionId === collection.id; });
+      }
+      return lowVar2 || null;
+    } else if (mappingValue === 'CUSTOM_SILENT' || mappingValue === 'CUSTOM_SILENT_HOVER' || mappingValue === 'CUSTOM_SILENT_PRESSED') {
+      var silentInfo2 = resolveCustomSilentColor(theme, mappingValue);
+      if (!silentInfo2) return null;
+      if (mappingValue === 'CUSTOM_SILENT') {
+        return null;
+      }
+      if (silentInfo2.step === null) return null;
+      var silentThemeName2 = silentInfo2.themeName || theme.themeName;
+      var silentVarName2 = 'scale/' + silentThemeName2 + '-' + silentInfo2.step;
+      var silentVar2 = allVariables.find(function(v){ return v.name === silentVarName2 && v.variableCollectionId === collection.id; });
+      if (!silentVar2 && silentThemeName2 !== theme.themeName) {
+        var fallbackSilent2 = 'scale/' + theme.themeName + '-' + silentInfo2.step;
+        silentVar2 = allVariables.find(function(v){ return v.name === fallbackSilent2 && v.variableCollectionId === collection.id; });
+      }
+      return silentVar2 || null;
     }
     
     return null;
@@ -1982,46 +2135,51 @@ async function handleApplySemanticToFrame(msg) {
             
             var mappedValue = mappings[currentVar.name];
             if (mappedValue) {
+              if (mappedValue === 'CUSTOM_BACKGROUND' && theme.customBackgroundColor) {
+                var fillBgColor = hexToFigmaRGB(theme.customBackgroundColor);
+                var nf = node.fills.slice();
+                nf[f] = { type: 'SOLID', color: fillBgColor };
+                node.fills = nf;
+                appliedCount++;
+                continue;
+              }
+
+              if (mappedValue.startsWith('CUSTOM_SILENT') && theme.customBackgroundColor) {
+                var fillSilentInfo = resolveCustomSilentColor(theme, mappedValue);
+                var fillSilentHex = (fillSilentInfo && fillSilentInfo.hex) ? fillSilentInfo.hex : theme.customBackgroundColor;
+                var fillSilentRgb = hexToFigmaRGB(fillSilentHex);
+                var nfSilent = node.fills.slice();
+                nfSilent[f] = { type: 'SOLID', color: fillSilentRgb };
+                node.fills = nfSilent;
+                appliedCount++;
+                continue;
+              }
+
+              if (mappedValue.startsWith('CUSTOM_BACKGROUND_LOW') && theme.customBackgroundColor) {
+                var fillLowInfo = resolveCustomBackgroundLowColor(theme, mappedValue);
+                var fillLowHex = (fillLowInfo && fillLowInfo.hex) ? fillLowInfo.hex : theme.customBackgroundColor;
+                var fillLowRgb = hexToFigmaRGB(fillLowHex);
+                var nfLow = node.fills.slice();
+                nfLow[f] = { type: 'SOLID', color: fillLowRgb };
+                node.fills = nfLow;
+                appliedCount++;
+                continue;
+              }
+
               var newToken = findTokenFromMapping(mappedValue);
               if (newToken) {
-                if (typeof newToken === 'string' && theme.customBackgroundColor && (newToken === 'CUSTOM_BACKGROUND' || newToken.indexOf('CUSTOM_SILENT') === 0)) {
-                  // Special direct-color handling
-                  if (newToken === 'CUSTOM_BACKGROUND') {
-                    var cRgb = hexToFigmaRGB(theme.customBackgroundColor);
-                    var nf = node.fills.slice();
-                    nf[f] = { type: 'SOLID', color: cRgb };
-                    node.fills = nf;
-                    appliedCount++;
-                  } else {
-                    var hslBg = hexToHsl(theme.customBackgroundColor);
-                    var Lb = hslBg[2];
-                    var grp = (Lb >= 80) ? 'light' : (Lb < 35 ? 'dark' : 'medium');
-                    var dlt;
-                    if (grp === 'light') dlt = (newToken === 'CUSTOM_SILENT') ? -6 : (newToken === 'CUSTOM_SILENT_HOVER') ? -8 : -10;
-                    else if (grp === 'medium') dlt = (newToken === 'CUSTOM_SILENT') ? +6 : (newToken === 'CUSTOM_SILENT_HOVER') ? +8 : +10;
-                    else dlt = (newToken === 'CUSTOM_SILENT') ? +8 : (newToken === 'CUSTOM_SILENT_HOVER') ? +10 : +12;
-                    var adj = Math.max(0, Math.min(100, Lb + dlt));
-                    var hx = hslToHex(hslBg[0], hslBg[1], adj);
-                    var rg = hexToFigmaRGB(hx);
-                    var nf2 = node.fills.slice();
-                    nf2[f] = { type: 'SOLID', color: rg };
-                    node.fills = nf2;
-                    appliedCount++;
-                  }
-                } else {
-                  var newFills = node.fills.slice();
-                  newFills[f] = {
-                    type: 'SOLID',
-                    boundVariables: {
-                      'color': {
-                        type: 'VARIABLE_ALIAS',
-                        id: newToken.id
-                      }
+                var newFills = node.fills.slice();
+                newFills[f] = {
+                  type: 'SOLID',
+                  boundVariables: {
+                    'color': {
+                      type: 'VARIABLE_ALIAS',
+                      id: newToken.id
                     }
-                  };
-                  node.fills = newFills;
-                  appliedCount++;
-                }
+                  }
+                };
+                node.fills = newFills;
+                appliedCount++;
               } else {
               }
             } else {
