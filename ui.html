@@ -752,6 +752,48 @@
         }
         .recent-swatch:hover { outline: 2px solid #18A0FB; outline-offset: 1px; }
 
+        .wizard-scale-palette {
+            margin-top: 12px;
+            padding: 12px;
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 6px;
+            display: none;
+        }
+        .wizard-scale-title {
+            font-family: var(--body-1-semi-bold-font-family);
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.75);
+            margin-bottom: 8px;
+        }
+        .wizard-scale-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .wizard-scale-chip {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.12);
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            position: relative;
+        }
+        .wizard-scale-chip span {
+            font-size: 10px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .wizard-scale-chip.selected {
+            box-shadow: 0 0 0 2px #18A0FB;
+            transform: translateY(-4px);
+        }
+
         /* Force-hide wizard and generator step classification info */
         #wizardStepClassificationInfo { display: none !important; }
         #stepClassificationInfo { display: none !important; }
@@ -1632,19 +1674,26 @@
                             <span id="wizardStepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(400-600)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
                         </div>
 
-                        <!-- 최근 사용한 컬러 -->
-                        <div id="recentColorsSection" class="recent-colors" style="display: none;">
-                            <div class="recent-header">
-                                <span class="recent-title">최근 사용한 컬러</span>
-                                <button id="clearRecentBtn" class="recent-clear" type="button" title="목록 비우기">지우기</button>
-                            </div>
-                            <div id="recentColorsContainer" class="recent-swatches"></div>
-                        </div>
                     </div>
                 </div>
                 
                 <div class="step-actions">
                     <button class="action-btn btn-success" style="margin-top:8px;" onclick="goToStep(2)">변수 생성 후 계속</button>
+                </div>
+
+                <!-- 최근 사용한 컬러 -->
+                <div id="recentColorsSection" class="recent-colors" style="display: none;">
+                    <div class="recent-header">
+                        <span class="recent-title">최근 사용한 컬러</span>
+                        <button id="clearRecentBtn" class="recent-clear" type="button" title="목록 비우기">지우기</button>
+                    </div>
+                    <div id="recentColorsContainer" class="recent-swatches"></div>
+                </div>
+
+                <!-- Scale Preview -->
+                <div id="wizardScalePalette" class="wizard-scale-palette">
+                    <div class="wizard-scale-title">생성된 스케일</div>
+                    <div id="wizardScaleGrid" class="wizard-scale-grid"></div>
                 </div>
             </div>
 
@@ -2812,15 +2861,87 @@
                     const input = document.getElementById('wizardThemeBaseHex');
                     if (picker) picker.value = hex;
                     if (input) input.value = hex;
-                    if (typeof optimizedPreviewUpdate === 'function') optimizedPreviewUpdate(hex);
-                    try { updateRecommendedBackground(hex); } catch {}
-                    updateCustomBgHint();
+                    handleHexInputChange();
                 });
                 container.appendChild(sw);
             });
             const clearBtn = document.getElementById('clearRecentBtn');
             if (clearBtn) {
                 clearBtn.onclick = clearRecentColors;
+            }
+        }
+
+        function renderWizardScalePalette(baseHex) {
+            const palette = document.getElementById('wizardScalePalette');
+            const grid = document.getElementById('wizardScaleGrid');
+            if (!palette || !grid) return;
+
+            if (!baseHex || !/^#[0-9A-F]{6}$/i.test(baseHex)) {
+                palette.style.display = 'none';
+                grid.innerHTML = '';
+                return;
+            }
+
+            let colors = [];
+            try {
+                colors = colorGenerator.generateColors(baseHex, 'light', 0) || [];
+            } catch (e) {
+                console.warn('스케일 프리뷰 생성 실패:', e);
+                colors = [];
+            }
+
+            if (!colors.length) {
+                palette.style.display = 'none';
+                grid.innerHTML = '';
+                return;
+            }
+
+            const normalizedBase = baseHex.toUpperCase();
+            grid.innerHTML = '';
+
+            colors.forEach(color => {
+                const hex = (color.hex || '#000000').toUpperCase();
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'wizard-scale-chip';
+                chip.dataset.hex = hex;
+                chip.dataset.step = color.step;
+                chip.style.background = hex;
+
+                const luminance = ColorUtils.getPerceptualLuminance ? ColorUtils.getPerceptualLuminance(hex) : 0.5;
+                chip.style.color = luminance > 0.6 ? '#1F2933' : '#FFFFFF';
+
+                const label = document.createElement('span');
+                label.textContent = color.step;
+                chip.appendChild(label);
+
+                chip.title = `${color.step} • ${hex}`;
+
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.wizard-scale-chip.selected').forEach(el => el.classList.remove('selected'));
+                    chip.classList.add('selected');
+
+                    const picker = document.getElementById('wizardThemeBaseColor');
+                    const input = document.getElementById('wizardThemeBaseHex');
+                    if (picker) picker.value = hex;
+                    if (input) input.value = hex;
+                    handleHexInputChange();
+                });
+
+                grid.appendChild(chip);
+            });
+
+            palette.style.display = 'block';
+
+            const selectedChip = grid.querySelector(`.wizard-scale-chip[data-hex="${normalizedBase}"]`);
+            if (selectedChip) {
+                selectedChip.classList.add('selected');
+            } else {
+                const closest = colors.find(c => c.isClosest);
+                if (closest) {
+                    const fallbackChip = grid.querySelector(`.wizard-scale-chip[data-step="${closest.step}"]`);
+                    if (fallbackChip) fallbackChip.classList.add('selected');
+                }
             }
         }
 
@@ -3246,8 +3367,16 @@
                 return;
             }
 
-            const label = rangeToKoreanLabel(info.range);
-            hint.textContent = `현재 Key Color가 Step ${info.step}이니 ${label}의 배경색을 추천드려요.`;
+            let message;
+            if (info.range === 'medium') {
+                message = `현재 Key Color가 Step ${info.step}이니 밝거나 어두운 배경을 추천해요.`;
+            } else if (info.range === 'light') {
+                message = `현재 Key Color가 Step ${info.step}이니 어두운 색의 배경을 추천해요.`;
+            } else {
+                message = `현재 Key Color가 Step ${info.step}이니 밝은 색의 배경을 추천해요.`;
+            }
+
+            hint.textContent = message;
             hint.style.display = 'block';
         }
 
@@ -4159,6 +4288,7 @@
                         updateCustomBgHint();
                         // 최근 컬러 렌더링
                         renderRecentColors();
+                        renderWizardScalePalette(initialColor);
                         displayThemePreview(currentTheme);
                     }, 100);
                 }
@@ -4191,6 +4321,7 @@
                     updateRecommendedBackground(newColorValue);
                 }
                 updateCustomBgHint();
+                renderWizardScalePalette(newColorValue);
                 displayThemePreview(currentTheme);
                 
             } else {
@@ -4219,10 +4350,12 @@
                         updateRecommendedBackground(hexValue);
                     }
                     updateCustomBgHint();
+                    renderWizardScalePalette(hexValue);
                     displayThemePreview(currentTheme);
                     
                 } else if (hexValue.length >= 3) { // 최소 3자리 이상일 때만 경고
                     console.warn('⚠️ Invalid hex format:', hexValue);
+                    renderWizardScalePalette('');
                 }
             } else {
                 console.error('❌ Elements not found in handleHexInputChange');
