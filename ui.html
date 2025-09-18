@@ -2378,20 +2378,58 @@
     }
 
     getAutoTuningValue(hex) {
-        var [h, s, l] = ColorUtils.hexToHsl(hex);
-        let tuning = 0;
-        
-        // 색상별 조정
-        if (h >= 45 && h <= 75) tuning = -3;      // 노란색: 더 어둡게
-        else if (h >= 15 && h <= 45) tuning = -2; // 주황색
-        else if (h >= 210 && h <= 270) tuning = 2; // 파란색: 더 밝게
-        else if (h >= 180 && h <= 210) tuning = 1; // 청록색
-        
-        // 채도에 따른 추가 조정
-        if (s > 80) tuning -= 1;
-        else if (s < 30) tuning += 1;
-        
-        return Math.max(-10, Math.min(10, tuning));
+        if (!hex) return 0;
+
+        var hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
+        if (!hsl || hsl.length < 3) return 0;
+
+        var h = hsl[0];
+        var s = hsl[1];
+        var l = hsl[2];
+
+        var luminance = 0;
+        if (ColorUtils.getPerceptualLuminance) {
+            luminance = ColorUtils.getPerceptualLuminance(hex);
+        } else {
+            luminance = Math.max(0, Math.min(1, l / 100));
+        }
+
+        var hueBrightness = (typeof evaluateHueBrightness === 'function')
+            ? evaluateHueBrightness(h, s, l)
+            : null;
+
+        var tuning = 0;
+
+        if (hueBrightness === 'very-bright') {
+            tuning -= 3;
+        } else if (hueBrightness === 'bright') {
+            tuning -= 2;
+        } else if (hueBrightness === 'dark') {
+            tuning += 2;
+        }
+
+        if (luminance >= 0.68) {
+            tuning -= 1;
+        } else if (luminance <= 0.22) {
+            tuning += 1;
+        }
+
+        if (s > 85) {
+            tuning -= 1;
+        } else if (s < 25) {
+            tuning += 1;
+        }
+
+        // Hue 판별에 실패한 경우를 위한 기본 보정 (이전 로직 유지)
+        if (!hueBrightness) {
+            if (h >= 45 && h <= 75) tuning -= 3;
+            else if (h >= 15 && h <= 45) tuning -= 2;
+            else if (h >= 210 && h <= 270) tuning += 2;
+            else if (h >= 180 && h <= 210) tuning += 1;
+        }
+
+        tuning = Math.max(-10, Math.min(10, Math.round(tuning)));
+        return tuning;
     }
 
     generateColors(inputHex, mode, tuningValue = 0) {
@@ -2417,11 +2455,27 @@
             const targetContrast = targets[i];
             const solved = ColorUtils.solveHSLForContrast(hInput, sInput, targetContrast, mode);
 
-            // 튜닝: 최종 L에 소폭 가감
-            let L = Math.max(0, Math.min(100, solved.l + (tuningValue || 0)));
-            const [r, g, b] = ColorUtils.hslToRgb(solved.h, solved.s, L);
-            const hex = ColorUtils.rgbToHex(r, g, b);
-            const contrast = ColorUtils.getContrast({ r, g, b }, backgroundRgb);
+            var tuningDelta = typeof tuningValue === 'number' ? tuningValue : 0;
+            var tunedLightness = Math.max(0, Math.min(100, solved.l + tuningDelta));
+
+            var rgbArray = ColorUtils.hslToRgb(solved.h, solved.s, tunedLightness);
+            var rgb = { r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] };
+            var contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+
+            if (targetContrast > 0) {
+                var relativeDiff = Math.abs(contrast - targetContrast) / targetContrast;
+                var tolerance = 0.12; // 최대 12% 편차 허용
+
+                if (relativeDiff > tolerance) {
+                    var ratio = tolerance / relativeDiff;
+                    tunedLightness = Math.max(0, Math.min(100, solved.l + (tunedLightness - solved.l) * ratio));
+                    rgbArray = ColorUtils.hslToRgb(solved.h, solved.s, tunedLightness);
+                    rgb = { r: rgbArray[0], g: rgbArray[1], b: rgbArray[2] };
+                    contrast = ColorUtils.getContrast(rgb, backgroundRgb);
+                }
+            }
+
+            const hex = ColorUtils.rgbToHex(rgb.r, rgb.g, rgb.b);
 
             return { step, hex, contrast, isClosest: false };
         });
