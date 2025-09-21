@@ -3284,44 +3284,6 @@
             }
             var extraSteps = getRecommendedNeighborSteps(recommendedStep);
 
-            // 밝은 Key Color의 경우 한 단계 밝고 어두운 톤도 함께 제안
-            try {
-                var keyInfo = getKeyColorInfo();
-                if (keyInfo && keyInfo.range === 'light' && keyInfo.step && colorGenerator && Array.isArray(colorGenerator.steps)) {
-                    var stepsList = colorGenerator.steps;
-                    var currentIndex = stepsList.indexOf(keyInfo.step);
-                    if (currentIndex !== -1) {
-                        var extraSet = new Set(extraSteps);
-
-                        function pushUnique(stepValue, prioritizeFront) {
-                            if (typeof stepValue !== 'number') return;
-                            if (stepValue === keyInfo.step) return;
-                            if (!stepsList.includes(stepValue)) return;
-                            if (extraSet.has(stepValue)) return;
-                            if (!getColorHexForStep(stepValue)) return;
-
-                            if (prioritizeFront) {
-                                extraSteps.unshift(stepValue);
-                            } else {
-                                extraSteps.push(stepValue);
-                            }
-                            extraSet.add(stepValue);
-                        }
-
-                        var brighterStep = stepsList[Math.min(currentIndex + 1, stepsList.length - 1)];
-                        if (brighterStep > keyInfo.step) {
-                            pushUnique(brighterStep, true);
-                        }
-
-                        var darkerStep = stepsList[Math.max(currentIndex - 1, 0)];
-                        if (darkerStep < keyInfo.step) {
-                            pushUnique(darkerStep, false);
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn('추천 배경 확장 처리 실패:', e);
-            }
             renderRecommendedExtras(recommendedStep, extraSteps);
 
             console.log('추천 배경색 업데이트:', recommendedBg);
