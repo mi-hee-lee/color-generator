@@ -711,7 +711,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:50';
+      mappings['semantic/text/on-color'] = 'GRAY:900';
 
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:75';

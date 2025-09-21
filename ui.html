@@ -312,6 +312,12 @@
             letter-spacing: 0.005em;
         }
 
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .btn-secondary {
             background: #F0F0F0; /* Basic/Gray */
             color: rgba(0, 0, 0, 0.8);
@@ -328,6 +334,11 @@
 
         .btn-primary:hover { background: #CCC; color:#FFF; }
         .btn-success:hover { background: #008be7; color: #FFFFFF; }
+
+        .btn-success:disabled {
+            background: #9acdf5;
+            color: rgba(255, 255, 255, 0.8);
+        }
 
         .color-grid {
             flex-direction: column;
@@ -1749,7 +1760,7 @@
                 <div class="step-actions" style="display: block;">
                     <button class="action-btn btn-secondary" onclick="goToStep(1)">이전</button>
                     <div style="padding: 8px; background: #18a0fb0c; text-align: center; font-size: 10px; color: #18A0FB; border-radius: 4px; margin-top: 8px;">Frame을 선택하고 적용하기 버튼을 클릭하세요.</div>
-                    <button class="action-btn btn-success" onclick="applyCustomThemeWithBackground()">적용하기</button>
+                    <button id="applyBackgroundBtn" class="action-btn btn-success" type="button" onclick="applyCustomThemeWithBackground()" disabled>적용하기</button>
                 </div>
 
                 <div class="ui-preview-section" style="display: none;">
@@ -1952,7 +1963,7 @@
                 <div class="section-title">Variable Name</div>
                 <input type="text" id="variableName" class="hex-input" placeholder="예: primary, brand, blue" style="width: 100%;">
                 <p style="font-size: 9px; color: #666; margin-top: 4px;">
-                    변수 이름 형식: {name}-50, {name}-100, {name}-200...
+                    Variable 이름 형식: {name}-50, {name}-100, {name}-200...
                 </p>
             </div>
 
@@ -2681,7 +2692,12 @@
 
             const baseColorInput = document.getElementById('wizardThemeBaseHex');
             const baseColor = baseColorInput ? baseColorInput.value : '';
-            
+
+            const applyBackgroundBtn = document.getElementById('applyBackgroundBtn');
+            if (applyBackgroundBtn) {
+                applyBackgroundBtn.disabled = true;
+            }
+
             if (!baseColor) {
                 showMessage('테마 이름과 색상을 입력해주세요!');
                 return;
@@ -2760,6 +2776,9 @@
                     }
                     updateCustomBgHint();
                 } catch (e) { console.warn('추천 배경 재업데이트 실패:', e); }
+                if (applyBackgroundBtn) {
+                    applyBackgroundBtn.disabled = false;
+                }
                 showMessage('테마 변수가 생성되었습니다!');
             }, 1000);
         }
