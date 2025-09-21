@@ -592,7 +592,6 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/background/default'] = 'REF:' + themeName + '950';
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
-
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
@@ -712,10 +711,11 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
       mappings['semantic/text/disabled'] = 'GRAY:400';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
+      mappings['semantic/text/on-color'] = 'GRAY:50';
 
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:75';
+      mappings['semantic/shadow/default'] = 'ALPHA:' + themeName + '100'
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, 1);
@@ -736,7 +736,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
       mappings['semantic/common/muted'] = 'GRAY:300';
 
-      mappings['semantic/common/custom-accent'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/common/custom-accent'] = 'REF:' + themeName + 500;
       mappings['semantic/common/custom-accent-low'] = 'REF:' + themeName + 50;
       
     } else if (colorRange === 'medium') {
@@ -749,6 +749,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + adjustStep(closestStep, 1);
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:75';
+      mappings['semantic/shadow/default'] = 'ALPHA:' + themeName + '100'
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -782,6 +783,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'GRAY-ALPHA:75';
+      mappings['semantic/shadow/default'] = 'ALPHA:' + themeName + '100'
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
@@ -819,7 +821,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
       mappings['semantic/text/disabled'] = 'STATIC-WHITE-ALPHA:500';
-      mappings['semantic/text/on-color'] = 'GRAY:900';
+      mappings['semantic/text/on-color'] = 'GRAY:50';
       
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
