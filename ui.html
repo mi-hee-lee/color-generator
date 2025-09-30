@@ -5607,10 +5607,9 @@ window.addEventListener('message', (event) => {
                 displayThemePreview(currentTheme);
             };
 
-            setAccordionState(recommendedToggle, recommendedPanel, true);
+            setAccordionState(recommendedToggle, recommendedPanel, false);
             setAccordionState(customBgToggle, customBgPanel, false);
             if (customBgColorContainer) customBgColorContainer.style.display = 'none';
-            openRecommendedAccordion();
 
             bgSwatches.forEach(swatch => {
                 swatch.addEventListener('click', () => {
