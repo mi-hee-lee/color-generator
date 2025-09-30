@@ -1766,7 +1766,7 @@
                             <span id="wizardClassificationBadge" class="classification-badge classification-medium">중간</span>
                         </div>
                         <div id="wizardStepClassificationInfo" class="color-classification-info" style="margin-top: 8px; display: none;">
-                            <span id="wizardStepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(400-600)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
+                            <span id="wizardStepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(500-700)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
                         </div>
 
                     </div>
@@ -2021,7 +2021,7 @@
                     <span id="classificationBadge" class="classification-badge classification-medium">중간</span>
                 </div>
                 <div id="stepClassificationInfo" class="color-classification-info" style="margin-top: 8px; display: none;">
-                    <span id="stepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(400-600)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
+                    <span id="stepClassificationText">입력 색상이 Step 500에 해당합니다. 중간 범위(500-700)로 분류되어 Mode별로 다른 매핑이 적용됩니다.</span>
                 </div>
             </div>
 
@@ -2176,6 +2176,16 @@
                     type: 'sync-library-variables'
                 }
             }, '*');
+        }
+
+        function resetLibraryOnboarding(message) {
+            librarySetupNeeded = true;
+            librarySyncInProgress = false;
+            if (libraryOnboardingStartBtn) {
+                libraryOnboardingStartBtn.disabled = false;
+            }
+            updateLibraryOnboardingStatus(message || '라이브러리 토큰을 다시 복제하려면 "시작하기"를 눌러주세요.');
+            setLibraryOnboardingVisible(true);
         }
 
         if (libraryOnboardingStartBtn) {
@@ -2574,18 +2584,18 @@
             // 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
             if (isInherentlyBright) {
                 // 태생이 밝은 색상
-                if (closestStep <= 300) {
+                if (closestStep <= 400) {
                     return 'light';
-                } else if (closestStep >= 400 && closestStep <= 700) {
+                } else if (closestStep >= 500 && closestStep <= 700) {
                     return 'medium';
                 } else {
                     return 'dark';  // 800-950
                 }
             } else {
                 // 태생이 어두운 색상
-                if (closestStep < 300) {
+                if (closestStep <= 400) {
                     return 'light';
-                } else if (closestStep >= 300 && closestStep <= 700) {
+                } else if (closestStep >= 500 && closestStep <= 700) {
                     return 'medium';
                 } else {
                     return 'dark';  // 800-950
@@ -3481,7 +3491,7 @@
                 // 2) 프론트에서 REF:{themeName}{step} 해석
                 const range = currentTheme.colorRange || (function() {
                     const step = currentTheme.selectedStep || 500;
-                    return step < 200 ? 'light' : (step >= 300 && step <= 700 ? 'medium' : 'dark');
+                    return step <= 400 ? 'light' : (step >= 500 && step <= 700 ? 'medium' : 'dark');
                 })();
                 const targetStep = (range === 'light') ? 950 : 100;
                 const swatch = currentTheme.scaleColors.light.find(c => c.step === targetStep);
@@ -3526,8 +3536,8 @@
             }
 
             if (!range && step) {
-                if (step < 300) range = 'light';
-                else if (step >= 300 && step <= 700) range = 'medium';
+                if (step <= 400) range = 'light';
+                else if (step >= 500 && step <= 700) range = 'medium';
                 else range = 'dark';
             }
 
@@ -3684,7 +3694,7 @@
             const selectedStep = currentTheme.selectedStep || 500;
             
             // 밝기 기준 (백엔드 getDynamicMappings와 동일한 로직)
-            let isBrightColor = selectedStep < 200; // 200 미만
+            let isBrightColor = selectedStep <= 400;
             if (currentTheme.baseColor) {
                 const hsl = ColorUtils.hexToHsl(currentTheme.baseColor);
                 const lightness = hsl[2];
@@ -3700,7 +3710,13 @@
             if (currentTheme.colorRange) {
                 colorRangeFlag = currentTheme.colorRange; // 'light' | 'medium' | 'dark'
             } else {
-                colorRangeFlag = isBrightColor ? 'light' : (selectedStep >= 300 && selectedStep <= 700 ? 'medium' : 'dark');
+                if (isBrightColor || selectedStep <= 400) {
+                    colorRangeFlag = 'light';
+                } else if (selectedStep >= 500 && selectedStep <= 700) {
+                    colorRangeFlag = 'medium';
+                } else {
+                    colorRangeFlag = 'dark';
+                }
             }
 
             // Neutral gray helper (Light Mode)
@@ -3710,7 +3726,7 @@
                 return idx >= 0 ? grayGen.lightModeGrayTones[idx] : '#F5F5F5';
             };
             // 색상 범위 분류 사용 (있으면 우선)
-            const colorRange = currentTheme.colorRange || (isBrightColor ? 'light' : (selectedStep >= 300 && selectedStep <= 700 ? 'medium' : 'dark'));
+                const colorRange = currentTheme.colorRange || ((isBrightColor || selectedStep <= 400) ? 'light' : (selectedStep >= 500 && selectedStep <= 700 ? 'medium' : 'dark'));
             
                 switch(mode) {
                 case 'accent-on-bg-off':
@@ -3915,12 +3931,12 @@
                     // 색상 범위 결정
                     let colorRange;
                     if (isInherentlyBright) {
-                        if (closestStep <= 300) colorRange = 'light';
-                        else if (closestStep >= 400 && closestStep <= 700) colorRange = 'medium';
+                        if (closestStep <= 400) colorRange = 'light';
+                        else if (closestStep >= 500 && closestStep <= 700) colorRange = 'medium';
                         else colorRange = 'dark';
                     } else {
-                        if (closestStep < 300) colorRange = 'light';
-                        else if (closestStep >= 300 && closestStep <= 700) colorRange = 'medium';
+                        if (closestStep <= 400) colorRange = 'light';
+                        else if (closestStep >= 500 && closestStep <= 700) colorRange = 'medium';
                         else colorRange = 'dark';
                     }
                     
@@ -4379,19 +4395,17 @@
 
                 var colorRange;
                 if (isInherentlyBright) {
-                    if (closestStep <= 300) {
+                    if (closestStep <= 400) {
                         colorRange = 'light';
-                    } else if (closestStep >= 400 && closestStep <= 700) {
+                    } else if (closestStep >= 500 && closestStep <= 700) {
                         colorRange = 'medium';
-                    } else if (closestStep > 700) {
-                        colorRange = 'dark';
                     } else {
-                        colorRange = 'light';
+                        colorRange = 'dark';
                     }
                 } else {
-                    if (closestStep < 300) {
+                    if (closestStep <= 400) {
                         colorRange = 'light';
-                    } else if (closestStep >= 300 && closestStep <= 700) {
+                    } else if (closestStep >= 500 && closestStep <= 700) {
                         colorRange = 'medium';
                     } else {
                         colorRange = 'dark';
@@ -5346,7 +5360,8 @@ window.addEventListener('message', (event) => {
             const generatorTab = document.getElementById('generatorTab');
             const toneMatchingTab = document.getElementById('toneMatchingTab');
             const customThemeTab = document.getElementById('customThemeTab');
-            
+            const tabHomeBtn = document.getElementById('tabHomeBtn');
+
             if (generatorTab) {
                 generatorTab.addEventListener('click', () => {
                     console.log('Generator tab clicked');
@@ -5372,6 +5387,14 @@ window.addEventListener('message', (event) => {
                 });
             } else {
                 console.warn('customThemeTab not found');
+            }
+
+            if (tabHomeBtn) {
+                tabHomeBtn.addEventListener('click', () => {
+                    resetLibraryOnboarding('라이브러리 토큰을 다시 복제하려면 "시작하기"를 눌러주세요.');
+                });
+            } else {
+                console.warn('tabHomeBtn not found');
             }
 
             // 색상 입력

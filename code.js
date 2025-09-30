@@ -1189,19 +1189,17 @@ function assessColorRange(closestStep, baseColor) {
   info.isInherentlyBright = isInherentlyBright;
 
   if (isInherentlyBright) {
-    if (closestStep <= 300) {
+    if (closestStep <= 400) {
       info.colorRange = 'light';
-    } else if (closestStep >= 400 && closestStep <= 700) {
+    } else if (closestStep >= 500 && closestStep <= 700) {
       info.colorRange = 'medium';
-    } else if (closestStep > 700) {
-      info.colorRange = 'dark';
     } else {
-      info.colorRange = 'light';
+      info.colorRange = 'dark';
     }
   } else {
-    if (closestStep < 200) {
+    if (closestStep <= 400) {
       info.colorRange = 'light';
-    } else if (closestStep >= 300 && closestStep <= 700) {
+    } else if (closestStep >= 500 && closestStep <= 700) {
       info.colorRange = 'medium';
     } else {
       info.colorRange = 'dark';
@@ -1239,7 +1237,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
   if (applicationMode === 'accent-on-bg-off') {
     console.log('[Backend] accent-on-bg-off 적용 - colorRange:', colorRange);
     if (colorRange === 'light') {
-      // 밝은 범위 (Step≤300 OR L≥80% OR BornBright(40°≤H≤190°))
+      // 밝은 범위 (Step≤400 OR L≥80% OR BornBright(40°≤H≤190°))
       mappings['semantic/text/primary'] = 'STATIC-WHITE-ALPHA:900';
       mappings['semantic/text/secondary'] = 'STATIC-WHITE-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'STATIC-WHITE-ALPHA:600';
@@ -1278,7 +1276,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/disabled'] = 'STATIC-WHITE-ALPHA:200';
       
     } else if (colorRange === 'medium') {
-      // 중간 범위 (Step 400-600)
+      // 중간 범위 (Step 500-700)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY-ALPHA:700';
       mappings['semantic/text/tertiary'] = 'GRAY-ALPHA:600';
@@ -1396,7 +1394,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/custom-accent-low'] = 'REF:' + themeName + 50;
       
     } else if (colorRange === 'medium') {
-      // 중간 범위 (Step 400-600)
+      // 중간 범위 (Step 500-700)
       mappings['semantic/text/primary'] = 'GRAY:900';
       mappings['semantic/text/secondary'] = 'GRAY:700';
       mappings['semantic/text/tertiary'] = 'GRAY:600';
@@ -2195,7 +2193,68 @@ async function handleApplyThemeColorsToFrame(msg) {
     } catch (e) {}
     return;
   }
-  
+
+  function collectBoundVariableIds(nodes) {
+    var ids = new Set();
+
+    function addPaintVariables(paints) {
+      if (!Array.isArray(paints)) return;
+      for (var p = 0; p < paints.length; p++) {
+        var paint = paints[p];
+        if (
+          paint &&
+          paint.boundVariables &&
+          paint.boundVariables.color &&
+          paint.boundVariables.color.id
+        ) {
+          ids.add(paint.boundVariables.color.id);
+        }
+      }
+    }
+
+    function addEffectVariables(effects) {
+      if (!Array.isArray(effects)) return;
+      for (var e = 0; e < effects.length; e++) {
+        var effect = effects[e];
+        if (
+          effect &&
+          effect.boundVariables &&
+          effect.boundVariables.color &&
+          effect.boundVariables.color.id
+        ) {
+          ids.add(effect.boundVariables.color.id);
+        }
+      }
+    }
+
+    function traverse(node) {
+      if (!node) return;
+      if ('fills' in node && Array.isArray(node.fills)) {
+        addPaintVariables(node.fills);
+      }
+      if ('strokes' in node && Array.isArray(node.strokes)) {
+        addPaintVariables(node.strokes);
+      }
+      if ('backgrounds' in node && Array.isArray(node.backgrounds)) {
+        addPaintVariables(node.backgrounds);
+      }
+      if ('effects' in node && Array.isArray(node.effects)) {
+        addEffectVariables(node.effects);
+      }
+      if ('children' in node && node.children) {
+        for (var c = 0; c < node.children.length; c++) {
+          traverse(node.children[c]);
+        }
+      }
+    }
+
+    for (var n = 0; n < nodes.length; n++) {
+      traverse(nodes[n]);
+    }
+
+    return ids;
+  }
+
   var collections = await figma.variables.getLocalVariableCollectionsAsync();
   var collection = collections.find(function(c) { return c.name === 'ruler_v2'; });
   
@@ -2249,13 +2308,31 @@ async function handleApplyThemeColorsToFrame(msg) {
       }
     });
   }
+  var allVarById = new Map();
   var localVarByName = new Map();
   var localVarById = new Map();
   for (var lv = 0; lv < allVariables.length; lv++) {
     var variable = allVariables[lv];
-    if (variable && variable.variableCollectionId === collection.id) {
+    if (!variable) continue;
+    allVarById.set(variable.id, variable);
+    if (variable.variableCollectionId === collection.id) {
       localVarByName.set(variable.name, variable);
       localVarById.set(variable.id, variable);
+    }
+  }
+
+  var referencedVariableIds = collectBoundVariableIds(selection);
+  for (var id of referencedVariableIds) {
+    if (!allVarById.has(id)) {
+      try {
+        var remoteVar = await figma.variables.getVariableByIdAsync(id);
+        if (remoteVar) {
+          allVariables.push(remoteVar);
+          allVarById.set(remoteVar.id, remoteVar);
+        }
+      } catch (error) {
+        console.warn('[Backend] 원본 라이브러리 변수 조회 실패:', id, error);
+      }
     }
   }
   var appliedCount = 0;
@@ -2461,7 +2538,7 @@ async function handleApplyThemeColorsToFrame(msg) {
 
     if (typeof modeValue === 'object') {
       if (modeValue.type === 'VARIABLE_ALIAS' && modeValue.id) {
-        var targetVar = localVarById.get(modeValue.id) || allVariables.find(function(v) { return v.id === modeValue.id; });
+        var targetVar = localVarById.get(modeValue.id) || allVarById.get(modeValue.id);
         if (targetVar) {
           return getColorFromVariable(targetVar, depth + 1);
         }
@@ -2492,32 +2569,31 @@ async function handleApplyThemeColorsToFrame(msg) {
         var fill = node.fills[f];
         if (fill.boundVariables && fill.boundVariables.color && fill.boundVariables.color.id) {
           // 기존 바인딩된 변수 찾기
-          var currentVar = allVariables.find(function(v) {
-            return v.id === fill.boundVariables.color.id;
-          });
+          var currentVar = allVarById.get(fill.boundVariables.color.id);
 
           if (currentVar && currentVar.name.startsWith('semantic/')) {
 
-            if (currentVar.variableCollectionId !== collection.id) {
-              var localReplacement = localVarByName.get(currentVar.name);
-              if (localReplacement) {
-                var migratedFills = node.fills.slice();
-                var clonedFill = Object.assign({}, fill);
-                if (!clonedFill.color && clonedFill.type === 'SOLID') {
-                  clonedFill.color = getColorFromVariable(localReplacement) || fill.color;
-                }
-                clonedFill.boundVariables = {
-                  color: {
-                    type: 'VARIABLE_ALIAS',
-                    id: localReplacement.id
-                  }
-                };
-                migratedFills[f] = clonedFill;
-                node.fills = migratedFills;
-                appliedCount++;
-                continue;
+          if (currentVar.variableCollectionId !== collection.id) {
+            var localReplacement = localVarByName.get(currentVar.name);
+            if (localReplacement) {
+              var migratedFills = node.fills.slice();
+              var clonedFill = Object.assign({}, fill);
+              if (!clonedFill.color && clonedFill.type === 'SOLID') {
+                clonedFill.color = getColorFromVariable(localReplacement) || fill.color;
               }
+              clonedFill.boundVariables = {
+                color: {
+                  type: 'VARIABLE_ALIAS',
+                  id: localReplacement.id
+                }
+              };
+              migratedFills[f] = clonedFill;
+              node.fills = migratedFills;
+              fill = node.fills[f];
+              currentVar = localReplacement;
+              appliedCount++;
             }
+          }
 
             // 매핑에서 대응하는 토큰 찾기
             var mappedValue = mappings[currentVar.name];
@@ -2599,39 +2675,38 @@ async function handleApplyThemeColorsToFrame(msg) {
     // 현재 노드의 strokes 처리
     if ('strokes' in node && node.strokes && node.strokes.length > 0) {
       for (var s = 0; s < node.strokes.length; s++) {
-      var stroke = node.strokes[s];
-      if (stroke.boundVariables && stroke.boundVariables.color && stroke.boundVariables.color.id) {
-        // 기존 바인딩된 변수 찾기
-        var currentStrokeVar = allVariables.find(function(v) {
-          return v.id === stroke.boundVariables.color.id;
-        });
+        var stroke = node.strokes[s];
+        if (stroke.boundVariables && stroke.boundVariables.color && stroke.boundVariables.color.id) {
+          // 기존 바인딩된 변수 찾기
+          var currentStrokeVar = allVarById.get(stroke.boundVariables.color.id);
 
-        if (currentStrokeVar && currentStrokeVar.name.startsWith('semantic/')) {
+          if (currentStrokeVar && currentStrokeVar.name.startsWith('semantic/')) {
 
-          if (currentStrokeVar.variableCollectionId !== collection.id) {
-            var localStrokeReplacement = localVarByName.get(currentStrokeVar.name);
-            if (localStrokeReplacement) {
-              var migratedStrokes = node.strokes.slice();
-              var clonedStroke = Object.assign({}, stroke);
-              if (!clonedStroke.color) {
-                clonedStroke.color = getColorFromVariable(localStrokeReplacement) || stroke.color;
-              }
-              clonedStroke.boundVariables = {
-                color: {
-                  type: 'VARIABLE_ALIAS',
-                  id: localStrokeReplacement.id
+            if (currentStrokeVar.variableCollectionId !== collection.id) {
+              var localStrokeReplacement = localVarByName.get(currentStrokeVar.name);
+              if (localStrokeReplacement) {
+                var migratedStrokes = node.strokes.slice();
+                var clonedStroke = Object.assign({}, stroke);
+                if (!clonedStroke.color) {
+                  clonedStroke.color = getColorFromVariable(localStrokeReplacement) || stroke.color;
                 }
-              };
-              migratedStrokes[s] = clonedStroke;
-              node.strokes = migratedStrokes;
-              appliedCount++;
-              continue;
+                clonedStroke.boundVariables = {
+                  color: {
+                    type: 'VARIABLE_ALIAS',
+                    id: localStrokeReplacement.id
+                  }
+                };
+                migratedStrokes[s] = clonedStroke;
+                node.strokes = migratedStrokes;
+                stroke = node.strokes[s];
+                currentStrokeVar = localStrokeReplacement;
+                appliedCount++;
+              }
             }
-          }
 
-          // 매핑에서 대응하는 토큰 찾기
-          var strokeMappedValue = mappings[currentStrokeVar.name];
-          if (strokeMappedValue) {
+            // 매핑에서 대응하는 토큰 찾기
+            var strokeMappedValue = mappings[currentStrokeVar.name];
+            if (strokeMappedValue) {
               var newStrokeToken = findTokenFromMapping(strokeMappedValue);
               if (newStrokeToken) {
                 var strokeFallbackColor = getFallbackColor(strokeMappedValue);
@@ -2661,39 +2736,38 @@ async function handleApplyThemeColorsToFrame(msg) {
     // effects (그림자 등) 처리
     if ('effects' in node && node.effects && node.effects.length > 0) {
       for (var e = 0; e < node.effects.length; e++) {
-      var effect = node.effects[e];
-      if (effect.boundVariables && effect.boundVariables.color && effect.boundVariables.color.id) {
-        var currentEffectVar = allVariables.find(function(v) {
-          return v.id === effect.boundVariables.color.id;
-        });
+        var effect = node.effects[e];
+        if (effect.boundVariables && effect.boundVariables.color && effect.boundVariables.color.id) {
+          var currentEffectVar = allVarById.get(effect.boundVariables.color.id);
 
-        if (currentEffectVar && currentEffectVar.name.startsWith('semantic/')) {
+          if (currentEffectVar && currentEffectVar.name.startsWith('semantic/')) {
 
-          if (currentEffectVar.variableCollectionId !== collection.id) {
-            var localEffectReplacement = localVarByName.get(currentEffectVar.name);
-            if (localEffectReplacement) {
-              var migratedEffects = node.effects.slice();
-              var clonedEffect = Object.assign({}, effect);
-              clonedEffect = Object.assign({}, clonedEffect, {
-                boundVariables: {
-                  color: {
-                    type: 'VARIABLE_ALIAS',
-                    id: localEffectReplacement.id
+            if (currentEffectVar.variableCollectionId !== collection.id) {
+              var localEffectReplacement = localVarByName.get(currentEffectVar.name);
+              if (localEffectReplacement) {
+                var migratedEffects = node.effects.slice();
+                var clonedEffect = Object.assign({}, effect);
+                clonedEffect = Object.assign({}, clonedEffect, {
+                  boundVariables: {
+                    color: {
+                      type: 'VARIABLE_ALIAS',
+                      id: localEffectReplacement.id
+                    }
                   }
+                });
+                if (!clonedEffect.color) {
+                  clonedEffect.color = getColorFromVariable(localEffectReplacement) || effect.color;
                 }
-              });
-              if (!clonedEffect.color) {
-                clonedEffect.color = getColorFromVariable(localEffectReplacement) || effect.color;
+                migratedEffects[e] = clonedEffect;
+                node.effects = migratedEffects;
+                effect = node.effects[e];
+                currentEffectVar = localEffectReplacement;
+                appliedCount++;
               }
-              migratedEffects[e] = clonedEffect;
-              node.effects = migratedEffects;
-              appliedCount++;
-              continue;
             }
-          }
 
-          var effectMappedValue = mappings[currentEffectVar.name];
-          if (effectMappedValue) {
+            var effectMappedValue = mappings[currentEffectVar.name];
+            if (effectMappedValue) {
               var newEffectToken = findTokenFromMapping(effectMappedValue);
               if (newEffectToken) {
                 // Effect 토큰 교체 - effects 배열 전체 복사 후 수정
