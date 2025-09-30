@@ -120,14 +120,21 @@
 
         .onboarding-btn {
             height: 36px;
-            border-radius: 8px;
             border: none;
-            background: #2563eb;
+            background: #18A0FB;
             color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+
+            /* Typography */
+            font-family: var(--body-1-semi-bold-font-family);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 16px;
+            letter-spacing: 0.005em;
+
         }
 
         .onboarding-btn:disabled {
@@ -1702,8 +1709,8 @@
 <body>
     <div id="libraryOnboarding" class="onboarding-overlay">
         <div class="onboarding-card">
-            <h1>라이브러리 토큰 준비하기</h1>
-            <p>Custom Theme을 생성하기 위한 세팅을 준비할게요. 최초 1회만 진행하면 됩니다.</p>
+            <h1>Color Token 생성 준비하기</h1>
+            <p>Color Token 생성 테스트를 위해 세팅이 필요해요. 최초 1회만 실행하시면 돼요.</p>
             <div class="onboarding-actions">
                 <button id="libraryOnboardingStart" class="onboarding-btn">시작하기</button>
                 <div id="libraryOnboardingStatus" class="onboarding-status"></div>
