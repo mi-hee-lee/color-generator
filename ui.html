@@ -66,6 +66,86 @@
             overflow-x: hidden;
         }
 
+        body.onboarding-active {
+            overflow: hidden;
+        }
+
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 24px;
+        }
+
+        .onboarding-overlay.show {
+            display: flex;
+        }
+
+        .onboarding-card {
+            max-width: 320px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            padding: 28px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .onboarding-card h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .onboarding-card p {
+            font-size: 12px;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .onboarding-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .onboarding-btn {
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .onboarding-btn:disabled {
+            background: rgba(37, 99, 235, 0.5);
+            cursor: not-allowed;
+        }
+
+        .onboarding-btn:not(:disabled):hover {
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .onboarding-status {
+            font-size: 11px;
+            color: #64748b;
+            min-height: 16px;
+        }
+
         .container {
             padding: 0;
             width: 100%;
@@ -1620,6 +1700,16 @@
     </style>
 </head>
 <body>
+    <div id="libraryOnboarding" class="onboarding-overlay">
+        <div class="onboarding-card">
+            <h1>라이브러리 토큰 준비하기</h1>
+            <p>Custom Theme을 생성하기 위한 세팅을 준비할게요. 최초 1회만 진행하면 됩니다.</p>
+            <div class="onboarding-actions">
+                <button id="libraryOnboardingStart" class="onboarding-btn">시작하기</button>
+                <div id="libraryOnboardingStatus" class="onboarding-status"></div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <!-- 탭 네비게이션 -->
         <div class="tab-navigation">
@@ -2048,6 +2138,135 @@
     <script>
         
         // 전역 변수
+        const libraryOnboardingOverlay = document.getElementById('libraryOnboarding');
+        const libraryOnboardingStartBtn = document.getElementById('libraryOnboardingStart');
+        const libraryOnboardingStatus = document.getElementById('libraryOnboardingStatus');
+        let librarySetupNeeded = false;
+        let librarySyncInProgress = false;
+        let libraryStatusRequested = false;
+
+        function setLibraryOnboardingVisible(visible) {
+            if (!libraryOnboardingOverlay) return;
+            if (visible) {
+                libraryOnboardingOverlay.classList.add('show');
+                document.body.classList.add('onboarding-active');
+            } else {
+                libraryOnboardingOverlay.classList.remove('show');
+                document.body.classList.remove('onboarding-active');
+            }
+        }
+
+        function updateLibraryOnboardingStatus(text, isError = false) {
+            if (!libraryOnboardingStatus) return;
+            libraryOnboardingStatus.textContent = text || '';
+            libraryOnboardingStatus.style.color = isError ? '#dc2626' : '#64748b';
+        }
+
+        function requestLibrarySyncStatus() {
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'check-library-sync'
+                }
+            }, '*');
+        }
+
+        function requestLibrarySync() {
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'sync-library-variables'
+                }
+            }, '*');
+        }
+
+        if (libraryOnboardingStartBtn) {
+            libraryOnboardingStartBtn.disabled = true;
+            libraryOnboardingStartBtn.addEventListener('click', function() {
+                if (librarySyncInProgress) return;
+                librarySyncInProgress = true;
+                libraryOnboardingStartBtn.disabled = true;
+                updateLibraryOnboardingStatus('라이브러리 토큰을 불러오는 중입니다... 잠시만 기다려주세요.');
+                requestLibrarySync();
+            });
+        }
+
+        setLibraryOnboardingVisible(true);
+        updateLibraryOnboardingStatus('초기 상태를 확인하고 있어요...');
+
+        function handleCommonPluginMessage(msg) {
+            switch (msg.type) {
+                case 'plugin-ready':
+                    if (!libraryStatusRequested) {
+                        libraryStatusRequested = true;
+                        requestLibrarySyncStatus();
+                    }
+                    break;
+                case 'library-sync-status':
+                    librarySetupNeeded = !!msg.needsSetup;
+                    librarySyncInProgress = false;
+                    if (libraryOnboardingStartBtn) {
+                        libraryOnboardingStartBtn.disabled = !librarySetupNeeded;
+                    }
+                    if (librarySetupNeeded) {
+                        const missingCount = msg.missingCount || 0;
+                        const totalCount = msg.totalRequired || 0;
+                        updateLibraryOnboardingStatus(`로컬에 ${missingCount}개의 토큰이 없습니다. '시작하기'를 눌러 복제해주세요. (${missingCount}/${totalCount})`);
+                        setLibraryOnboardingVisible(true);
+                    } else {
+                        updateLibraryOnboardingStatus('');
+                        setLibraryOnboardingVisible(false);
+                    }
+                    break;
+                case 'library-sync-progress':
+                    if (!librarySyncInProgress) librarySyncInProgress = true;
+                    if (libraryOnboardingStartBtn) {
+                        libraryOnboardingStartBtn.disabled = true;
+                    }
+                    updateLibraryOnboardingStatus(`라이브러리 토큰 복제 중... ${msg.completed || 0} / ${msg.total || 0}`);
+                    break;
+                case 'library-sync-complete':
+                    librarySyncInProgress = false;
+                    if (libraryOnboardingStartBtn) {
+                        libraryOnboardingStartBtn.disabled = true;
+                    }
+                    const created = msg.created || 0;
+                    const updated = msg.updated || 0;
+                    const fallback = msg.fallback || 0;
+                    const failedList = Array.isArray(msg.failed) ? msg.failed : [];
+                    let statusText = `복제가 완료되었습니다! (생성 ${created}개, 갱신 ${updated}개`;
+                    if (fallback > 0) {
+                        statusText += `, 로컬 데이터 사용 ${fallback}개`;
+                    }
+                    if (failedList.length > 0) {
+                        statusText += `, 실패 ${failedList.length}개`;
+                    }
+                    statusText += ')';
+                    updateLibraryOnboardingStatus(statusText, failedList.length > 0);
+                    if (failedList.length > 0) {
+                        console.warn('[Color Generator] 라이브러리 토큰 일부 임포트 실패:', failedList);
+                    }
+                    if (failedList.length === 0) {
+                        setTimeout(() => {
+                            updateLibraryOnboardingStatus('');
+                            setLibraryOnboardingVisible(false);
+                        }, 1200);
+                    } else {
+                        libraryOnboardingStartBtn.disabled = false;
+                    }
+                    break;
+                case 'library-sync-error':
+                    librarySyncInProgress = false;
+                    if (libraryOnboardingStartBtn) {
+                        libraryOnboardingStartBtn.disabled = false;
+                    }
+                    updateLibraryOnboardingStatus(msg.message || '복제 중 오류가 발생했습니다.', true);
+                    if (Array.isArray(msg.failed) && msg.failed.length > 0) {
+                        console.warn('[Color Generator] 라이브러리 토큰 임포트 실패 목록:', msg.failed);
+                    }
+                    setLibraryOnboardingVisible(true);
+                    break;
+            }
+        }
+
         let currentMode = 'light';
         let generatedColors = [];
         let referenceColor = null;
@@ -4851,6 +5070,8 @@ window.addEventListener('message', (event) => {
     var msg = event.data.pluginMessage;
     if (!msg) return;
 
+    handleCommonPluginMessage(msg);
+    
     
     switch(msg.type) {
         case 'plugin-ready':
@@ -5437,6 +5658,8 @@ window.addEventListener('message', (event) => {
         window.addEventListener('message', (event) => {
             var msg = event.data.pluginMessage;
             if (!msg) return;
+
+            handleCommonPluginMessage(msg);
 
                     
             switch(msg.type) {
