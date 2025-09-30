@@ -1454,7 +1454,7 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
       mappings['semantic/border/divider-strong'] = 'GRAY:950';
-      mappings['semantic/border/line-selected'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/border/line-selected'] = 'GRAY:950';
       mappings['semantic/border/divider'] = 'GRAY-ALPHA:100';
       mappings['semantic/border/line'] = 'GRAY:200';
       mappings['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -1720,7 +1720,7 @@ function getBackgroundStageOverrides(theme) {
     
     // 보더 관련
     overrides['semantic/border/divider-strong'] = 'GRAY:950';
-    overrides['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, 2);
+    overrides['semantic/border/line-selected'] = 'GRAY:950';
     overrides['semantic/border/divider'] = 'GRAY-ALPHA:100';
     overrides['semantic/border/line'] = 'GRAY:200';
     overrides['semantic/border/line-disabled'] = 'GRAY-ALPHA:200';
@@ -1758,7 +1758,7 @@ function getBackgroundStageOverrides(theme) {
     
     // 보더 관련
     overrides['semantic/border/divider-strong'] = 'STATIC-WHITE-ALPHA:900';
-    overrides['semantic/border/line-selected'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+    overrides['semantic/border/line-selected'] = 'STATIC-WHITE-ALPHA:900';
     overrides['semantic/border/divider'] = 'STATIC-WHITE-ALPHA:200';
     overrides['semantic/border/line'] = 'STATIC-WHITE-ALPHA:300';
     overrides['semantic/border/line-disabled'] = 'STATIC-WHITE-ALPHA:200';
