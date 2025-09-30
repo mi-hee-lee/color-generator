@@ -392,11 +392,16 @@ async function handleCheckLibrarySync() {
 
   if (collection) {
     var localVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+    var allVariables = localVariables.slice();
     var localMap = new Map();
+    var localVarByName = new Map();
+    var localVarById = new Map();
     for (var i = 0; i < localVariables.length; i++) {
       var variable = localVariables[i];
       if (variable.variableCollectionId === collection.id) {
         localMap.set(variable.name, variable);
+        localVarByName.set(variable.name, variable);
+        localVarById.set(variable.id, variable);
       }
     }
 
@@ -436,11 +441,16 @@ async function handleSyncLibraryVariables() {
     var fallbackCount = 0;
 
     var localVariables = await figma.variables.getLocalVariablesAsync('COLOR');
+    var allVariables = localVariables.slice();
     var localMap = new Map();
+    var localVarByName = new Map();
+    var localVarById = new Map();
     for (var i = 0; i < localVariables.length; i++) {
       var variable = localVariables[i];
       if (variable.variableCollectionId === collection.id) {
         localMap.set(variable.name, variable);
+        localVarByName.set(variable.name, variable);
+        localVarById.set(variable.id, variable);
       }
     }
 
