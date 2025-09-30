@@ -863,9 +863,9 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/background/gradient-default'] = 'REF:' + themeName + closestStep;
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
-      mappings['semantic/fill/primary'] = 'REF:' + themeName + adjustStep(closestStep, -1);
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
       mappings['semantic/border/divider-strong'] =  'STATIC-WHITE-ALPHA:900';
       mappings['semantic/border/line-selected'] =  'STATIC-WHITE-ALPHA:900';
@@ -902,8 +902,8 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/fill/surface-contents'] = 'STATIC-WHITE-ALPHA:200';
 
       mappings['semantic/fill/primary'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + closestStep;
-      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + closestStep;
+      mappings['semantic/fill/primary-hover'] = 'REF:' + themeName + adjustStep(closestStep, -1);
+      mappings['semantic/fill/primary-pressed'] = 'REF:' + themeName + adjustStep(closestStep, -1);
       
       mappings['semantic/border/divider-strong'] =  'STATIC-WHITE-ALPHA:900';
       mappings['semantic/border/line-selected'] =  'STATIC-WHITE-ALPHA:900';
