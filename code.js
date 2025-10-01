@@ -2040,8 +2040,8 @@ async function handleCreateCustomTheme(msg) {
     // Dark 모드 값 설정
     variable.setValueForMode(darkMode.modeId, hexToFigmaRGB(darkColor.hex));
     
-    var storedLight = variable.getValueForMode(lightMode.modeId);
-    var storedDark = variable.getValueForMode(darkMode.modeId);
+    var storedLight = variable.valuesByMode ? variable.valuesByMode[lightMode.modeId] : null;
+    var storedDark = variable.valuesByMode ? variable.valuesByMode[darkMode.modeId] : null;
 
     function buildScaleEntry(source, stored) {
       var entry = {
