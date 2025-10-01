@@ -1169,7 +1169,9 @@ function assessColorRange(closestStep, baseColor) {
     isInherentlyBright: false,
     colorRange: 'medium',
     luminance: 0,
-    hueBrightness: 'medium'
+    hueBrightness: 'medium',
+    contrastWithWhite: 0,
+    contrastWithBlack: 0
   };
 
   if (!baseColor) {
@@ -1182,9 +1184,13 @@ function assessColorRange(closestStep, baseColor) {
   var lightness = hsl[2];
   var luminance = getPerceptualLuminance(baseColor);
   var hueBrightness = getHueBrightness(hue, saturation, lightness);
+  var contrastAgainstWhite = contrastRatio(baseColor, '#FFFFFF');
+  var contrastAgainstBlack = contrastRatio(baseColor, '#000000');
 
   info.luminance = luminance;
   info.hueBrightness = hueBrightness;
+  info.contrastWithWhite = contrastAgainstWhite;
+  info.contrastWithBlack = contrastAgainstBlack;
 
   var isInherentlyBright = false;
 
@@ -1198,22 +1204,14 @@ function assessColorRange(closestStep, baseColor) {
 
   info.isInherentlyBright = isInherentlyBright;
 
-  if (isInherentlyBright) {
-    if (closestStep <= 400) {
-      info.colorRange = 'light';
-    } else if (closestStep >= 500 && closestStep <= 700) {
-      info.colorRange = 'medium';
-    } else {
-      info.colorRange = 'dark';
-    }
+  var contrastThreshold = 2.0;
+
+  if (contrastAgainstWhite <= contrastThreshold) {
+    info.colorRange = 'light';
+  } else if (contrastAgainstBlack <= contrastThreshold) {
+    info.colorRange = 'dark';
   } else {
-    if (closestStep <= 400) {
-      info.colorRange = 'light';
-    } else if (closestStep >= 500 && closestStep <= 700) {
-      info.colorRange = 'medium';
-    } else {
-      info.colorRange = 'dark';
-    }
+    info.colorRange = 'medium';
   }
 
   return info;

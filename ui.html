@@ -2563,51 +2563,25 @@
 
         // 새로운 컬러 범위 분류 로직
         function getColorRangeFromStep(closestStep, hex) {
-            // 본질적 밝기 판단
-            var isInherentlyBright = false;
             if (hex) {
-                var hsl = ColorUtils.hexToHsl(hex);
-                var hue = hsl[0];
-                var saturation = hsl[1];
-                var lightness = hsl[2];
-                var hueBrightness = getHueBrightness(hue);
-                
-                if (saturation < 20) {
-                    // 회색조는 lightness로만 판단
-                    isInherentlyBright = (lightness >= 50);
-                } else {
-                    // 1) Lightness가 75% 이상이면 무조건 밝은 색상으로 분류
-                    if (lightness >= 75) {
-                        isInherentlyBright = true;
-                    } 
-                    // 2) 그렇지 않으면 Hue의 본질적 밝기로 판단
-                    else {
-                        // very-bright, bright까지를 본질적으로 밝은 색상으로 분류
-                        isInherentlyBright = (hueBrightness === 'very-bright' || hueBrightness === 'bright');
-                    }
-                }
-            }
-            
-            // 색상 범위 결정 (본질적 밝기에 따라 기준 조정)
-            if (isInherentlyBright) {
-                // 태생이 밝은 색상
-                if (closestStep <= 400) {
+                const rgb = ColorUtils.hexToRgb(hex);
+                const contrastWithWhite = ColorUtils.getContrast(rgb, { r: 255, g: 255, b: 255 });
+                const contrastWithBlack = ColorUtils.getContrast(rgb, { r: 0, g: 0, b: 0 });
+                const threshold = 2.0;
+
+                if (contrastWithWhite <= threshold) {
                     return 'light';
-                } else if (closestStep >= 500 && closestStep <= 700) {
-                    return 'medium';
-                } else {
-                    return 'dark';  // 800-950
                 }
-            } else {
-                // 태생이 어두운 색상
-                if (closestStep <= 400) {
-                    return 'light';
-                } else if (closestStep >= 500 && closestStep <= 700) {
-                    return 'medium';
-                } else {
-                    return 'dark';  // 800-950
+                if (contrastWithBlack <= threshold) {
+                    return 'dark';
                 }
+                return 'medium';
             }
+
+            // 색상 정보가 없으면 단계 기반으로 대략 분류
+            if (closestStep <= 400) return 'light';
+            if (closestStep >= 800) return 'dark';
+            return 'medium';
         }
 
         // 색상 생성기
@@ -4149,24 +4123,35 @@
         function getColorClassification(hex) {
             if (!hex || !hex.startsWith('#')) return null;
             
-            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
-            const lightness = hsl[2];
-            const hue = hsl[0];
+            const rgb = ColorUtils.hexToRgb(hex);
+            const contrastWithWhite = ColorUtils.getContrast(rgb, { r: 255, g: 255, b: 255 });
+            const contrastWithBlack = ColorUtils.getContrast(rgb, { r: 0, g: 0, b: 0 });
+            const threshold = 2.0;
+
+            let colorRange;
+            if (contrastWithWhite <= threshold) {
+                colorRange = 'light';
+            } else if (contrastWithBlack <= threshold) {
+                colorRange = 'dark';
+            } else {
+                colorRange = 'medium';
+            }
+
+            const isLight = colorRange === 'light';
             const luminance = ColorUtils.getPerceptualLuminance ? ColorUtils.getPerceptualLuminance(hex) : 0;
-            const hueBrightness = evaluateHueBrightness(hue, hsl[1], lightness);
-            const inherentlyBright = luminance > 0.5 || (luminance > 0.3 && (hueBrightness === 'very-bright' || hueBrightness === 'bright'));
-            const isLight = inherentlyBright;
-            
-            let reasons = [];
-            reasons.push(`지각 밝기 ${(luminance * 100).toFixed(1)}%`);
-            reasons.push(`Hue 분류: ${hueBrightness}`);
+            const hsl = ColorUtils.hexToHsl ? ColorUtils.hexToHsl(hex) : hexToHsl(hex);
+            const reasons = [
+                `대비(화이트) ${contrastWithWhite.toFixed(2)}`,
+                `대비(블랙) ${contrastWithBlack.toFixed(2)}`,
+                `지각 밝기 ${(luminance * 100).toFixed(1)}%`
+            ];
 
             return {
                 isLight: isLight,
-                lightness: Math.round(lightness),
-                hue: Math.round(hue),
+                lightness: Math.round(hsl[2]),
+                hue: Math.round(hsl[0]),
                 reasons: reasons,
-                classification: isLight ? '밝은 범위' : '어두운 범위'
+                classification: colorRange === 'dark' ? '어두운 범위' : (colorRange === 'light' ? '밝은 범위' : '중간 범위')
             };
         }
 
