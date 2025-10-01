@@ -3278,34 +3278,24 @@
         }
 
         function getRecommendedNeighborSteps(baseStep) {
-            var results = [];
-            if (!baseStep || !colorGenerator || !Array.isArray(colorGenerator.steps)) return results;
+            if (!baseStep || !colorGenerator || !Array.isArray(colorGenerator.steps)) return [];
             var steps = colorGenerator.steps;
-            var index = steps.indexOf(baseStep);
-            if (index === -1) return results;
+            if (steps.indexOf(baseStep) === -1) return [];
 
-            function addByIndex(idx) {
-                if (idx >= 0 && idx < steps.length) {
-                    var candidate = steps[idx];
-                    if (candidate !== baseStep && results.indexOf(candidate) === -1) {
-                        results.push(candidate);
-                    }
-                }
-            }
-
-            if (index > 0) addByIndex(index - 1);
-
-            if (baseStep < 500) {
-                [index + 2, index + 3, index + 1, index + 4, index + 5].forEach(addByIndex);
-            } else {
-                [index - 2, index - 3, index - 4, index - 5, index - 6].forEach(addByIndex);
-            }
-
-            if (results.length < 3) {
-                [index + 1, index + 2, index - 1, index - 2, index + 3, index - 3].forEach(addByIndex);
-            }
-
-            return results.slice(0, 3);
+            return steps
+                .filter(function(step) { return step !== baseStep; })
+                .map(function(step) {
+                    return {
+                        step: step,
+                        distance: Math.abs(step - baseStep)
+                    };
+                })
+                .sort(function(a, b) {
+                    if (a.distance !== b.distance) return a.distance - b.distance;
+                    return a.step - b.step;
+                })
+                .slice(0, 3)
+                .map(function(entry) { return entry.step; });
         }
 
         function getColorHexForStep(step) {
@@ -5686,10 +5676,13 @@ window.addEventListener('message', (event) => {
                 case 'variable-created':
                     if (msg.success) {
                         showMessage(`Variables 생성 완료! (${msg.count || 0}개)`);
+                        mergeThemeDataFromMessage(msg);
                         // 테마 데이터가 함께 온 경우 semanticColors 동기화
                         syncSemanticColorsFromMessage(msg);
                         if (currentTheme && currentTheme.baseColor) {
                             safeUpdateRecommendedBackground(currentTheme.baseColor);
+                            updateModeCardPreviews();
+                            displayThemePreview(currentTheme);
                         }
                     } else {
                         showMessage('에러: ' + msg.error);
@@ -5698,10 +5691,13 @@ window.addEventListener('message', (event) => {
                 case 'custom-theme-created':
                     if (msg.success) {
                         showMessage(`${msg.themeName} 테마 생성 완료! (${msg.count || 0}개 변수)`);
+                        mergeThemeDataFromMessage(msg);
                         // 백엔드가 theme/semanticColors를 반환하면 반영
                         syncSemanticColorsFromMessage(msg);
                         if (currentTheme && currentTheme.baseColor) {
                             safeUpdateRecommendedBackground(currentTheme.baseColor);
+                            updateModeCardPreviews();
+                            displayThemePreview(currentTheme);
                         }
                     } else {
                         showMessage('테마 생성 에러: ' + msg.error);
@@ -5716,10 +5712,13 @@ window.addEventListener('message', (event) => {
                             message += ' (' + msg.count + '개 적용)';
                         }
                         showMessage(message);
+                        mergeThemeDataFromMessage(msg);
                         // 적용 응답에도 theme 정보가 있을 수 있으므로 동기화
                         syncSemanticColorsFromMessage(msg);
                         if (currentTheme && currentTheme.baseColor) {
                             safeUpdateRecommendedBackground(currentTheme.baseColor);
+                            updateModeCardPreviews();
+                            displayThemePreview(currentTheme);
                         }
                     } else {
                         showMessage('모드 적용 에러: ' + msg.error);
@@ -5746,6 +5745,50 @@ window.addEventListener('message', (event) => {
                     break;
             }
         });
+
+        function cloneScaleArray(arr) {
+            if (!Array.isArray(arr)) return [];
+            return arr.map(item => {
+                if (!item || typeof item !== 'object') return item;
+                return Object.assign({}, item);
+            });
+        }
+
+        function mergeThemeDataFromMessage(msg) {
+            try {
+                const themeFromMsg = msg?.theme || msg?.themeData || msg?.payload || null;
+                if (!themeFromMsg) return;
+
+                const targetName = themeFromMsg.themeName || msg?.themeName || null;
+                let targetTheme;
+
+                if (targetName && customBackgroundTheme && customBackgroundTheme.themeName === targetName) {
+                    if (!customBackgroundTheme) customBackgroundTheme = {};
+                    targetTheme = customBackgroundTheme;
+                } else {
+                    if (!currentTheme) currentTheme = {};
+                    if (targetName && currentTheme.themeName && currentTheme.themeName !== targetName) {
+                        currentTheme.themeName = targetName;
+                    }
+                    targetTheme = currentTheme;
+                }
+
+                Object.keys(themeFromMsg).forEach(key => {
+                    if (key === 'scaleColors' && themeFromMsg.scaleColors) {
+                        targetTheme.scaleColors = {
+                            light: cloneScaleArray(themeFromMsg.scaleColors.light),
+                            dark: cloneScaleArray(themeFromMsg.scaleColors.dark)
+                        };
+                    } else if (key === 'backgroundTheme' && themeFromMsg.backgroundTheme) {
+                        targetTheme.backgroundTheme = JSON.parse(JSON.stringify(themeFromMsg.backgroundTheme));
+                    } else {
+                        targetTheme[key] = themeFromMsg[key];
+                    }
+                });
+            } catch (error) {
+                console.warn('테마 데이터 동기화 실패:', error);
+            }
+        }
 
         // 메시지에서 semanticColors 추출 후 currentTheme에 병합
         function syncSemanticColorsFromMessage(msg) {

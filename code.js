@@ -2024,6 +2024,10 @@ async function handleCreateCustomTheme(msg) {
   var createdCount = 0;
   
   // Scale 색상 생성 (Light/Dark 모드 모두)
+  var syncedScaleColors = {
+    light: [],
+    dark: []
+  };
   for (var i = 0; i < theme.scaleColors.light.length; i++) {
     var lightColor = theme.scaleColors.light[i];
     var darkColor = theme.scaleColors.dark[i];
@@ -2036,6 +2040,23 @@ async function handleCreateCustomTheme(msg) {
     // Dark 모드 값 설정
     variable.setValueForMode(darkMode.modeId, hexToFigmaRGB(darkColor.hex));
     
+    var storedLight = variable.getValueForMode(lightMode.modeId);
+    var storedDark = variable.getValueForMode(darkMode.modeId);
+
+    function buildScaleEntry(source, stored) {
+      var entry = {
+        step: source.step,
+        hex: stored ? figmaRGBToHex(stored) : source.hex
+      };
+      if (source.contrast !== undefined) entry.contrast = source.contrast;
+      if (source.isClosest !== undefined) entry.isClosest = source.isClosest;
+      if (source.ratio !== undefined) entry.ratio = source.ratio;
+      return entry;
+    }
+
+    syncedScaleColors.light.push(buildScaleEntry(lightColor, storedLight));
+    syncedScaleColors.dark.push(buildScaleEntry(darkColor, storedDark));
+
     createdCount++;
   }
   
@@ -2104,6 +2125,20 @@ async function handleCreateCustomTheme(msg) {
   // Semantic 토큰은 건드리지 않음 - scale 토큰만 생성
   
   figma.notify('Created ' + createdCount + ' variables for ' + theme.themeName);
+
+  try {
+    var syncedTheme = JSON.parse(JSON.stringify(theme));
+    syncedTheme.scaleColors = syncedScaleColors;
+    figma.ui.postMessage({
+      type: 'custom-theme-created',
+      success: true,
+      count: createdCount,
+      themeName: theme.themeName,
+      theme: syncedTheme
+    });
+  } catch (error) {
+    console.warn('[Backend] custom-theme-created 메시지 전송 실패:', error);
+  }
 }
 
 // 매핑 값을 실제 색상으로 변환하는 함수
