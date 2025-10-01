@@ -3446,47 +3446,99 @@
 
         // 추천 배경색 업데이트 함수
         // code.js 매핑 규칙을 반영한 추천 배경 계산
-        // 밝음(light)  -> semantic/background/default = REF:{themeName}950
-        // 중간(medium) -> semantic/background/default = REF:{themeName}100
-        // 어두움(dark) -> semantic/background/default = REF:{themeName}100
-        function updateRecommendedBackground(keyColor) {
-            let recommendedBg = '#F5F5F5'; // 기본 표시값
+        // 밝음(light)  -> semantic/background/default = REF:{themeName}600
+        // 중간/어두움 -> semantic/background/default = REF:{themeName}100
+        function resolveRefToHex(refString, theme) {
+            if (!refString || !theme) return { hex: null, step: null };
+            const digits = refString.match(/(\d{1,3})$/);
+            if (!digits) return { hex: null, step: null };
+            const step = parseInt(digits[1], 10);
+            let namePart = refString.slice(0, refString.length - digits[1].length);
+            namePart = namePart.replace(/-$/, '');
 
-            // 1) 백엔드 semanticColors 우선 사용
-            if (currentTheme && currentTheme.semanticColors && currentTheme.semanticColors['accent-on-bg-off']) {
-                const mode1Semantics = currentTheme.semanticColors['accent-on-bg-off'];
-                if (mode1Semantics['semantic-background-default']) {
-                    recommendedBg = mode1Semantics['semantic-background-default'];
-                }
-            } else if (currentTheme && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
-                // 2) 프론트에서 REF:{themeName}{step} 해석
-                const range = currentTheme.colorRange || (function() {
-                    const step = currentTheme.selectedStep || 500;
-                    return step <= 400 ? 'light' : (step >= 500 && step <= 700 ? 'medium' : 'dark');
-                })();
-                const targetStep = (range === 'light') ? 950 : 100;
-                const swatch = currentTheme.scaleColors.light.find(c => c.step === targetStep);
-                if (swatch && swatch.hex) {
-                    recommendedBg = swatch.hex;
+            let sourceTheme = theme;
+            if (namePart && sourceTheme.themeName && sourceTheme.themeName !== namePart) {
+                if (sourceTheme.backgroundTheme && sourceTheme.backgroundTheme.themeName === namePart) {
+                    sourceTheme = sourceTheme.backgroundTheme;
+                } else if (customBackgroundTheme && customBackgroundTheme.themeName === namePart) {
+                    sourceTheme = customBackgroundTheme;
                 }
             }
 
-            // 추천 배경색 프리뷰 업데이트
-            const recommendedBgPreview = document.getElementById('recommendedBgPreview');
+            let hex = null;
+            if (sourceTheme && sourceTheme.scaleColors && Array.isArray(sourceTheme.scaleColors.light)) {
+                const match = sourceTheme.scaleColors.light.find(c => c.step === step);
+                if (match && match.hex) {
+                    hex = match.hex;
+                }
+            }
 
+            return { hex, step: isNaN(step) ? null : step };
+        }
+
+        function resolveSemanticColorValue(value, theme) {
+            if (!value) return { hex: null, step: null };
+            if (typeof value === 'string') {
+                if (value.startsWith('#')) {
+                    return { hex: value, step: findClosestStepFromColors(theme?.scaleColors?.light, value) };
+                }
+                if (value.startsWith('REF:')) {
+                    return resolveRefToHex(value.slice(4), theme);
+                }
+            }
+            if (value && typeof value === 'object' && value.hex) {
+                return { hex: value.hex, step: value.step || findClosestStepFromColors(theme?.scaleColors?.light, value.hex) };
+            }
+            return { hex: null, step: null };
+        }
+
+        function updateRecommendedBackground(keyColor) {
+            let recommendedBg = '#F5F5F5';
+            let recommendedStep = null;
+
+            if (currentTheme) {
+                const modeSemantics = currentTheme.semanticColors && currentTheme.semanticColors['accent-on-bg-off'];
+                if (modeSemantics && modeSemantics['semantic-background-default']) {
+                    const resolved = resolveSemanticColorValue(modeSemantics['semantic-background-default'], currentTheme);
+                    if (resolved.hex) {
+                        recommendedBg = resolved.hex;
+                    }
+                    if (resolved.step !== null) {
+                        recommendedStep = resolved.step;
+                        if ((!resolved.hex || !recommendedBg || recommendedBg === '#F5F5F5') && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
+                            const match = currentTheme.scaleColors.light.find(c => c.step === resolved.step);
+                            if (match && match.hex) {
+                                recommendedBg = match.hex;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ((recommendedStep === null || !recommendedBg) && currentTheme && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
+                const info = getKeyColorInfo();
+                const range = info.range || 'medium';
+                const fallbackStep = (range === 'light') ? 600 : 100;
+                const swatch = currentTheme.scaleColors.light.find(c => c.step === fallbackStep) || currentTheme.scaleColors.light.find(c => c.step === (info.step || fallbackStep));
+                if (swatch && swatch.hex) {
+                    recommendedBg = swatch.hex;
+                    recommendedStep = swatch.step;
+                }
+            }
+
+            if ((!recommendedStep || isNaN(recommendedStep)) && currentTheme && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
+                recommendedStep = findClosestStepFromColors(currentTheme.scaleColors.light, recommendedBg);
+            }
+
+            const recommendedBgPreview = document.getElementById('recommendedBgPreview');
             if (recommendedBgPreview) {
                 recommendedBgPreview.style.setProperty('--swatch-color', recommendedBg);
             }
 
-            var recommendedStep = null;
-            if (currentTheme && currentTheme.scaleColors && Array.isArray(currentTheme.scaleColors.light)) {
-                recommendedStep = findClosestStepFromColors(currentTheme.scaleColors.light, recommendedBg);
-            }
-            var extraSteps = getRecommendedNeighborSteps(recommendedStep);
-
+            const extraSteps = getRecommendedNeighborSteps(recommendedStep);
             renderRecommendedExtras(recommendedStep, extraSteps);
 
-            console.log('추천 배경색 업데이트:', recommendedBg);
+            console.log('추천 배경색 업데이트:', recommendedBg, 'step:', recommendedStep);
         }
 
         function getKeyColorInfo() {
