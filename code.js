@@ -1314,13 +1314,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'ORANGE-RED-400';
       mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
       mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
-      mappings['semantic/common/muted'] = 'GRAY-ALPHA:300';
+      mappings['semantic/common/muted'] = 'GRAY-ALPHA:100';
       mappings['semantic/common/custom-accent'] = 'REF:' + themeName + closestStep;
       mappings['semantic/common/custom-accent-low'] = 'REF:' + themeName + 50;
 
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
-      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:400';
-      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:400';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:150';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
       mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
       
     } else {
@@ -1352,13 +1352,13 @@ function getDynamicMappings(closestStep, themeName, applicationMode, baseColor) 
       mappings['semantic/common/accent'] = 'ORANGE-RED-400';
       mappings['semantic/common/accent-pressed'] = 'ORANGE-RED-500';
       mappings['semantic/common/accent-hover'] = 'ORANGE-RED-500';
-      mappings['semantic/common/muted'] = 'GRAY-ALPHA:300';
+      mappings['semantic/common/muted'] = 'GRAY-ALPHA:100';
       mappings['semantic/common/custom-accent'] = 'REF:' + themeName + closestStep;
       mappings['semantic/common/custom-accent-low'] = 'REF:' + themeName + 50;
 
-      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:300';
-      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:400';
-      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:400';
+      mappings['semantic/fill/tertiary'] = 'GRAY-ALPHA:150';
+      mappings['semantic/fill/tertiary-hover'] = 'GRAY-ALPHA:200';
+      mappings['semantic/fill/tertiary-pressed'] = 'GRAY-ALPHA:200';
       mappings['semantic/fill/disabled'] = 'GRAY-ALPHA:200';
     }
     
